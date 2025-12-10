@@ -1,0 +1,18 @@
+STA_CAGATA
+if(1){
+    a := 6;
+}
+else{
+    a := 10;
+}
+a = 1;
+NON_PUBBLICARLA
+
+Culo (Ciucciami 1 il_cazzo!) {Voi-Figlio
+    a fare_pompino 6 porco_dio!
+di_putana}
+Fica {Voi-Figlio
+    a fare_pompino 10 porco_dio!
+di_putana}
+a a_fanculo 1 porco_dio!
+Fottiti!

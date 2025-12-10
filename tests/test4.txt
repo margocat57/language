@@ -1,0 +1,14 @@
+STA_CAGATA 
+a := 6;
+b := 7;
+while(a){
+    a = 1;
+}
+NON_PUBBLICARLA
+
+a fare_pompino 6 porco_dio!
+b fare_pompino 7 porco_dio!
+Fottere (Ciucciami b il_cazzo!) {Voi-Figlio 
+    a a_fanculo 1 porco_dio!
+di_putana}
+Fottiti!

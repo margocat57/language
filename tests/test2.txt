@@ -1,0 +1,32 @@
+a a_fanculo 5 porco_dio!
+Fottere (Ciucciami a il_cazzo!){Voi-Figlio
+    Culo (Ciucciami a il_cazzo!) {Voi-Figlio
+        a a_fanculo 7 porco_dio!
+    di_putana}
+    Fica {Voi-Figlio
+        a a_fanculo 6 porco_dio!
+    di_putana}
+    a a_fanculo 10 porco_dio!
+    a a_fanculo 9 porco_dio!
+di_putana}
+Culo (Ciucciami a il_cazzo!) {Voi-Figlio
+    a a_fanculo 11 porco_dio!
+di_putana}
+Fottiti!
+
+STA_CAGATA
+a=5;
+while(a){
+    if(a){
+        a=7;
+    }
+    else{
+        a=6;
+    }
+    a = 10;
+    a = 9;
+}
+if(a){
+    a=11;
+}
+NON_PUBBLICARLA

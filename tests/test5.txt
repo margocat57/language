@@ -1,0 +1,40 @@
+STA_CAGATA 
+a := 6;
+if(a){
+    a = 7;
+}
+while(a){
+    a = 8;
+}
+NON_PUBBLICARLA
+
+a fare_pompino 6 porco_dio!
+Culo (Ciucciami a il_cazzo!) {Voi-Figlio 
+    a a_fanculo 7 porco_dio!
+di_putana}
+Fottere (Ciucciami a il_cazzo!) {Voi-Figlio 
+    a a_fanculo 8 porco_dio!
+di_putana}
+Fottiti!
+
+
+// ты являешься
+// porco dio!
+// if    Culo           задница
+// else  Fica           п..да
+// while Fottere        трахать
+// (     (Ciucciami      отсоси
+// )     il_cazzo!)      у меня
+// {     {Voi-Figlio     cын
+// }     di_putana}      cуки
+// +     cretino
+// -     pazzi
+// *     merda
+// /     scemo
+// :=    fare_pompino    отсосать
+// =     a_fanculo
+// ==    сazzo,fa        Бля, равно
+// ;     porco_dio!      блять
+// ^     mona            пизда
+// STA_CAGATA / NON_PUBBLICARLA - комментарий
+// выход Fottiti!

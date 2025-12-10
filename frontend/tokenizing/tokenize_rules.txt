@@ -1,0 +1,72 @@
+// ты являешься
+// porco dio!
+// if    Culo           задница
+// else  Fica           п..да
+// while Fottere        трахать
+// (     (Ciucciami      отсоси
+// )     il_cazzo!)      у меня
+// {     {Voi-Figlio     cын
+// }     di_putana}      cуки
+// +     cretino
+// -     pazzi
+// *     merda
+// /     scemo
+// :=    fare_pompino    отсосать
+// =     a_fanculo
+// ==    сazzo,fa        Бля, равно
+// ;     porco_dio!      блять
+// ^     mona            пизда
+// STA_CAGATA / NON_PUBBLICARLA - комментарий
+// выход Fottiti!
+
+/*
+a=5;
+while(a){
+    if(a){
+        a=7;
+    }
+    else{
+        a=6;
+    }
+}
+
+a a_fanculo 5 сacchio
+Fottere(Ciucciami a il_cazzo!) {Figlio
+    Culo(Ciucciami a il_cazzo!) {Figlio
+        a a_fanculo 7 сacchio
+    di_putana}
+    Fica {Figlio
+        a a_fanculo 6 сacchio
+    di_putana}
+di_putana}
+Fottiti!
+*/
+
+/*
+потестим синтаксис
+a = 1;
+b = 2;
+c = 3;
+quadr(a, b, c){
+    if(a){
+        if(b){
+            res = (-b + sqrt(b*b - 4*a*c)) / 2a;
+        }
+    }
+}
+
+a a_fanculo 1 сacchio
+b a_fanculo 2 сacchio
+c a_fanculo 3 сacchio
+
+quadr(Ciucciami a, b, c cazzo!) {Figlio
+    Culo (Ciucciami a il_cazzo!){Figlio
+        Culo (Ciucciami b il_cazzo!){Figlio
+
+            res a_fanculo (Ciucciami -1 merda b cretino sqrt (Ciucciami b merda b pazzi 4 merda a merda c il_cazzo!) il_cazzo!) scemo 2 merda a сacchio
+        di putana}
+
+    di putana}
+di putana}
+Fottiti!
+*/
