@@ -58,4 +58,4 @@ run_with_gdb: lang
 # clang++ -o stack main.o hash.o log.o my_assert.o stack_func.o
 
 clean:
-	rm -f lang frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg
+	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg

@@ -3,7 +3,7 @@ a := 6;
 b := 7;
 while(a){
     a = 1;
-}
+};
 NON_PUBBLICARLA
 
 a fare_pompino 6 porco_dio!

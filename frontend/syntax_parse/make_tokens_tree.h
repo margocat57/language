@@ -30,9 +30,10 @@ enum SyntaxErr{
     NO_OPEN_FIGURE_BR_BEFORE_WHILE, 
     NO_CLOSE_FIGURE_BR_AFTER_WHILE, 
     NO_CLOSE_BRACKET_IN_MATH_EXPR, 
-    INCORR_OPERAND_NOT_VAR_NOT_NUM
+    INCORR_OPERAND_NOT_VAR_NOT_NUM,
+    USE_VAR_BEFORE_INIT
 };
 
-TreeHead_t* MakeLangExprTokens(Tokens_t* tokens);
+TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);
 
 #endif //MAKE_TOKENS_TREE_H

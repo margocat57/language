@@ -6,27 +6,23 @@ const int MAX_NUMBER_OF_METKI = 20;
 
 struct variables{
     char* variable_name;
-    double value;
+    bool is_visible;
 };
 
-struct metki{
+struct name_table{
     variables* var_info;
     size_t num_of_metki;
     size_t first_free;
 };
 
-metki* MetkiInit();
+name_table* NameTableInit();
 
-size_t MetkiAddName(metki* mtk, char* num_of_variable);
+size_t NameTableAddName(name_table* mtk, char* num_of_variable);
 
-void MetkiRealloc(metki* mtk, size_t num_of_elem);
+void NameTableRealloc(name_table* mtk, size_t num_of_elem);
 
-size_t FindVarInMtkArr(metki* mtk, char* num_of_variable);
+size_t FindVarInNameTable(name_table* mtk, char* num_of_variable);
 
-void MetkiAddValues(metki* mtk);
-
-void MetkiDelValues(metki* mtk);
-
-void MetkiDestroy(metki* mtk);
+void NameTableDestroy(name_table* mtk);
 
 #endif //METKI_H

@@ -34,14 +34,6 @@ TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeN
 
     return node;
 }
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-// Node Copy
-
-TreeNode_t* NodeCopy(TreeNode_t* node){
-    if(!node) return NULL;
-    return NodeCtor(node->type, node->data, node->parent, NodeCopy(node->left), NodeCopy(node->right));
-}
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -98,9 +90,10 @@ TreeErr_t TreeNodeVerify(const TreeNode_t *node){
 
 static void PrintNodeConnect(const TreeNode_t* node, const TreeNode_t* node_child, FILE* dot_file, int* rank);
 
-TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, metki* mtk){
+TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_table* mtk){
     assert(node);
     assert(rank);
+    assert(dot_file);
 
     if(node->left){
         PrintNodeConnect(node, node->left, dot_file, rank);
@@ -108,6 +101,7 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, metki* mt
     }
 
     if(node->type == OPERATOR){
+        assert(node->data.op);
         size_t arr_num_of_elem = sizeof(OPERATORS_INFO) / sizeof(op_info);
         if(node->data.op >= arr_num_of_elem){
             return INCORR_OPERATOR;
@@ -119,7 +113,18 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, metki* mt
             fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#98FB98\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = CONST_VAR} | {val = %lg} | {0 | 0}} \"];\n", node, *rank, node->data.const_value);
         }
         else if(node->type == VARIABLE){
-            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
+            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = VAR} | {0 | 0}} \"];\n", node, *rank);
+            /*
+            if(FindVarInNameTable(mtk, node->data.var_func_name) == SIZE_MAX){
+                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->data.var_func_name);
+            }
+            else{
+                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
+            }
+            */
+        }
+        else if(node->type == FUNCTION){
+            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
         }
     }
 

@@ -19,14 +19,14 @@ a=5;
 while(a){
     if(a){
         a=7;
-    }
+    };
     else{
         a=6;
-    }
+    };
     a = 10;
     a = 9;
-}
+};
 if(a){
     a=11;
-}
+};
 NON_PUBBLICARLA

@@ -6,7 +6,7 @@
 
 struct Tokens_t{
     TreeNode_t** node_arr; // array of top of tree
-    metki* mtk;
+    name_table* mtk;
     size_t num_of_nodes;
     size_t first_free_place;
 };

@@ -4,86 +4,70 @@
 #include <string.h>
 #include <assert.h>
 
-metki* MetkiInit(){
-    metki* mtk = (metki*)calloc(sizeof(metki), 1);
+name_table* NameTableInit(){
+    name_table* nametab = (name_table*)calloc(sizeof(name_table), 1);
 
     variables* metki_arr = (variables*)calloc(sizeof(variables), MAX_NUMBER_OF_METKI); 
     if(!metki_arr){
-        fprintf(stderr, "Can't allocate memory for metki array");
-        return mtk;
+        fprintf(stderr, "Can't allocate memory for name_table array");
+        return nametab;
     }
 
-    mtk->num_of_metki = MAX_NUMBER_OF_METKI;
-    mtk->var_info = metki_arr;
-    mtk->first_free = 0;
+    nametab->num_of_metki = MAX_NUMBER_OF_METKI;
+    nametab->var_info = metki_arr;
+    nametab->first_free = 0;
 
-    return mtk;
+    return nametab;
 }
 
-size_t MetkiAddName(metki* mtk, char* num_of_variable){
-    assert(mtk);
+size_t NameTableAddName(name_table* nametab, char* num_of_variable){
+    assert(nametab);
     assert(num_of_variable);
 
-    size_t idx = FindVarInMtkArr(mtk, num_of_variable); 
+    size_t idx = FindVarInNameTable(nametab, num_of_variable); 
     if(idx != SIZE_MAX){
         return idx;
     }
 
-    mtk->var_info[mtk->first_free].variable_name = strdup(num_of_variable);
-    mtk->first_free++;
-    if(mtk->first_free > mtk->num_of_metki){
-        MetkiRealloc(mtk, mtk->num_of_metki*2);
+    nametab->var_info[nametab->first_free].variable_name = num_of_variable; // уже за стрдюплено
+    nametab->first_free++;
+    if(nametab->first_free > nametab->num_of_metki){
+        NameTableRealloc(nametab, nametab->num_of_metki*2);
     }
-    return mtk->first_free - 1;
+    return nametab->first_free - 1;
 }
 
-void MetkiRealloc(metki* mtk, size_t num_of_elem){
-    variables* metki_arr_copy = (variables*)realloc(mtk->var_info, num_of_elem * sizeof(variables));
-    if(!metki_arr_copy){
-        fprintf(stderr, "Can't alloc metki arr\n");
+void NameTableRealloc(name_table* nametab, size_t num_of_elem){
+    variables* nametable_copy = (variables*)realloc(nametab->var_info, num_of_elem * sizeof(variables));
+    if(!nametable_copy){
+        fprintf(stderr, "Can't alloc name_table arr\n");
         return;
     }
-    mtk->var_info = metki_arr_copy;
-    mtk->num_of_metki = num_of_elem;
-    for(size_t metka = mtk->first_free; metka < mtk->num_of_metki; metka++){
-        mtk->var_info[metka].variable_name = NULL;
-        mtk->var_info[metka].value = 0;
+    nametab->var_info = nametable_copy;
+    nametab->num_of_metki = num_of_elem;
+    for(size_t metka = nametab->first_free; metka < nametab->num_of_metki; metka++){
+        nametab->var_info[metka].variable_name = NULL;
+        nametab->var_info[metka].is_visible = 0;
     }
 }
 
-size_t FindVarInMtkArr(metki* mtk, char* num_of_variable){
-    for(size_t metka = 0; metka < mtk->first_free; metka++){
-        if(!strcmp(mtk->var_info[metka].variable_name, num_of_variable)){
-            return metka;
+size_t FindVarInNameTable(name_table* nametab, char* num_of_variable){
+    for(size_t name = 0; name < nametab->first_free; name++){
+        if(!strcmp(nametab->var_info[name].variable_name, num_of_variable)){
+            return name;
         }
     }
     return SIZE_MAX;
 }
 
-void MetkiAddValues(metki* mtk){
-    double value = 0;
-    for(size_t idx = 0; idx < mtk->first_free; idx++){
-        printf("Input value for %s\n", mtk->var_info[idx].variable_name);
-        scanf("%lf", &value);
-        mtk->var_info[idx].value = value;
-    }
-}
-
-void MetkiDelValues(metki* mtk){
-    for(size_t idx = 0; idx < mtk->first_free; idx++){
-        mtk->var_info[idx].value = 0;
-    }
-}
-
-
-void MetkiDestroy(metki* mtk){
-    if(mtk){
-        for(size_t i = 0; i < mtk->first_free; i++){
-            free(mtk->var_info[i].variable_name);
+void NameTableDestroy(name_table* nametab){
+    if(nametab){
+        for(size_t i = 0; i < nametab->first_free; i++){
+            free(nametab->var_info[i].variable_name);
         }
-        if(mtk->var_info){
-            free(mtk->var_info);
+        if(nametab->var_info){
+            free(nametab->var_info);
         }
-        free(mtk);
+        free(nametab);
     }
 }

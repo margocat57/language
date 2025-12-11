@@ -5,6 +5,6 @@
 #include "../include/mistakes.h"
 #include "../common/metki.h"
 
-void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, metki* mtk, TreeErr_t* err);
+void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err);
 
 #endif // PUT_TREE_TO_FILE_H

@@ -18,9 +18,9 @@
 // For program as tree to disk
 
 // добавить метки к голове
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, metki* mtk, TreeErr_t* err);
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err);
 
-void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, metki* mtk, TreeErr_t* err){
+void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err){
     if(*err) return;
     assert(file_name); assert(head);
 
@@ -39,7 +39,7 @@ void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* he
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
 }
 
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, metki* mtk, TreeErr_t* err){
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err){
     if(*err) return;
     assert(file); assert(head);
 

@@ -1,0 +1,44 @@
+STA_CAGATA 
+main(){
+a := 5;
+b := 6;
+c := 7;
+n := check(a,b,c);
+while(a){
+    a = 4;
+}
+if(b < 0){
+    b = 0;
+}
+else{
+    b = 1;
+}
+return 0;
+}
+
+check(a,b,c){
+    return a+b+c;
+}
+NON_PUBBLICARLA
+
+Che_cazzo_main (Ciucciami il_cazzo!){Voi-Figlio
+a fare_pompino 5 porco_dio!
+b fare_pompino 6 porco_dio!
+c fare_pompino 7 porco_dio!
+n fare_pompino Che_cazzo_check (Ciucciami a сhe_culo b сhe_culo c il_cazzo!) porco_dio!
+Fottere (Ciucciami a il_cazzo!) {Voi-Figlio 
+    a a_fanculo 5 porco_dio!
+di_putana}
+Culo (Ciucciami b cazzo_piu_corto 0 il_cazzo!) {Voi-Figlio 
+    b a_fanculo 0 porco_dio!
+di_putana}
+Fica {Voi-Figlio 
+    b a_fanculo 1 porco_dio!
+di_putana}
+succhia 0 porco_dio!
+di_putana}
+
+Che_cazzo_check (Ciucciami a сhe_culo b сhe_culo c il_cazzo!) {Voi-Figlio 
+    succhia a cretino b cretino c porco_dio!
+di_putana}
+Fottiti!

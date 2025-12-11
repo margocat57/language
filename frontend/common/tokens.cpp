@@ -22,7 +22,7 @@ Tokens_t* TokensCtor(size_t num_of_nodes){
     }
     tokens->node_arr = node_arr;
     tokens->num_of_nodes = num_of_nodes;
-    tokens->mtk = MetkiInit();
+    tokens->mtk = NameTableInit();
     tokens->first_free_place = 0;
     return tokens;
 }
@@ -89,8 +89,8 @@ void TokensDtor(Tokens_t* tokens){
     if(!tokens){
         return;
     }
-    
-    MetkiDestroy(tokens->mtk);
+
+    NameTableDestroy(tokens->mtk);
 
     for(size_t idx = 0; idx < tokens->first_free_place; idx++){
         if(!tokens->node_arr[idx]){

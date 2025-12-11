@@ -16,6 +16,9 @@
 // ==    сazzo,fa        Бля, равно
 // ;     porco_dio!      блять
 // ^     mona            пизда
+// (начало функции) 
+//       Che_cazzo какого хуя
+// return succhia 
 // STA_CAGATA / NON_PUBBLICARLA - комментарий
 // выход Fottiti!
 
