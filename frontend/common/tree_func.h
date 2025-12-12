@@ -6,9 +6,7 @@
 
 TreeHead_t* TreeCtor();
 
-TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right);
-
-TreeNode_t* NodeCopy(TreeNode_t* node);
+TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name = NULL);
 
 TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_table* mtk);
 

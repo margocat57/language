@@ -73,7 +73,7 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
         sscanf(buffer + *pos, " %s%n", buffer_var, &num_of_symb);
         *pos += num_of_symb;
-        TokensAddElem(NodeCtor(FUNCTION, (TreeElem_t){.var_code = NameTableAddName(tokens->mtk, strdup(buffer_var))}, NULL, NULL, NULL), tokens);
+        TokensAddElem(NodeCtor(FUNCTION, (TreeElem_t){.var_code = NameTableAddName(tokens->mtk, buffer_var)} , NULL, NULL, NULL), tokens);
         return true;
     }
     return false;
@@ -118,7 +118,7 @@ static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos)
     if(isalpha(buffer[*pos])){
         sscanf(buffer + *pos, " %s%n", buffer_var, &num_of_symb);
         *pos += num_of_symb;
-        TokensAddElem(NodeCtor(VARIABLE, (TreeElem_t){.var_func_name = strdup(buffer_var)}, NULL, NULL, NULL), tokens);
+        TokensAddElem(NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
     }
     return false;

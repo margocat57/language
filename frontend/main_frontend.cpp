@@ -1,3 +1,4 @@
+
 #include "io/read_program.h"
 #include "tokenizing/tokenize.h"
 #include "syntax_parse/make_tokens_tree.h"
@@ -23,6 +24,10 @@ int main(){
     TreeErr_t err = NO_MISTAKE;
     PutTreeToFile("backend/tree.txt", head->root, head, tokens->mtk, &err);
 
+    free(head);
+    for(int i = 0; i < tokens->mtk->first_free; i++){
+        fprintf(stderr, "char = %s\n", tokens->mtk->var_info[i].variable_name);
+    }
     TokensDtor(tokens);
     TokensDtor(tokens_copy);
     return 0;

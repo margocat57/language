@@ -29,7 +29,7 @@ size_t NameTableAddName(name_table* nametab, char* num_of_variable){
         return idx;
     }
 
-    nametab->var_info[nametab->first_free].variable_name = num_of_variable; // уже за стрдюплено
+    nametab->var_info[nametab->first_free].variable_name = strdup(num_of_variable); // уже за стрдюплено
     nametab->first_free++;
     if(nametab->first_free > nametab->num_of_metki){
         NameTableRealloc(nametab, nametab->num_of_metki*2);

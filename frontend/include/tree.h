@@ -34,7 +34,6 @@ enum OPERATORS
 
 union TreeElem_t{
     enum OPERATORS op;
-    char *var_func_name;
     double const_value;
     size_t var_code; // вычисляется по таблице имен в момент чтения из файла - это больно делать
 };
@@ -65,6 +64,7 @@ struct TreeNode_t
 {
     VALUE_TYPE type;
     TreeElem_t data;
+    char *var_func_name;
     TreeNode_t *left;
     TreeNode_t *right;
     TreeNode_t *parent;

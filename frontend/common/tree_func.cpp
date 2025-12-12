@@ -19,7 +19,7 @@ TreeHead_t* TreeCtor(){
     return head;
 }
 
-TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right){
+TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name){
     TreeNode_t* node = (TreeNode_t*)calloc(1, sizeof(TreeNode_t));
     if(!node){
         fprintf(stderr, "Can't alloc data for node");
@@ -27,6 +27,7 @@ TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeN
     }
     node->type = type;
     node->data = data; 
+    node->var_func_name = var_func_name;
     node->left = left;
     node->right = right;
     node->parent = parent;
@@ -101,7 +102,6 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_tabl
     }
 
     if(node->type == OPERATOR){
-        assert(node->data.op);
         size_t arr_num_of_elem = sizeof(OPERATORS_INFO) / sizeof(op_info);
         if(node->data.op >= arr_num_of_elem){
             return INCORR_OPERATOR;
@@ -114,14 +114,12 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_tabl
         }
         else if(node->type == VARIABLE){
             fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = VAR} | {0 | 0}} \"];\n", node, *rank);
-            /*
-            if(FindVarInNameTable(mtk, node->data.var_func_name) == SIZE_MAX){
-                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->data.var_func_name);
+            if(node->var_func_name){
+                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->var_func_name);
             }
             else{
                 fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
             }
-            */
         }
         else if(node->type == FUNCTION){
             fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
@@ -185,7 +183,10 @@ void TreeDelNodeRecur(TreeNode_t* node){
 
 void NodeDtor(TreeNode_t* node){
     if(node){
-        memset(node, 0, sizeof(TreeNode_t));
+        if(node->var_func_name){
+            free(node->var_func_name);
+            node->var_func_name = NULL;
+        }
         free(node);
     }
 }
