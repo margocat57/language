@@ -1,6 +1,43 @@
+/*
+ |a|b|c|n|a'|b'|c'| | |
+         ^
+         |
+        rbp
+
+push 5
+pop [rbp + 0] ; a
+push 6
+pop [rbp + 1] ; b
+push 7
+pop [rbp + 2] ; c
+push [rbp + 0]
+pop [rbp + 4 + 0]
+push [rbp + 1]
+pop [rbp + 4 + 1]
+...
+push rbp + 4
+pop rbp
+call check
+// rbp сдвинуть
+...
+
+check:
+push [rbp + 0]
+push [rbp + 1]
+add
+push [rbp + 2]
+add
+pop [rbp + 3] ; h
+// свдвинуть rbp на 4 и повторяем снова
+
+0       1       2      3 ...
+a       b       c 
+sqrt    add     mul
+*/
+
 STA_CAGATA 
 main(){
-a = 5;
+a := 5;
 b := 6;
 c := 7;
 n := check(a,b,c);
@@ -15,9 +52,17 @@ else{
 }
 return 0;
 }
+// стек для вычислений
+// регистр - ака указатель на основание фрейма (на то что в стеке)
 
 check(m,p,k){
+    h := m + p + k;
     return m+p+k;
+}
+
+check(m,p,k){
+    h := m + p + k;
+    return check(h,p,k);
 }
 NON_PUBBLICARLA
 

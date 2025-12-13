@@ -18,6 +18,9 @@ struct op_info{
 // Cazzo_lungo
 // Cazzo_piu_corto
 
+//! Верификатор табличек(всех)
+//! под макросом
+
 
 const op_info OPERATORS_INFO[] = {
     {INCORR},
@@ -41,6 +44,9 @@ const op_info OPERATORS_INFO[] = {
     {OP_CLOSE_FIG_BR, "di_putana}",      sizeof("di_putana}")      - 1,  "}",      "OP_CFB"},
     {OP_COMMA,        "сhe_culo",        sizeof("сhe_culo")        - 1,  ",",      "OP_COM"},
     {OP_RETURN,       "succhia",         sizeof("succhia")         - 1,  "return", "OP_RET"},
+    {OP_AND,          "porco_cane",      sizeof("porco_cane")      - 1,  "&&",     "OP_AND"},
+    {OP_OR,           "porca_troia",     sizeof("porca_troia")     - 1,  "||",     "OP_OR"},
 };
+
 
 #endif //OPERATOR_FUNC_H

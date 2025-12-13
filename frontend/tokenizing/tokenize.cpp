@@ -10,8 +10,6 @@ static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size
 
 static bool FindOperators(Tokens_t* tokens,  const char* buffer, size_t* pos);
 
-static bool Tokenize_OP(Tokens_t* tokens, size_t idx, const char* buffer, size_t* pos);
-
 static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos);
 
 static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos);
@@ -71,7 +69,8 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
-        sscanf(buffer + *pos, " %s%n", buffer_var, &num_of_symb);
+        *pos += sizeof("Che_cazzo") - 1;
+        sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         *pos += num_of_symb;
         TokensAddElem(NodeCtor(FUNCTION, (TreeElem_t){.var_code = NameTableAddName(tokens->mtk, buffer_var)} , NULL, NULL, NULL), tokens);
         return true;
@@ -82,19 +81,14 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
 static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
     size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
     for(size_t idx = 1; idx < num_of_operators; idx++){
-        if(Tokenize_OP(tokens, idx, buffer, pos)) return true;
-    }
-    return false;
-}
-
-static bool Tokenize_OP(Tokens_t* tokens, size_t idx, const char* buffer, size_t* pos){
-    if(!OPERATORS_INFO[idx].op_name_in_code){
-        return false;
-    }
-    if(!strncmp(buffer + *pos, OPERATORS_INFO[idx].op_name_in_code, OPERATORS_INFO[idx].num_of_symb_code)){
-        TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL), tokens);
-        *pos += OPERATORS_INFO[idx].num_of_symb_code;
-        return true;
+        if(!OPERATORS_INFO[idx].op_name_in_code){
+            continue;
+        }
+        if(!strncmp(buffer + *pos, OPERATORS_INFO[idx].op_name_in_code, OPERATORS_INFO[idx].num_of_symb_code)){
+            TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL), tokens);
+            *pos += OPERATORS_INFO[idx].num_of_symb_code;
+            return true;
+        }
     }
     return false;
 }

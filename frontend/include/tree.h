@@ -29,7 +29,9 @@ enum OPERATORS
     OP_OPEN_FIG_BR,
     OP_CLOSE_FIG_BR,
     OP_COMMA,
-    OP_RETURN
+    OP_RETURN,
+    OP_AND,
+    OP_OR,
 };
 
 union TreeElem_t{
