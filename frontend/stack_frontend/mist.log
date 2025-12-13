@@ -1,0 +1,126 @@
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 2
+Stack capacity: 3
+DJB2 hash for data array: 210799398349
+DJB2 hash for whole stack: 18424743337538744515
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+[2] = -6666 (POISON)
+[3] = -6666 (POISON)
+[4] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 3
+Stack capacity: 3
+DJB2 hash for data array: 210799398349
+DJB2 hash for whole stack: 18424744743947362756
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+[3] = -6666 (POISON)
+[4] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 4
+Stack capacity: 6
+DJB2 hash for data array: 7575497978468013
+DJB2 hash for whole stack: 18424746150355980997
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+^[3] = 3
+[4] = -6666 (POISON)
+[5] = -6666 (POISON)
+[6] = -6666 (POISON)
+[7] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 5
+Stack capacity: 6
+DJB2 hash for data array: 7575497978468013
+DJB2 hash for whole stack: 18424747556764599238
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+^[3] = 3
+^[4] = 4
+[5] = -6666 (POISON)
+[6] = -6666 (POISON)
+[7] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 4
+Stack capacity: 6
+DJB2 hash for data array: 7575497978468013
+DJB2 hash for whole stack: 18424746150355980997
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+^[3] = 3
+[4] = -6666 (POISON)
+[5] = -6666 (POISON)
+[6] = -6666 (POISON)
+[7] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 4
+Stack capacity: 6
+DJB2 hash for data array: 7575497978468013
+DJB2 hash for whole stack: 18424746150355980997
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+^[3] = 3
+[4] = -6666 (POISON)
+[5] = -6666 (POISON)
+[6] = -6666 (POISON)
+[7] = 51966 (TAIL DATA CANARY)
+
+Stack was created at main.cpp void stack_work() 7
+Stack adress 0x7fb9baf05e60
+Front stack canary: 32333445
+Data adress: 0x7fb9baf05ef0
+Pointer points at: 4
+Stack capacity: 6
+DJB2 hash for data array: 7575497978468013
+DJB2 hash for whole stack: 18424746150355980997
+Tail stack canary: 55464145
+[0] = 47789 (FRONT DATA CANARY)
+^[1] = 1
+^[2] = 2
+^[3] = 3
+[4] = -6666 (POISON)
+[5] = -6666 (POISON)
+[6] = -6666 (POISON)
+[7] = 51966 (TAIL DATA CANARY)
+
+stack_func.cpp: stack_t_t *stack_ctor(size_t, const char *, const char *, int) line 49, assertion failed at num_of_elem < (size_t)(0.8 * (double)SIZE_MAX)
+stack_func.cpp: stack_err_bytes stack_push(stack_t_t *, stack_elem_t *) line 244, assertion failed at elem != NULL
+NULL stack pointer
+stack_func.cpp: stack_err_bytes stack_pop(stack_t_t *, stack_elem_t *) line 267, assertion failed at stack_verify_error == NO_MISTAKE
+NULL stack pointer
+stack_func.cpp: stack_err_bytes stack_free(stack_t_t *) line 341, assertion failed at stack_verify_error == NO_MISTAKE

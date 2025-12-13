@@ -24,11 +24,6 @@ size_t NameTableAddName(name_table* nametab, char* num_of_variable){
     assert(nametab);
     assert(num_of_variable);
 
-    size_t idx = FindVarInNameTable(nametab, num_of_variable); 
-    if(idx != SIZE_MAX){
-        return idx;
-    }
-
     nametab->var_info[nametab->first_free].variable_name = strdup(num_of_variable); // уже за стрдюплено
     nametab->first_free++;
     if(nametab->first_free > nametab->num_of_metki){

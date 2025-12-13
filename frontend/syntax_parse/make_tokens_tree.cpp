@@ -8,13 +8,16 @@
 #include <errno.h>
 #include <assert.h>
 #include "make_tokens_tree.h"
+#include "../stack_frontend/stack.h"
+#include "../stack_frontend/stack_func.h"
+
+// TODO ПРОВЕРКА СТЕКОВЫХ ОШИБОК!!!
 
 const size_t MAX_BUF_SIZE = 2048;
 
 // -------------------------------------------------------------------------------------
 // Define lib
 
-//! название меньше
 #define CALL_AND_CHECK_ERR(function)\
     do{\
         function;\
@@ -37,6 +40,7 @@ const size_t MAX_BUF_SIZE = 2048;
     if(bad_condition){ \
         *err = err_code; \
         fprintf(stderr, msg); \
+        fprintf(stderr, "\n%s %s %d\n", __FILE__, __func__, __LINE__); \
         return NULL; \
     } \
 
@@ -137,72 +141,74 @@ int main()
 */
 
 /* G ::= X */
-static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy);
+static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack);
 
 /* X ::= FUNCTION* */
-static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err);
 
 /* FUNC_CALL ::= "func_name" (E {, E}*)+  */
-static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_params = false);
+static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens,  Stack_t* stack,  SyntaxErr_t* err,bool is_params = false, size_t* num_of_params = NULL);
 
 /* FUNCTION := FUNC_CALL BODY */
-static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err);
 
 /* BODY ::= '{'STATEMENT+'}' */
-static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err);
 
 /* STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | FUNC_CALL;  */
-static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err);
 
 /* RETURN ::= "return" E ; */
-static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err);
+static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err);
 
 /* Common for init and ass */
 static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, bool is_init, SyntaxErr_t* err);
 
 /* INIT  ::= V ':=' E; */
-static TreeNode_t* GetINIT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err);
+static TreeNode_t* GetINIT(size_t* pos, Tokens_t* tokens, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err);
 
 /* A ::= V '=' E; */
-static TreeNode_t* GetA(size_t* pos, Tokens_t* tokens,  SyntaxErr_t* err);
+static TreeNode_t* GetA(size_t* pos, Tokens_t* tokens, Stack_t* stack,  SyntaxErr_t* err);
 
 /* IF ::= "if" "(" E ")" STATEMENT | BODY ("else" STATEMENT | BODY)? */
-static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
-static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err);
+static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err);
 
 /* "while" "(" E ")" STATEMENT | BODY */
-static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err);
 
 /* E ::= M{[&&, ||]M}* */
-static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init = false, bool is_params = false);
+static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, Stack_t* stack,  SyntaxErr_t* err, bool is_init = false, bool is_params = false);
 
 /* M ::= L{[>, == ,<]L}* */
-static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params);
+static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, Stack_t* stack,  SyntaxErr_t* err, bool is_init, bool is_params);
 
 /* L ::= T{[+, -]T}* */
-static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params);
+static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, Stack_t* stack,  SyntaxErr_t* err, bool is_init, bool is_params);
 
 /* T ::= D{[*, \]D}* */
-static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params);
+static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params);
 
 /* D ::= P{[^] P}*  */
-static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params);
+static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, Stack_t* stack,  SyntaxErr_t* err, bool is_init, bool is_params);
 
 /* P ::= '(' E ')' | N | V | CALL_FUNC */
-static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params);
+static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params);
 
 /* N ::= ['0' - '9']+ */
 static TreeNode_t* GetN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err);
 
 /* V ::= ['a' - 'z', '_']+['a' - 'z', '0' - '9', '_']* */
-static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init = false, bool is_params = false);
+static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init = false, bool is_params = false);
 
 // -------------------------------------------------------------------------------------
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy){
     TreeHead_t* head = TreeCtor();
+    Stack_t* stack = stack_ctor(10, __FILE__, __func__, __LINE__); 
     size_t pos = 0;
-    head->root = GetG(&pos, tokens, tokens_copy);
+    head->root = GetG(&pos, tokens, tokens_copy, stack);
+    stack_free(stack);
     if(!head->root){
         return NULL;
     }
@@ -218,9 +224,9 @@ TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy){
     return head;
 }
 
-static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy){
+static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack){
     SyntaxErr_t err = NO_MISTAKE;
-    TreeNode_t* first_op = GetX(pos, tokens, tokens_copy, &err);
+    TreeNode_t* first_op = GetX(pos, tokens, tokens_copy, stack, &err);
 
     if(err || *pos != tokens->first_free_place){
         if(err) fprintf(stderr, "Syntax error %llu\n", err);
@@ -234,18 +240,18 @@ static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy){
     return first_op;
 }
 
-static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,  SyntaxErr_t* err){
+static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err){
     assert(err);
     if(*err) return NULL;
 
     TreeNode_t* node_general = NULL;
-    CALL_AND_CHECK_ERR(node_general = GetFUNC(pos, tokens, tokens_copy, err));
+    CALL_AND_CHECK_ERR(node_general = GetFUNC(pos, tokens, tokens_copy, stack, err));
 
     TreeNode_t* node_left = node_general;
 
     while(IS_FUNCTION_IN_POS){
         TreeNode_t* node_right = NULL;
-        CALL_AND_CHECK_ERR(node_right = GetFUNC(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(node_right = GetFUNC(pos, tokens, tokens_copy, stack, err));
 
         node_left -> right   = node_right;
         node_right -> parent = node_left;
@@ -257,7 +263,7 @@ static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,  S
     return node_general;
 }
 
-static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_params){
+static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_params, size_t* num_of_params){
     if(*err) return NULL;
 
     FAIL_IF(!(IS_FUNCTION_IN_POS), 
@@ -281,7 +287,10 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err,
         }
 
         TreeNode_t* current_param = NULL;
-        CALL_AND_CHECK_ERR(current_param = GetE(pos, tokens, err, false, is_params));
+        CALL_AND_CHECK_ERR(current_param = GetE(pos, tokens, stack, err, false, is_params));
+        if(is_params && num_of_params){
+            (*num_of_params)++;
+        }
 
         if(!(IS_CLOSE_BRACKET_IN_POS || IS_COMMA_IN_POS)){
             *err = NO_CLOSE_BR_OR_COMMA_AFTER_PARAM;
@@ -319,14 +328,16 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err,
     return func_name;
 }
 
-static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     TreeNode_t* func_name = NULL;
-    CALL_AND_CHECK_ERR(func_name = GetFUNC_CALL(pos, tokens, err, true));
+    size_t num_of_params = 0;
+    CALL_AND_CHECK_ERR(func_name = GetFUNC_CALL(pos, tokens, stack, err, true, &num_of_params));
 
     TreeNode_t* bodynode = NULL;
-    CALL_AND_CHECK_ERR(bodynode = GetBODY(pos, tokens, tokens_copy, err));
+    size_t numbers_of_var = 0;
+    CALL_AND_CHECK_ERR(bodynode = GetBODY(pos, tokens, tokens_copy, stack, &numbers_of_var, err));
 
     bodynode -> parent = func_name;
     func_name -> right = bodynode;
@@ -334,10 +345,20 @@ static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     TreeNode_t* sep_node = NULL;
     CALL_AND_CHECK_ERR(sep_node = GetSepNode(pos, tokens_copy, func_name, OP_CLOSE_FIG_BR, err));
 
+    fprintf(stderr, "\n numbers_of_var = %zu\n", num_of_params);
+    for(size_t count = 0; count < numbers_of_var + num_of_params; count++){
+        stack_pop(stack, NULL);
+    }
+    fprintf(stderr, "-------------------------------------------------------------\n");
+
+    stack_dump(stack);
+
+    fprintf(stderr, "-------------------------------------------------------------\n");
+
     return sep_node;
 }
 
-static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err){
 
     FAIL_IF(!IS_OPEN_FIGURE_BRACKET_IN_POS, 
             NO_OPEN_FIG_BR_BEFORE_STATEMENT, 
@@ -345,7 +366,8 @@ static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     (*pos)++; //skip {
 
     TreeNode_t* node = NULL;
-    CALL_AND_CHECK_ERR(node = GetSTATEMENT(pos, tokens, tokens_copy, err));
+    CALL_AND_CHECK_ERR(node = GetSTATEMENT(pos, tokens, tokens_copy, stack, nums_of_vars, err));
+    fprintf(stderr, "\x1b[31m num after fist stat = %zu \x1b[0m\n", *nums_of_vars);
 
     TreeNode_t* node_left = node;
     TreeNode_t* node_right = NULL;
@@ -356,37 +378,40 @@ static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
             break;
         }
 
-        CALL_AND_CHECK_ERR(node_right = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(node_right = GetSTATEMENT(pos, tokens, tokens_copy, stack, nums_of_vars, err));
+        fprintf(stderr, "\x1b[31m num after next stat = %zu \x1b[0m\n", *nums_of_vars);
 
         node_left -> right   = node_right;
         node_right -> parent = node_left;
         node_left = node_right;
     }
 
+    stack_dump(stack);
+
     return node;
 }
 
-static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err){
     if(*err) return NULL;
 
     TreeNode_t* node = NULL;
     if(IS_INICIALIZE_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetINIT(pos, tokens, err));
+        CALL_AND_CHECK_ERR(node = GetINIT(pos, tokens, stack, nums_of_vars, err));
     }
     else if(IS_ASSIGN_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetA(pos, tokens, err));
+        CALL_AND_CHECK_ERR(node = GetA(pos, tokens, stack, err));
     }
     else if(IS_IF_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetIF(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(node = GetIF(pos, tokens, tokens_copy, stack, err));
     }
     else if(IS_WHILE_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetWHILE(pos, tokens,tokens_copy, err));
+        CALL_AND_CHECK_ERR(node = GetWHILE(pos, tokens,tokens_copy, stack,err));
     }
     else if(IS_RETURN_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetRETURN(pos, tokens, err));
+        CALL_AND_CHECK_ERR(node = GetRETURN(pos, tokens, stack, err));
     }
     else if(IS_FUNCTION_IN_POS){
-        CALL_AND_CHECK_ERR(node = GetFUNC_CALL(pos, tokens, err));
+        CALL_AND_CHECK_ERR(node = GetFUNC_CALL(pos, tokens, stack, err));
     }
     else{
         *err = INCORR_STATEMENT;
@@ -397,7 +422,7 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
 }
 
 // linux github
-static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
+static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_RETURN_IN_POS, 
@@ -408,7 +433,7 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
     (*pos)++; // skip OP_RET
 
     TreeNode_t* node_e = NULL;
-    CALL_AND_CHECK_ERR(node_e = GetE(pos, tokens, err));
+    CALL_AND_CHECK_ERR(node_e = GetE(pos, tokens, stack, err));
 
     node_ret ->left = node_e;
     node_e -> parent = node_ret;
@@ -422,7 +447,8 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 
 }
 
-static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, bool is_init, SyntaxErr_t* err){
+/*
+static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, bool is_init,  SyntaxErr_t* err){
     if(*err) return NULL;
 
     TreeNode_t* node_left = NULL;
@@ -452,32 +478,82 @@ static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, bool is_in
 
     return node_sp;
 }
+*/
 
-static TreeNode_t* GetINIT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
+static TreeNode_t* GetINIT(size_t* pos, Tokens_t* tokens, Stack_t* stack, size_t* nums_of_vars, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_INICIALIZE_IN_POS, 
             NO_INIT_OR_ASS_OP, 
             "No init operator in init func\n")
 
-    TreeNode_t* init_node = NULL;
-    CALL_AND_CHECK_ERR(init_node = GetInitOrAssSubtree(pos, tokens, true, err));
-    return init_node;
+    TreeNode_t* node_left = NULL;
+    CALL_AND_CHECK_ERR(node_left = GetV(pos, tokens, stack,  err, true));
+    (*pos)++; // skip left
+
+    TreeNode_t* node = tokens->node_arr[*pos];
+    (*pos)++; // skip OP_INIT or OP_ASS
+
+    TreeNode_t* node_right = NULL;
+    CALL_AND_CHECK_ERR(node_right = GetE(pos, tokens, stack, err));
+
+    node->left = node_left;
+    node->right = node_right;
+    node_left->parent = node;
+    node_right->parent = node;
+
+    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+            NO_SP_AFTER_INIT_IN_INIT_FUNC, 
+            "No ; after inicialization in init func\n")
+
+    TreeNode_t* node_sp = tokens->node_arr[*pos];
+    node_sp -> left = node;
+    node ->parent = node_sp;
+
+    (*pos)++; // skip ;
+
+    (*nums_of_vars)++; // увеличиваем количество переменных
+    fprintf(stderr, "num of vars after init = %zu", *nums_of_vars);
+
+    return node_sp;
 }
 
-static TreeNode_t* GetA(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
+static TreeNode_t* GetA(size_t* pos, Tokens_t* tokens,Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_ASSIGN_IN_POS, 
             NO_INIT_OR_ASS_OP, 
             "No assign operator in init func\n")
 
-    TreeNode_t* ass_node = NULL;
-    CALL_AND_CHECK_ERR(ass_node = GetInitOrAssSubtree(pos, tokens, false, err));
-    return ass_node;
+    TreeNode_t* node_left = NULL;
+    CALL_AND_CHECK_ERR(node_left = GetV(pos, tokens, stack,  err));
+    (*pos)++; // skip left
+
+    TreeNode_t* node = tokens->node_arr[*pos];
+    (*pos)++; // skip OP_INIT or OP_ASS
+
+    TreeNode_t* node_right = NULL;
+    CALL_AND_CHECK_ERR(node_right = GetE(pos, tokens, stack, err));
+
+    node->left = node_left;
+    node->right = node_right;
+    node_left->parent = node;
+    node_right->parent = node;
+
+    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+            NO_SP_AFTER_INIT_IN_INIT_FUNC, 
+            "No ; after inicialization in init func\n")
+
+    TreeNode_t* node_sp = tokens->node_arr[*pos];
+    node_sp -> left = node;
+    node ->parent = node_sp;
+
+    (*pos)++; // skip ;
+
+    return node_sp;
 }
 
-static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_IF_IN_POS, 
@@ -493,7 +569,7 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     (*pos)++; // skip (
 
     TreeNode_t* exprnode = NULL;
-    CALL_AND_CHECK_ERR(exprnode = GetE(pos, tokens, err, false));
+    CALL_AND_CHECK_ERR(exprnode = GetE(pos, tokens, stack, err, false));
 
     if_node -> left = exprnode;
     exprnode -> parent = if_node;
@@ -504,11 +580,12 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     (*pos)++; // skip )
 
     TreeNode_t* statnode = NULL;
+    size_t number_if_vars = 0;
     if(IS_OPEN_FIGURE_BRACKET_IN_POS){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, stack, &number_if_vars, err));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, stack, &number_if_vars, err));
     }
 
     if_node -> right = statnode;
@@ -517,10 +594,14 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     TreeNode_t* sep_node = NULL;
     CALL_AND_CHECK_ERR(sep_node = GetSepNode(pos, tokens_copy, if_node, OP_CLOSE_FIG_BR, err));
 
+    for(size_t count = 0; count < number_if_vars; count++){
+        stack_pop(stack, NULL);
+    }
+
     // else
     TreeNode_t* opnode_else = NULL;
     if(IS_ELSE_IN_POS){
-        CALL_AND_CHECK_ERR(opnode_else = GetELSE(pos, tokens, tokens_copy, err)); 
+        CALL_AND_CHECK_ERR(opnode_else = GetELSE(pos, tokens, tokens_copy, stack, err)); 
     }
     // ---
 
@@ -538,7 +619,7 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     return sep_node;
 }
 
-static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_ELSE_IN_POS, 
@@ -549,11 +630,16 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     (*pos) += 1; // skip else
 
     TreeNode_t* statnode = NULL;
+    size_t num_else_vars = 0;
     if(IS_OPEN_FIGURE_BRACKET_IN_POS){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, stack, &num_else_vars, err));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, stack, &num_else_vars, err));
+    }
+
+    for(size_t count = 0; count < num_else_vars; count++){
+        stack_pop(stack, NULL);
     }
 
     else_node -> right = statnode;
@@ -565,7 +651,7 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 }
 
 // WHILE  ::= "while" "(" E ")" STATEMENT 
-static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, SyntaxErr_t* err){
     if(*err) return NULL;
 
     FAIL_IF(!IS_WHILE_IN_POS, 
@@ -581,7 +667,7 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     (*pos)++; // skip (
 
     TreeNode_t* exprnode = NULL;
-    CALL_AND_CHECK_ERR(exprnode = GetE(pos, tokens, err, false));
+    CALL_AND_CHECK_ERR(exprnode = GetE(pos, tokens, stack, err, false));
 
     while_node -> left = exprnode;
     exprnode -> parent = while_node;
@@ -592,11 +678,16 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     (*pos)++; // skip )
 
     TreeNode_t* statnode = NULL;
+    size_t num_while_vars = 0;
     if(IS_OPEN_FIGURE_BRACKET_IN_POS){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, stack, &num_while_vars, err));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, stack, &num_while_vars, err));
+    }
+
+    for(size_t count = 0; count < num_while_vars; count++){
+        stack_pop(stack, NULL);
     }
 
     while_node -> right = statnode;
@@ -610,11 +701,11 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     return sep_node;
 }
 
-static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
 
     TreeNode_t* left = NULL;
-    CALL_AND_CHECK_ERR(left = GetM(pos, tokens, err, is_init, is_params)); 
+    CALL_AND_CHECK_ERR(left = GetM(pos, tokens, stack, err, is_init, is_params)); 
 
     while(IS_AND_IN_POS || IS_OR_IN_POS){
         TreeNode_t *new_node = tokens->node_arr[*pos];
@@ -622,7 +713,7 @@ static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
         (*pos)++; // skip && or ||
 
         TreeNode_t* right = NULL;
-        CALL_AND_CHECK_ERR(right = GetL(pos, tokens, err, is_init, is_params));
+        CALL_AND_CHECK_ERR(right = GetL(pos, tokens, stack, err, is_init, is_params));
 
         new_node->left = left;
         new_node->right = right;
@@ -637,11 +728,11 @@ static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
     return left;
 }
 
-static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
 
     TreeNode_t* left = NULL;
-    CALL_AND_CHECK_ERR(left = GetL(pos, tokens, err, is_init, is_params)); 
+    CALL_AND_CHECK_ERR(left = GetL(pos, tokens, stack, err, is_init, is_params)); 
 
     while(IS_GE_IN_POS || IS_LE_IN_POS || IS_EQ_IN_POS){
         TreeNode_t *new_node = tokens->node_arr[*pos];
@@ -649,7 +740,7 @@ static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
         (*pos)++; // skip < or > or ==
 
         TreeNode_t* right = NULL;
-        CALL_AND_CHECK_ERR(right = GetM(pos, tokens, err, is_init, is_params));
+        CALL_AND_CHECK_ERR(right = GetM(pos, tokens, stack, err, is_init, is_params));
 
         new_node->left = left;
         new_node->right = right;
@@ -664,11 +755,11 @@ static TreeNode_t* GetM(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
     return left;
 }
 
-static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
 
     TreeNode_t* left = NULL;
-    CALL_AND_CHECK_ERR(left = GetT(pos, tokens, err, is_init, is_params)); 
+    CALL_AND_CHECK_ERR(left = GetT(pos, tokens, stack, err, is_init, is_params)); 
 
     while(IS_ADD_IN_POS || IS_SUB_IN_POS){
         TreeNode_t *new_node = tokens->node_arr[*pos];
@@ -676,7 +767,7 @@ static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
         (*pos)++; // skip + or -
 
         TreeNode_t* right = NULL;
-        CALL_AND_CHECK_ERR(right = GetT(pos, tokens, err, is_init, is_params));
+        CALL_AND_CHECK_ERR(right = GetT(pos, tokens, stack, err, is_init, is_params));
 
         new_node->left = left;
         new_node->right = right;
@@ -691,11 +782,11 @@ static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
     return left;
 }
 
-static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
 
     TreeNode_t* left = NULL;
-    CALL_AND_CHECK_ERR(left = GetD(pos, tokens, err, is_init, is_params)); 
+    CALL_AND_CHECK_ERR(left = GetD(pos, tokens, stack, err, is_init, is_params)); 
 
     while(IS_MUL_IN_POS || IS_DIV_IN_POS){
         TreeNode_t *new_node = tokens->node_arr[*pos];
@@ -703,7 +794,7 @@ static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
         (*pos)++; // skip * or /
 
         TreeNode_t* right = NULL;
-        CALL_AND_CHECK_ERR(right = GetD(pos, tokens, err, is_init, is_params)); 
+        CALL_AND_CHECK_ERR(right = GetD(pos, tokens, stack, err, is_init, is_params)); 
 
         new_node->left = left;
         new_node->right = right;
@@ -718,11 +809,11 @@ static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
     return left;
 }
 
-static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
 
     TreeNode_t* left = NULL;
-    CALL_AND_CHECK_ERR(left = GetP(pos, tokens, err, is_init, is_params)); 
+    CALL_AND_CHECK_ERR(left = GetP(pos, tokens, stack, err, is_init, is_params)); 
 
     while(IS_DEG_IN_POS){
         TreeNode_t *new_node = tokens->node_arr[*pos];
@@ -730,7 +821,7 @@ static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
         (*pos)++; // skip ^
 
         TreeNode_t* right = NULL;
-        CALL_AND_CHECK_ERR(right = GetP(pos, tokens, err, is_init, is_params)); 
+        CALL_AND_CHECK_ERR(right = GetP(pos, tokens, stack, err, is_init, is_params)); 
 
         new_node->left = left;
         new_node->right = right;
@@ -746,14 +837,14 @@ static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
 
 }
 
-static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     if(*err) return NULL;
     TreeNode_t* val = NULL;
 
     if(IS_OPEN_BRACKET_IN_POS){
         (*pos)++; // skip '('
 
-        CALL_AND_CHECK_ERR(val = GetE(pos, tokens, err, is_init, is_params));
+        CALL_AND_CHECK_ERR(val = GetE(pos, tokens, stack, err, is_init, is_params));
 
         FAIL_IF(!IS_CLOSE_BRACKET_IN_POS, 
                 NO_CLOSE_BRACKET_IN_MATH_EXPR, 
@@ -766,11 +857,11 @@ static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is
             (*pos)++;
         }
         else if(IS_VARIABLE_IN_POS){
-            CALL_AND_CHECK_ERR(val = GetV(pos, tokens, err, is_init, is_params));
+            CALL_AND_CHECK_ERR(val = GetV(pos, tokens, stack, err, is_init, is_params));
             (*pos)++;
         }
         else if(IS_FUNCTION_IN_POS){
-            CALL_AND_CHECK_ERR(val = GetFUNC_CALL(pos, tokens, err));
+            CALL_AND_CHECK_ERR(val = GetFUNC_CALL(pos, tokens, stack, err));
         }
         else{
             *err = INCORR_OPERAND_NOT_VAR_NOT_NUM;
@@ -789,31 +880,49 @@ static TreeNode_t* GetN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
     return tokens->node_arr[*pos];
 }
 
-static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err, bool is_init, bool is_params){
+static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, SyntaxErr_t* err, bool is_init, bool is_params){
     FAIL_IF(!IS_VARIABLE_IN_POS, 
             NO_CONST, 
             "No const\n")
 
     size_t idx = 0;
+    fprintf(stderr, "params = %d\n", is_params);
 
-    if(tokens->node_arr[*pos]->var_func_name && !is_params){
-        idx = FindVarInNameTable(tokens->mtk, tokens->node_arr[*pos]->var_func_name);
-        if(idx == SIZE_MAX && !is_init){
+
+    if(tokens->node_arr[*pos]->var_func_name && !is_params && !is_init){
+        int idx2 = stack->top - 1;
+        fprintf(stderr, "idx2 = %d\n", idx2);
+        bool is_found = false;
+        while(idx2 >= 0 || stack->data[idx2] != 0xBAAD /*Костыль но знаю как поправить*/){
+            fprintf(stderr, "stack_elem = %s nyzhno = %s\n", tokens->mtk->var_info[stack->data[idx2]].variable_name, tokens->node_arr[*pos]->var_func_name);
+            if(!strcmp(tokens->mtk->var_info[stack->data[idx2]].variable_name, tokens->node_arr[*pos]->var_func_name)){
+                tokens->node_arr[*pos]->data.var_code = stack->data[idx2];
+                is_found = true;
+                break;
+            }
+            idx2--;
+        }
+        if(!is_found){
             *err = USE_VAR_BEFORE_INIT;
-            fprintf(stderr, "Using variable before inicialization\n");
+            fprintf(stderr, "using variable before init");
             return NULL;
         }
     }
 
     if(is_init || is_params){
         idx = NameTableAddName(tokens->mtk, tokens->node_arr[*pos]->var_func_name);
+        stack_push(stack, &idx);
+        tokens->node_arr[*pos]->data.var_code = idx;
     }
     if(tokens->node_arr[*pos]->var_func_name){
         free(tokens->node_arr[*pos]->var_func_name);
         tokens->node_arr[*pos]->var_func_name = NULL;
     }
 
-    tokens->node_arr[*pos]->data.var_code = idx;
+    for(int i = 0; i<tokens->mtk->first_free; i++){
+        fprintf(stderr, "[%d] = [%s]\n", i, tokens->mtk->var_info[i].variable_name);
+    }
+    stack_dump(stack);
 
     return tokens->node_arr[*pos];
 }

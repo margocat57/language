@@ -10,7 +10,7 @@ push 6
 pop [rbp + 1] ; b
 push 7
 pop [rbp + 2] ; c
-push [rbp + 0]
+push [rbp + 0] ; копирование переменных
 pop [rbp + 4 + 0]
 push [rbp + 1]
 pop [rbp + 4 + 1]
