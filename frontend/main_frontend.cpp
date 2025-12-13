@@ -6,7 +6,12 @@
 
 
 int main(){
-    char* buffer = read_file_to_string_array("tests/test6.txt");
+    DEBUG_TREE(
+    if(find_operators_info_mistake()){
+        return 0;
+    })
+
+    char* buffer = read_file_to_string_array("tests/test7.txt");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);

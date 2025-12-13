@@ -15,11 +15,6 @@ struct op_info{
     const char* name_for_graph_dump;
 };
 
-// Cazzo_lungo
-// Cazzo_piu_corto
-
-//! Верификатор табличек(всех)
-//! под макросом
 
 
 const op_info OPERATORS_INFO[] = {
@@ -47,6 +42,17 @@ const op_info OPERATORS_INFO[] = {
     {OP_AND,          "porco_cane",      sizeof("porco_cane")      - 1,  "&&",     "OP_AND"},
     {OP_OR,           "porca_troia",     sizeof("porca_troia")     - 1,  "||",     "OP_OR"},
 };
+
+typedef uint64_t Op_info_mistake_t;
+
+Op_info_mistake_t find_operators_info_mistake();
+
+enum OPERATORS_INFO_MISTAKES{
+    NO_MISTAKE_OP,
+    INDEX_AND_OP_NOT_SIMMILAR,
+    INCORR_LEN
+};
+
 
 
 #endif //OPERATOR_FUNC_H

@@ -25,6 +25,9 @@ frontend/common/tokens.o: frontend/common/tokens.cpp
 frontend/common/tree_func.o: frontend/common/tree_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
+frontend/include/operators_func.o: frontend/include/operators_func.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
 frontend/debug_output/graphviz_dump.o: frontend/debug_output/graphviz_dump.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
@@ -40,7 +43,7 @@ frontend/syntax_parse/make_tokens_tree.o: frontend/syntax_parse/make_tokens_tree
 frontend/tokenizing/tokenize.o: frontend/tokenizing/tokenize.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-lang: frontend/main_frontend.o frontend/common/metki.o frontend/common/tokens.o frontend/common/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o
+lang: frontend/main_frontend.o frontend/common/metki.o frontend/common/tokens.o frontend/common/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check: lang
@@ -58,4 +61,4 @@ run_with_gdb: lang
 # clang++ -o stack main.o hash.o log.o my_assert.o stack_func.o
 
 clean:
-	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg
+	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o

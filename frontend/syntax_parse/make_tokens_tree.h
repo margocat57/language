@@ -38,9 +38,18 @@ enum SyntaxErr{
     NO_OPEN_BR_BEF_CALL_FUNC, 
     NO_CLOSE_BR_AFT_CALL_FUNC, 
     CANT_GET_NODE_WITH_STATEMENT,
+    NO_OPEN_FIG_BR_BEFORE_STATEMENT,
     NO_CLOSE_FIG_BR_AFTER_STATEMENT,
     NO_SP_AFT_RET,
-    
+    NO_FUNC_NAME,
+    NO_RETURN_OP,
+    NO_INIT_OR_ASS_OP,
+    NO_OP_IF_IN_IF_STAT,
+    NO_OP_ELSE_IN_ELSE_STAT,
+    NO_OP_WHILE_IN_WHILE_STAT,
+    NO_CONST,
+    NO_VARIABLE,
+    INCORR_STATEMENT,
 };
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);
