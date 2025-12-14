@@ -50,6 +50,7 @@ enum SyntaxErr{
     NO_CONST,
     NO_VARIABLE,
     INCORR_STATEMENT,
+    EMPTY_VAR_NAME,
 };
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);

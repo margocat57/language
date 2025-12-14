@@ -64,6 +64,8 @@ Stack_t *stack_ctor(size_t num_of_elem, const char *file, const char *func, int 
 
     stack->front_canary = FRONT_CANARY_STACK;
     stack->tail_canary = TAIL_CANARY_STACK;
+    stack->front_canary_data = FRONT_CANARY_DATA;
+    stack->tail_canary_data = TAIL_CANARY_DATA;
     stack->top = 0 DEBUG(+ CANARY_ELEMS/2); 
     stack->capacity = num_of_elem;
     DEBUG(

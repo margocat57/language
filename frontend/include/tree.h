@@ -60,6 +60,7 @@ enum VALUE_TYPE
     VARIABLE,
     FUNCTION,
     CONST,
+    FUNC_CALL
 };
 
 struct TreeNode_t

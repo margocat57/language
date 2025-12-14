@@ -1,8 +1,4 @@
 STA_CAGATA 
-check(m,p,k){
-    return m+p+k;
-}
-
 main(){
 a := 5;
 b := 6;
@@ -22,11 +18,11 @@ else{
 }
 return 0;
 }
-NON_PUBBLICARLA
 
-Che_cazzo_check (Ciucciami m сhe_culo p сhe_culo k il_cazzo!) {Voi-Figlio 
-    succhia m cretino p cretino k porco_dio!
-di_putana}
+check(m,p,k){
+    return m+p+k;
+}
+NON_PUBBLICARLA
 
 Che_cazzo_main (Ciucciami il_cazzo!){Voi-Figlio
 a fare_pompino 5 porco_dio!
@@ -46,6 +42,10 @@ Fica {Voi-Figlio
     x a_fanculo a cretino c cretino b porco_dio!
 di_putana}
 succhia 0 porco_dio!
+di_putana}
+
+Che_cazzo_check (Ciucciami m сhe_culo p сhe_culo k il_cazzo!) {Voi-Figlio 
+    succhia m cretino p cretino k porco_dio!
 di_putana}
 
 Fottiti!
