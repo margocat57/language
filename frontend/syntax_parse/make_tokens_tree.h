@@ -3,7 +3,7 @@
 #include "../include/tree.h"
 #include "../common/tree_func.h"
 #include "../include/mistakes.h"
-#include "../common/metki.h"
+#include "../nametables/table_of_nametable.h"
 #include "../debug_output/graphviz_dump.h"
 #include "../include/operators_func.h"
 #include "../common/tokens.h"

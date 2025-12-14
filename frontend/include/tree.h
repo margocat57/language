@@ -2,7 +2,7 @@
 #define TREE_H
 #include <stdint.h>
 #include <string.h>
-#include "../common/metki.h"
+#include "../nametables/nametable.h"
 
 const char *const TREE_SIGNATURE = "My_tree";
 const int POISON = -6666;
@@ -37,7 +37,7 @@ enum OPERATORS
 union TreeElem_t{
     enum OPERATORS op;
     double const_value;
-    size_t var_code; // вычисляется по таблице имен в момент чтения из файла - это больно делать
+    size_t var_code; 
 };
 
 #ifdef _DEBUG_SMALL_TREE

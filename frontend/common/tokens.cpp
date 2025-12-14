@@ -1,5 +1,4 @@
 #include "tokens.h"
-#include "metki.h"
 #include "tree_func.h"
 #include <stdio.h>
 #include <assert.h>
@@ -22,7 +21,7 @@ Tokens_t* TokensCtor(size_t num_of_nodes){
     }
     tokens->node_arr = node_arr;
     tokens->num_of_nodes = num_of_nodes;
-    tokens->mtk = NameTableInit();
+    tokens->table = TableOfNameTableInit();
     tokens->first_free_place = 0;
     return tokens;
 }
@@ -90,7 +89,7 @@ void TokensDtor(Tokens_t* tokens){
         return;
     }
 
-    NameTableDestroy(tokens->mtk);
+    TableDestroy(tokens->table);
 
     for(size_t idx = 0; idx < tokens->first_free_place; idx++){
         if(!tokens->node_arr[idx]){

@@ -11,7 +11,7 @@ int main(){
         return 0;
     })
 
-    char* buffer = read_file_to_string_array("tests/test8.txt");
+    char* buffer = read_file_to_string_array("tests/test9.txt");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);
@@ -19,20 +19,18 @@ int main(){
 
     // DEBUG FOR TOKENS
     for(int i = 0; i < tokens->first_free_place; i++){
-        tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, tokens->mtk, "%d pos", i);
+        tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, NULL, "%d pos", i);
     }
 
     Tokens_t* tokens_copy = TokensCtor(10);
     TreeHead_t* head = MakeLangExprTokens(tokens, tokens_copy);
-    if(!head) return 0;
+    if(!head) return 0; // 35
+    // fprintf(stderr, "VAR CODE %d\n",tokens_copy->node_arr[35]->data.var_code);
 
     TreeErr_t err = NO_MISTAKE;
-    PutTreeToFile("backend/tree.txt", head->root, head, tokens->mtk, &err);
+    // PutTreeToFile("backend/tree.txt", head->root, head, tokens->mtk, &err);
 
     free(head);
-    for(int i = 0; i < tokens->mtk->first_free; i++){
-        fprintf(stderr, "char = %s\n", tokens->mtk->var_info[i].variable_name);
-    }
     TokensDtor(tokens);
     TokensDtor(tokens_copy);
     return 0;

@@ -3,7 +3,7 @@
 
 #include "../include/tree.h"
 #include "../include/mistakes.h"
-#include "../common/metki.h"
+#include "../nametables/table_of_nametable.h"
 
 void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err);
 

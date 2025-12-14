@@ -2,7 +2,7 @@
 #define METKI_H
 #include <stdlib.h>
 
-const int MAX_NUMBER_OF_METKI = 20;
+const int MAX_NUMBER_OF_NAMETABLE = 20;
 
 struct variables{
     char* variable_name;
@@ -11,7 +11,7 @@ struct variables{
 
 struct name_table{
     variables* var_info;
-    size_t num_of_metki;
+    size_t num_of_elements;
     size_t first_free;
 };
 

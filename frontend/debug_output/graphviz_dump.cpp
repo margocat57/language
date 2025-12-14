@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <assert.h>
-#include "../common/metki.h"
+#include "../nametables/table_of_nametable.h"
 
 #define CHECK_AND_RET_DUMP(bad_condition, msg)\
     if(bad_condition){ \

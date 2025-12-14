@@ -69,16 +69,9 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
-        *pos += sizeof("Che_cazzo") - 1;
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         *pos += num_of_symb;
-        size_t idx = FindVarInNameTable(tokens->mtk, buffer_var);
-        if(idx != SIZE_MAX){
-            TokensAddElem(NodeCtor(FUNCTION, (TreeElem_t){.var_code = idx} , NULL, NULL, NULL), tokens);
-        }
-        else{
-            TokensAddElem(NodeCtor(FUNCTION, (TreeElem_t){.var_code = NameTableAddName(tokens->mtk, buffer_var)} , NULL, NULL, NULL), tokens);
-        }
+        TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
     }
     return false;

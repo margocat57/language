@@ -16,8 +16,6 @@ else
     CFLAGS = $(COMMON_CFLAGS)
 endif
 
-frontend/common/metki.o: frontend/common/metki.cpp
-	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/common/tokens.o: frontend/common/tokens.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
@@ -55,7 +53,13 @@ frontend/stack_frontend/my_assert.o: frontend/stack_frontend/my_assert.cpp
 frontend/stack_frontend/stack_func.o: frontend/stack_frontend/stack_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-lang: frontend/main_frontend.o frontend/common/metki.o frontend/common/tokens.o frontend/common/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o frontend/stack_frontend/hash.o frontend/stack_frontend/log.o frontend/stack_frontend/my_assert.o frontend/stack_frontend/stack_func.o
+frontend/nametables/nametable.o: frontend/nametables/nametable.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+frontend/nametables/table_of_nametable.o: frontend/nametables/table_of_nametable.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+lang: frontend/main_frontend.o frontend/common/tokens.o frontend/common/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o frontend/stack_frontend/hash.o frontend/stack_frontend/log.o frontend/stack_frontend/my_assert.o frontend/stack_frontend/stack_func.o frontend/nametables/nametable.o  frontend/nametables/table_of_nametable.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check: lang
@@ -73,4 +77,4 @@ run_with_gdb: lang
 # clang++ -o stack main.o hash.o log.o my_assert.o stack_func.o
 
 clean:
-	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o frontend/stack_frontend/*.o
+	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o frontend/stack_frontend/*.o frontend/nametables/*.o
