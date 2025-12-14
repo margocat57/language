@@ -49,7 +49,7 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
     if(node->type == FUNCTION){
         mtk = table->nametables[count];
         count++;
-        fprintf(file, "( \" FUNC %s \"", node->var_func_name);
+        fprintf(file, "( \"FUNC %s \"", node->var_func_name);
     }
     else if(node->type == OPERATOR){
         size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
@@ -71,10 +71,14 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
             *err = INCORR_IDX_IN_MTK;
             return;
         }
-        fprintf(file, "( \" VAR %zu\"", node->data.var_code);
+        fprintf(file, "( \"VAR %zu\"", node->data.var_code);
     }
     else if(node->type == FUNC_CALL){
-        fprintf(file, "( \" CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
+        if(!mtk){
+            *err = NULL_MTK_PTR;
+            return;
+        }
+        fprintf(file, "( \"CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
     }
 
     if(node->left){
