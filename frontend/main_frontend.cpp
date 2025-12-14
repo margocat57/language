@@ -24,11 +24,10 @@ int main(){
 
     Tokens_t* tokens_copy = TokensCtor(10);
     TreeHead_t* head = MakeLangExprTokens(tokens, tokens_copy);
-    if(!head) return 0; // 35
-    // fprintf(stderr, "VAR CODE %d\n",tokens_copy->node_arr[35]->data.var_code);
+    if(!head) return 0;
 
     TreeErr_t err = NO_MISTAKE;
-    // PutTreeToFile("backend/tree.txt", head->root, head, tokens->mtk, &err);
+    PutTreeToFile("backend/tree.txt", head, tokens->table, &err);
 
     free(head);
     TokensDtor(tokens);

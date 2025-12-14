@@ -4,7 +4,7 @@
 
 //! Mistakes at verification and function's work
 enum stack_err_t {
-    NO_MISTAKE_STACK              = 0,
+    NO_MISTAKE_STACK        = 0,
     NULL_STACK_PTR          = 1 << 0,
     NULL_STACK_ELEM         = 1 << 1,
     CANARY_ST_NOT_IN_PLACES = 1 << 2,

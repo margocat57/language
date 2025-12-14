@@ -124,15 +124,10 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_tabl
             }
         }
         else if(node->type == FUNCTION){
-            if(node->var_func_name){
-                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->var_func_name);
-            }
-            else if(node->data.var_code < mtk->first_free && mtk->var_info[node->data.var_code].variable_name){
-                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
-            }
-            else{
-                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = VAR} | {0 | 0}} \"];\n", node, *rank);
-            }
+            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->var_func_name);
+        }
+        else if(node->type == FUNC_CALL){
+            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->var_func_name);
         }
     }
 

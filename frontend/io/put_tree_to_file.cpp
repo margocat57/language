@@ -18,9 +18,9 @@
 // For program as tree to disk
 
 // добавить метки к голове
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err);
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, table_of_nametable* table, TreeErr_t* err);
 
-void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err){
+void PutTreeToFile(const char* file_name, const TreeHead_t* head, table_of_nametable* table,  TreeErr_t* err){
     if(*err) return;
     assert(file_name); assert(head);
 
@@ -33,19 +33,25 @@ void PutTreeToFile(const char* file_name, TreeNode_t *node, const TreeHead_t* he
         return;
     }
 
-    CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(fp, head->root, head, mtk, err));
+    CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(fp, head->root, head, NULL, table, err));
     fclose(fp);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
 }
 
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, TreeErr_t* err){
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, table_of_nametable* table, TreeErr_t* err){
     if(*err) return;
     assert(file); assert(head);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
+    static size_t count = 0;
 
-    if(node->type == OPERATOR){
+    if(node->type == FUNCTION){
+        mtk = table->nametables[count];
+        count++;
+        fprintf(file, "( \" FUNC %s \"", node->var_func_name);
+    }
+    else if(node->type == OPERATOR){
         size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
         if(node->data.op >= num_of_op){
             *err = INCORR_OPERATOR;
@@ -57,27 +63,29 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
         fprintf(file, "( \"%lg\"", node->data.const_value);
     }
     else if(node->type == VARIABLE){
+        if(!mtk){
+            *err = NULL_MTK_PTR;
+            return;
+        }
         if(node->data.var_code >= mtk->first_free){
             *err = INCORR_IDX_IN_MTK;
             return;
         }
-        const char* var = mtk->var_info[node->data.var_code].variable_name;
-        if(!var){
-            *err = INCORR_IDX_IN_MTK;
-            return;
-        }
-        fprintf(file, "( \"%s\"", var);
+        fprintf(file, "( \" VAR %zu\"", node->data.var_code);
+    }
+    else if(node->type == FUNC_CALL){
+        fprintf(file, "( \" CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
     }
 
     if(node->left){
-        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->left, head, mtk, err));
+        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->left, head, mtk, table, err));
     } 
     else{
         fprintf(file, " nil");
     }
 
     if(node->right){
-        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->right, head, mtk, err));
+        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->right, head, mtk, table, err));
     } 
     else{
         fprintf(file, " nil");

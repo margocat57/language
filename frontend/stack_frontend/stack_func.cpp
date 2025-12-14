@@ -11,7 +11,7 @@
 #include "stack.h"
 
 const char *FORM_SPEC_STK_EL = "%zu";
-const int POISON = -6666;
+const int POISON = 6666;
 const double SIZE_INCREASE = 2;
 
 //! Memory for canaries in data array
