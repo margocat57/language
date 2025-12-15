@@ -7,7 +7,7 @@
 
 typedef int64_t stack_err_bytes; 
 
-typedef size_t stack_elem_t; 
+typedef int stack_elem_t; 
 
 struct Stack_t;
 

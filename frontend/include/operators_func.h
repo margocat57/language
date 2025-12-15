@@ -1,7 +1,7 @@
 #ifndef OPERATOR_FUNC_H
 #define OPERATOR_FUNC_H
 #include <string.h>
-#include "tree.h"
+#include "../../tree/tree.h"
 #include <stdio.h>
 
 
@@ -39,8 +39,9 @@ const op_info OPERATORS_INFO[] = {
     {OP_CLOSE_FIG_BR, "di_putana}",      sizeof("di_putana}")      - 1,  "}",      "OP_CFB"},
     {OP_COMMA,        "сhe_culo",        sizeof("сhe_culo")        - 1,  ",",      "OP_COM"},
     {OP_RETURN,       "succhia",         sizeof("succhia")         - 1,  "return", "OP_RET"},
-    {OP_AND,          "porco_cane",      sizeof("porco_cane")      - 1,  "&&",     "OP_AND"},
-    {OP_OR,           "porca_troia",     sizeof("porca_troia")     - 1,  "||",     "OP_OR"},
+    {OP_INPUT,        "Infila_сazzo",    sizeof("Infila_сazzo")    - 1,  "input",  "OP_INPUT"},
+    {OP_OUTPUT,       "Estrarre_cazzo",  sizeof("Estrarre_cazzo")  - 1,  "output", "OP_OUTPUT"},
+    {OP_EXIT,         "Basta!",          sizeof("Basta!")          - 1,  "exit",   "OP_EXIT"},
 };
 
 typedef uint64_t Op_info_mistake_t;

@@ -39,6 +39,8 @@ Tokens_t* TokenizeInput(const char* buffer){
 
         else if(Tokenize_FUNC(tokens, buffer, &pos))          continue; 
 
+        else if(Tokenize_FUNC_MAIN(tokens, buffer, &pos))     continue; 
+
         else if(Tokenize_Decimal(tokens, buffer, &pos))       continue; 
 
         else if(Tokenize_Variable(tokens, buffer, &pos))      continue;
@@ -77,6 +79,18 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
     return false;
 }
 
+static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos){
+    char buffer_var[MAX_SIZE_BUFFER] = {};
+    int num_of_symb = 0;
+    if(!strncmp(buffer + *pos, "Che_grande_cazzo", sizeof("Che_grande_cazzo") - 1)){
+        sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
+        *pos += num_of_symb;
+        TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
+        return true;
+    }
+    return false;
+}
+
 static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
     size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
     for(size_t idx = 1; idx < num_of_operators; idx++){
@@ -93,11 +107,11 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
 }
 
 static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos){
-    double val = 0;
+    int val = 0;
     int num_of_symb = 0;
     if(isdigit(buffer[*pos])){
         char* endptr = NULL;
-        val = strtod(buffer + *pos, &endptr);
+        val = strtoul(buffer + *pos, &endptr, 10);
         *pos +=  endptr - (buffer + *pos);
         TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL), tokens);
         return true;

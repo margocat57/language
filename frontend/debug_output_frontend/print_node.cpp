@@ -1,90 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
-#include "tree_func.h"
-#include "../debug_output/graphviz_dump.h"
-#include "../include/mistakes.h"
+#include "../../tree/tree_func.h"
 #include "../include/operators_func.h"
-#include "../include/tree.h"
-
-
-//----------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------
-// Tree and node constructors
-
-TreeHead_t* TreeCtor(){
-    TreeHead_t* head = (TreeHead_t*)calloc(1, sizeof(TreeHead_t));
-    head->root = NULL;
-    
-    return head;
-}
-
-TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name){
-    TreeNode_t* node = (TreeNode_t*)calloc(1, sizeof(TreeNode_t));
-    if(!node){
-        fprintf(stderr, "Can't alloc data for node");
-        return NULL;
-    }
-    node->type = type;
-    node->data = data; 
-    node->var_func_name = var_func_name;
-    node->left = left;
-    node->right = right;
-    node->parent = parent;
-    node->signature = TREE_SIGNATURE;
-
-    return node;
-}
-
-//----------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------
-// Verifying (recursive algorithm for verifying subtree)
-
-TreeErr_t TreeVerify(const TreeHead_t* head){
-    return TreeNodeVerify(head->root);
-}
-
-TreeErr_t TreeNodeVerify(const TreeNode_t *node){
-    if(!node){
-        fprintf(stderr, "NULL node ptr\n");
-        return NULL_NODE_PTR;
-    }
-    if(node->signature != TREE_SIGNATURE){
-        fprintf(stderr, "Incorr signature\n");
-        return INCORRECT_SIGN;
-    }
-
-    if(node->left && node != node->left->parent){
-        fprintf(stderr, "Incorr connection between parent(%p) and LEFT child(%p) nodes\n", node, node->left);
-        return INCORR_LEFT_CONNECT;
-    }
-    if(node->right && node != node->right->parent){
-        fprintf(stderr, "Incorr connection between parent(%p) and RIGHT child(%p) nodes\n", node, node->right);
-        return INCORR_RIGHT_CONNECT;
-    }
-    if(node->left && node->left == node->right){
-        fprintf(stderr, "LOOPED NODE - same connection for left and right");
-        return LOOPED_NODE;
-    }
-    if(node->type == OPERATOR && (node->data.op == OP_ADD || node->data.op == OP_SUB || node->data.op == OP_DIV || node->data.op == OP_MUL || node->data.op == OP_DEG) && (!node->left || !node->right)){
-        fprintf(stderr, "No element for binary operator");
-        return NO_ELEM_FOR_BINARY_OP;
-    }
-
-    if(node->left){
-        TreeErr_t err = NO_MISTAKE;
-        DEBUG_TREE(err = TreeNodeVerify(node->left);)
-        if (err) return err;
-    }
-    if(node->right){
-        TreeErr_t err = NO_MISTAKE;
-        DEBUG_TREE(err = TreeNodeVerify(node->right);)
-        if(err) return err;
-    }
-
-    return NO_MISTAKE;
-}
-
 
 //----------------------------------------------------------------
 // Dumping tree
@@ -119,11 +35,14 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_tabl
             else if(node->data.var_code < mtk->first_free && mtk->var_info[node->data.var_code].variable_name){
                 fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %zu(%s)} | {0 | 0}} \"];\n", node, *rank, node->data.var_code, mtk->var_info[node->data.var_code].variable_name);
             }
+            else if(node->data.var_code < mtk->first_free){
+                fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = %zu} | {0 | 0}} \"];\n", node, *rank, node->data.var_code);
+            }
             else{
                 fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#DAA520\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = VARIABLE} | {val = VAR} | {0 | 0}} \"];\n", node, *rank);
             }
         }
-        else if(node->type == FUNCTION){
+        else if(node->type == FUNCTION || node->type == FUNCTION_MAIN){
             fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#a7a7f2\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = FUNCTION} | {val = %s} | {0 | 0}} \"];\n", node, *rank, node->var_func_name);
         }
         else if(node->type == FUNC_CALL){
@@ -154,44 +73,4 @@ static void PrintNodeConnect(const TreeNode_t* node, const TreeNode_t* node_chil
         }
     }
     (*rank)++;
-}
-
-//----------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------
-// Tree and node destructors
-
-
-void TreeDel(TreeHead_t* head){
-    assert(head);
-
-    TreeDelNodeRecur(head->root);
-
-    memset(head, 0, sizeof(TreeHead_t));
-    free(head);
-
-}
-
-void TreeDelNodeRecur(TreeNode_t* node){
-    if(!node){
-        return;
-    }
-
-    if(node->left){
-        TreeDelNodeRecur(node->left);
-    }
-    if(node->right){
-        TreeDelNodeRecur(node->right);
-    }
-
-    NodeDtor(node);
-}
-
-void NodeDtor(TreeNode_t* node){
-    if(node){
-        if(node->var_func_name){
-            free(node->var_func_name);
-            node->var_func_name = NULL;
-        }
-        free(node);
-    }
 }

@@ -1,4 +1,6 @@
-#include "../common/tree_func.h"
+#define FRONTEND
+
+#include "print_node.h"
 #include "graphviz_dump.h"
 #include <sys/wait.h>
 #include <stdio.h>
@@ -161,3 +163,5 @@ static int check_and_dump_system_work(int sys_res){
     }
     return 0;
 }
+
+#undef FRONTEND

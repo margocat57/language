@@ -1,14 +1,16 @@
-.PHONY: all clean run_leak_check run_debug run_with_gdb
+.PHONY: all clean run_leak_check_front run_leak_check_back 
 # эти цели не являются файлами выполняй их даже если соотв файлы существуют
-all: lang
+all: frontend backend
 # когда запускаем make без цели, то выполняем первую цель после all, то есть записи make stack make all и make эквивалентны
 
 COMP=clang++
 
 
 CFLAGS_DEBUG = -D_DEBUG -DDEBUG_SMALL_TREE
-COMMON_CFLAGS = -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 -fPIE -Werror=vla -Wno-c++11-extensions -g -fsanitize=address,leak,undefined    
+COMMON_CFLAGS = -DASSEMBLER -DPROCESSOR -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 -fPIE -Werror=vla -Wno-c++11-extensions -g -fsanitize=address,leak,undefined    
 LDFLAGS = -fsanitize=address,leak,undefined
+CFLAGS_ASM = -DASSEMBLER -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 -fPIE -Werror=vla -Wno-c++11-extensions  -g -fsanitize=address,leak,undefined 
+CFLAGS_PROC = -DPROCESSOR -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 -fPIE -Werror=vla -Wno-c++11-extensions  -g -fsanitize=address,leak,undefined 
 
 ifdef DEBUG_TREE
     CFLAGS = $(COMMON_CFLAGS) $(CFLAGS_DEBUG)
@@ -16,17 +18,21 @@ else
     CFLAGS = $(COMMON_CFLAGS)
 endif
 
+# FRONTEND ------------------------------------------------------------------
 
 frontend/common/tokens.o: frontend/common/tokens.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/common/tree_func.o: frontend/common/tree_func.cpp
+tree/tree_func.o: tree/tree_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/include/operators_func.o: frontend/include/operators_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/debug_output/graphviz_dump.o: frontend/debug_output/graphviz_dump.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+frontend/debug_output/print_node.o: frontend/debug_output/print_node.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/io/put_tree_to_file.o: frontend/io/put_tree_to_file.cpp
@@ -41,16 +47,16 @@ frontend/syntax_parse/make_tokens_tree.o: frontend/syntax_parse/make_tokens_tree
 frontend/tokenizing/tokenize.o: frontend/tokenizing/tokenize.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/stack_frontend/hash.o: frontend/stack_frontend/hash.cpp
+stack/hash.o: stack/hash.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/stack_frontend/log.o: frontend/stack_frontend/log.cpp
+stack/log.o: stack/log.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/stack_frontend/my_assert.o: frontend/stack_frontend/my_assert.cpp
+stack/my_assert.o: stack/my_assert.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/stack_frontend/stack_func.o: frontend/stack_frontend/stack_func.cpp
+stack/stack_func.o: stack/stack_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/nametables/nametable.o: frontend/nametables/nametable.cpp
@@ -59,22 +65,63 @@ frontend/nametables/nametable.o: frontend/nametables/nametable.cpp
 frontend/nametables/table_of_nametable.o: frontend/nametables/table_of_nametable.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-lang: frontend/main_frontend.o frontend/common/tokens.o frontend/common/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o frontend/stack_frontend/hash.o frontend/stack_frontend/log.o frontend/stack_frontend/my_assert.o frontend/stack_frontend/stack_func.o frontend/nametables/nametable.o  frontend/nametables/table_of_nametable.o
+frontend: frontend/main_frontend.o frontend/common/tokens.o tree/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o frontend/nametables/nametable.o  frontend/nametables/table_of_nametable.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-run_leak_check: lang
-	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./lang
+run_leak_check_front: frontend
+	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./frontend
 
-run_debug: lang
-	ASAN_OPTIONS="help=1:verbosity=3:detect_stack_use_after_return=1:check_initialization_order=1:detect_container_overflow=1:strict_string_checks=1:detect_invalid_pointer_pairs=2:halt_on_error=0" ./lang
 
-run_with_gdb: lang
-	ASAN_OPTIONS="verbosity=2:abort_on_error=0" gdb --args ./lang
+# BACKEND ------------------------------------------------------------------
 
-# $@ имя цели
-# $^ все зависимости
-# $(COMP) clang++
-# clang++ -o stack main.o hash.o log.o my_assert.o stack_func.o
+backend/main_backend.o: backend/main_backend.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+backend/Processor-and-asssembler/assembler_task/file_work.o: backend/Processor-and-asssembler/assembler_task/file_work.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
+
+backend/Processor-and-asssembler/assembler_task/parsing_str.o: backend/Processor-and-asssembler/assembler_task/parsing_str.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
+
+backend/Processor-and-asssembler/assembler_task/assembler_struct.o: backend/Processor-and-asssembler/assembler_task/assembler_struct.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
+
+backend/Processor-and-asssembler/assembler_task/metki.o: backend/Processor-and-asssembler/assembler_task/metki.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
+
+backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o: backend/Processor-and-asssembler/processor_task/parse_asm_from_file.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
+
+backend/Processor-and-asssembler/processor_task/processor.o: backend/Processor-and-asssembler/processor_task/processor.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
+
+backend/Processor-and-asssembler/processor_task/do_instructions.o: backend/Processor-and-asssembler/processor_task/do_instructions.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
+
+backend/metki_table/metki_table.o: backend/metki_table/metki_table.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+backend/translate_to_asm/translate_to_asm.o: backend/translate_to_asm/translate_to_asm.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+backend/make_backend_tree/make_tree.o: backend/make_backend_tree/make_tree.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+backend/make_backend_tree/debug_output/graphviz_dump.o: backend/make_backend_tree/debug_output/graphviz_dump.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+backend/make_backend_tree/debug_output/print_node.o: backend/make_backend_tree/debug_output/print_node.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
+assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o stack_for_calcul/hash.o 
+	$(COMP) -o $@ $^ $(LDFLAGS)
+
+backend: backend/main_backend.o backend/Processor-and-asssembler/assembler_task/file_work.o backend/Processor-and-asssembler/assembler_task/parsing_str.o backend/Processor-and-asssembler/assembler_task/assembler_struct.o backend/Processor-and-asssembler/assembler_task/metki.o backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o backend/Processor-and-asssembler/processor_task/processor.o backend/Processor-and-asssembler/processor_task/do_instructions.o  backend/metki_table/metki_table.o backend/translate_to_asm/translate_to_asm.o  backend/make_backend_tree/make_tree.o backend/make_backend_tree/debug_output/graphviz_dump.o backend/make_backend_tree/debug_output/print_node.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o
+	$(COMP) -o $@ $^ $(LDFLAGS)
+
+run_leak_check_back: backend
+	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./backend
+
 
 clean:
-	rm -f lang  frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o frontend/stack_frontend/*.o frontend/nametables/*.o
+	rm -f frontend frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/nametables/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o stack/*.o tree/*.o backend/*.o backend/Processor-and-asssembler/assembler_task/*.o backend/Processor-and-asssembler/processor_task/*.o backend/metki_table/*.o backend backend/translate_to_asm/*.o backend/make_backend_tree/*.o backend/make_backend_tree/debug_output/*.o

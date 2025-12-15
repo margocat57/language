@@ -1,5 +1,5 @@
 #include "tokens.h"
-#include "tree_func.h"
+#include "../../tree/tree_func.h"
 #include <stdio.h>
 #include <assert.h>
 

@@ -18,7 +18,15 @@ enum stack_err_t {
     FUNC_PARAM_IS_NULL      = 1 << 9,  //!< Parametr given to function is NULL
     ALLOC_ERROR             = 1 << 10, //!< Stack verification failed
     INCORR_DIGIT_PARAMS     = 1 << 11,  //!< Allocation error
-    INCORR_POP_IDX          = 1 << 12
+    INCORR_POP_IDX          = 1 << 12,
+    //!< Mistakes at processor work
+    INCORR_BYTECODE_PTR          =  0x8000000000002000ULL, // (1 << 63) | (1 << 13),
+    INCORR_PROCESSOR_PTR         =  0x8000000000004000ULL, // (1 << 63) | (1 << 14),
+    INCORR_BYTECODE_ELEM_PTR     =  0x8000000000008000ULL, // (1 << 63) | (1 << 15),
+    INCORR_COMAND                =  0x8000000000010000ULL, // (1 << 63) | (1 << 16),
+    REGISTR_OVERFLOW             =  0x8000000000020000ULL, // (1 << 63) | (1 << 17),  
+    RAM_OVERFLOW                 =  0x8000000000040000ULL, // (1 << 63) | (1 << 18), 
+    ZERO_DIV                     =  0x8000000000080000ULL, // (1 << 63) | (1 << 19), 
 };
 
 

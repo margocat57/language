@@ -1,7 +1,7 @@
 #ifndef FOREST_H
 #define FOREST_H
-#include "../include/tree.h"
-#include "../include/mistakes.h"
+#include "../../tree/tree.h"
+#include "../../tree/mistakes.h"
 #include "../nametables/table_of_nametable.h"
 
 

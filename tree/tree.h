@@ -2,7 +2,6 @@
 #define TREE_H
 #include <stdint.h>
 #include <string.h>
-#include "../nametables/nametable.h"
 
 const char *const TREE_SIGNATURE = "My_tree";
 const int POISON = -6666;
@@ -30,13 +29,14 @@ enum OPERATORS
     OP_CLOSE_FIG_BR,
     OP_COMMA,
     OP_RETURN,
-    OP_AND,
-    OP_OR,
+    OP_INPUT,
+    OP_OUTPUT,
+    OP_EXIT,
 };
 
 union TreeElem_t{
     enum OPERATORS op;
-    double const_value;
+    int const_value;
     size_t var_code; 
 };
 
@@ -59,6 +59,7 @@ enum VALUE_TYPE
     OPERATOR,
     VARIABLE,
     FUNCTION,
+    FUNCTION_MAIN,
     CONST,
     FUNC_CALL
 };

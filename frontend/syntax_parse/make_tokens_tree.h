@@ -1,10 +1,10 @@
 #ifndef MAKE_TOKENS_TREE_H
 #define MAKE_TOKENS_TREE_H
-#include "../include/tree.h"
-#include "../common/tree_func.h"
-#include "../include/mistakes.h"
+#include "../../tree/tree.h"
+#include "../../tree/tree_func.h"
+#include "../../tree/mistakes.h"
 #include "../nametables/table_of_nametable.h"
-#include "../debug_output/graphviz_dump.h"
+#include "../debug_output_frontend/graphviz_dump.h"
 #include "../include/operators_func.h"
 #include "../common/tokens.h"
 
@@ -40,7 +40,7 @@ enum SyntaxErr{
     CANT_GET_NODE_WITH_STATEMENT,
     NO_OPEN_FIG_BR_BEFORE_STATEMENT,
     NO_CLOSE_FIG_BR_AFTER_STATEMENT,
-    NO_SP_AFT_RET,
+    NO_SP_AFT_RET_INP_OUTPUT,
     NO_FUNC_NAME,
     NO_RETURN_OP,
     NO_INIT_OR_ASS_OP,
