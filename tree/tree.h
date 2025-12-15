@@ -36,8 +36,8 @@ enum OPERATORS
 
 union TreeElem_t{
     enum OPERATORS op;
-    int const_value;
-    size_t var_code; 
+    ssize_t const_value;
+    ssize_t var_code; 
 };
 
 #ifdef _DEBUG_SMALL_TREE

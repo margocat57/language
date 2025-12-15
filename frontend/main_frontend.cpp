@@ -11,7 +11,7 @@ int main(){
         return 0;
     })
 
-    char* buffer = read_file_to_string_array("tests/test_fact.txt");
+    char* buffer = read_file_to_string_array("tests/test_another_fact.txt");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);

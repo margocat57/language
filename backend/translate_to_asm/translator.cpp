@@ -66,19 +66,19 @@ void CreateAsmCode(const char* file_name, const TreeHead_t* head, TreeErr_t* err
 }
 
 //-----------------------------------------------------------------------------------------------
-static void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, size_t* first_free, int* param_count, TreeErr_t* err);
-static void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateConstAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateVariableAsm    (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateCommaAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, size_t* first_free, int* param_count, TreeErr_t* err);
-static void CreateReturnAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateInitAssAsm     (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
-static void CreateIfAsm          (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count,                        TreeErr_t* err);
-static void CreateElseAsm        (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count,                        TreeErr_t* err);
-static void CreateWhileAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count,                        TreeErr_t* err);
-static void CreateOutputAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                       TreeErr_t* err);
+static void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* first_free, ssize_t* param_count,TreeErr_t* err);
+static void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateConstAsm       (FILE *file, TreeNode_t *node);
+static void CreateVariableAsm    (FILE *file, TreeNode_t *node);
+static void CreateCommaAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* first_free, ssize_t* param_count,TreeErr_t* err);
+static void CreateReturnAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateInitAssAsm     (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateIfAsm          (FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* if_count,                        TreeErr_t* err);
+static void CreateElseAsm        (FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* else_count,                      TreeErr_t* err);
+static void CreateWhileAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* while_count,                     TreeErr_t* err);
+static void CreateOutputAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
 
 //-----------------------------------------------------------------------------------------------
 // Recursive function to create assembler
@@ -89,20 +89,21 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, metki_for_trans
 
     if(!node) return;
 
-    static int if_count = 0;
-    static int while_count = 0;
-    static int else_count = 0;
-    static int param_count = 0;
-    static size_t first_free = 0;
+    static ssize_t if_count = 0;
+    static ssize_t while_count = 0;
+    static ssize_t else_count = 0;
+    static ssize_t param_count = 0;
+    static ssize_t first_free = 0;
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeNodeVerify(node));)
 
     switch(node->type){
+        case INCORR_VAL:    *err = INCORR_TYPE;                                                                              break;
         case FUNCTION:      CALL_FUNC_AND_CHECK_ERR(CreateFunctionDeclAsm(file, node, mtk, err));                            break;
         case FUNC_CALL:     CALL_FUNC_AND_CHECK_ERR(CreateFunctionCallAsm(file, node, mtk, &first_free, &param_count, err)); break;
         case FUNCTION_MAIN: CALL_FUNC_AND_CHECK_ERR(CreateFunctionMainAsm(file, node, mtk, err));                            break;
-        case CONST:                                 CreateConstAsm(file, node, mtk, err);                                    break;
-        case VARIABLE:                              CreateVariableAsm(file, node, mtk, err);                                 break;
+        case CONST:                                 CreateConstAsm(file, node);                                    break;
+        case VARIABLE:                              CreateVariableAsm(file, node);                                 break;
         case OPERATOR:
             switch(node->data.op){
                 case OP_COMMA:                      CALL_FUNC_AND_CHECK_ERR(CreateCommaAsm(file, node, mtk, &first_free, &param_count, err)); break;
@@ -123,7 +124,9 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, metki_for_trans
                 case OP_SP: case OP_CLOSE_FIG_BR:   CALL_FUNC_AND_CHECK_ERR(CreateSpCloseFigBrAsm(file, node, mtk, err));                     break;
                 case OP_INPUT:                      fprintf(file, "IN\n");                                                                    break;
                 case OP_EXIT:                       fprintf(file, "HLT\n");                                                                   break;
+                case INCORR: case OP_OPEN_FIG_BR: case OP_OPEN_BR: case OP_CLOSE_BR: default: *err = INCORR_OPERATOR;                         break;
         }
+        default:                                    *err = INCORR_TYPE;                                                                       break;
     }
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeNodeVerify(node));)
@@ -139,16 +142,16 @@ static void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_transl
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
 }
 
-static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, size_t* first_free, int* param_count, TreeErr_t* err){
+static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* first_free, ssize_t* param_count, TreeErr_t* err){
     if(*err) return;
 
     *first_free = node->data.var_code;
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
     fprintf(file,   "PUSHR RBX\n"
-                    "PUSH %d\n"
+                    "PUSH %zd\n"
                     "ADD\n"
                     "POPR RBX ;сдвигаем на новый стековый фрейм\n"
-                    "PUSH %d ; дампим сдвиг в стек чтобы вернуться\n" 
+                    "PUSH %zd ; дампим сдвиг в стек чтобы вернуться\n" 
                     "CALL :%zu ;calling %s\n",  node->data.var_code, node->data.var_code, 
                                                 MetkiAddName(mtk, node->var_func_name), node->var_func_name); 
     *param_count = 0;
@@ -162,28 +165,28 @@ static void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_transl
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
 }
 
-static void CreateConstAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, TreeErr_t* err){
-    fprintf(file, "PUSH %d\n", node->data.const_value);
+static void CreateConstAsm(FILE *file, TreeNode_t *node){
+    fprintf(file, "PUSH %zd\n", node->data.const_value);
 }
 
-static void CreateVariableAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, TreeErr_t* err){
+static void CreateVariableAsm(FILE *file, TreeNode_t *node){
     fprintf(file,   "PUSHR RBX\n"
-                    "PUSH %d\n"
+                    "PUSH %zd\n"
                     "ADD\n"
                     "POPR RCX\n", node->data.var_code); 
     if(node == node->parent->left && (IS_NODE_PARENT_INIT_OP || IS_NODE_PARENT_ASSIGN_OP)) return;
     fprintf(file, "PUSHM [CX]\n");
 }
 
-static void CreateCommaAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, size_t* first_free, int* param_count, TreeErr_t* err){
+static void CreateCommaAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* first_free, ssize_t* param_count, TreeErr_t* err){
     if(*err) return;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
 
     fprintf(file,   "PUSHR RBX\n"
-                    "PUSH %d\n"
+                    "PUSH %zd\n"
                     "ADD\n"
-                    "PUSH %d\n"
+                    "PUSH %zd\n"
                     "ADD\n"
                     "POPR RCX\n"
                     "POPM [CX]\n", *first_free, *param_count); 
@@ -209,11 +212,11 @@ static void CreateReturnAsm(FILE *file, TreeNode_t *node, metki_for_translate* m
 
 }
 
-static void CreateIfAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count, TreeErr_t* err){
+static void CreateIfAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* if_count, TreeErr_t* err){
     if(*err) return;
 
     char if_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(if_buffer, MAX_SIZE_BUFFER, "if_%d", *if_count);
+    snprintf(if_buffer, MAX_SIZE_BUFFER, "if_%zd", *if_count);
     (*if_count)++;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
@@ -226,11 +229,11 @@ static void CreateIfAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, 
     fprintf(file, ":%zu\n", metka_if);
 }
 
-static void CreateElseAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* else_count, TreeErr_t* err){
+static void CreateElseAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* else_count, TreeErr_t* err){
     if(*err) return;
 
     char else_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%d", *else_count);
+    snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%zd", *else_count);
     (*else_count)++;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->parent->left->left, mtk, err)); 
@@ -243,11 +246,11 @@ static void CreateElseAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk
     fprintf(file, ":%zu\n", metka_else);
 }
 
-static void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* while_count, TreeErr_t* err){
+static void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, ssize_t* while_count, TreeErr_t* err){
     if(*err) return;
 
     char while_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_cycle_%d", *while_count);
+    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_cycle_%zd", *while_count);
     (*while_count)++;
 
     size_t metka_while = MetkiAddName(mtk, while_buffer);
@@ -255,7 +258,7 @@ static void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mt
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
 
-    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_jmp_%d", *while_count);
+    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_jmp_%zd", *while_count);
     size_t metka_while1 = MetkiAddName(mtk, while_buffer);
 
     fprintf(file, "PUSH 0\n");

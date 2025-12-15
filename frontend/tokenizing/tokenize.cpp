@@ -1,5 +1,6 @@
 #include "tokenize.h"
 #include "../include/operators_func.h"
+#include "../io/read_program.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h> 
@@ -18,7 +19,7 @@ static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos);
 
 static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos);
 
-static bool Find_And_Skip_Comments(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool Find_And_Skip_Comments(const char* buffer, size_t* pos);
 
 Tokens_t* TokenizeInput(const char* buffer){
     Tokens_t* tokens = TokensCtor(10);
@@ -28,14 +29,13 @@ Tokens_t* TokenizeInput(const char* buffer){
     bool is_token_found = false;
 
     while(true){
-        is_token_found = false;
         skip_space(buffer, &pos, &slash_n_count, &num_of_symb_above);
 
         if(!strncmp(buffer + pos, "Fottiti!", sizeof("Fottiti!") - 1)){
             break;
         }
 
-        if(Find_And_Skip_Comments(tokens, buffer, &pos))      continue;
+        if(Find_And_Skip_Comments(buffer, &pos))              continue;
 
         else if(FindOperators(tokens, buffer, &pos))          continue; 
 
@@ -53,7 +53,7 @@ Tokens_t* TokenizeInput(const char* buffer){
             return NULL;
         }
     }
-    free((char*)buffer); // временная мера
+    buffer_free((char*)buffer); // временная мера
     return tokens;
 }
 
@@ -74,6 +74,7 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
+        if(num_of_symb < 0) return false;
         *pos += num_of_symb;
         TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
@@ -86,6 +87,7 @@ static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_grande_cazzo", sizeof("Che_grande_cazzo") - 1)){
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
+        if(num_of_symb < 0) return false;
         *pos += num_of_symb;
         TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
@@ -109,11 +111,10 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
 }
 
 static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos){
-    int val = 0;
-    int num_of_symb = 0;
+    double val = 0;
     if(isdigit(buffer[*pos])){
         char* endptr = NULL;
-        val = strtol(buffer + *pos, &endptr, 10);
+        val = strtoll(buffer + *pos, &endptr, 10);
         *pos +=  endptr - (buffer + *pos);
         TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL), tokens);
         return true;
@@ -133,7 +134,7 @@ static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos)
     return false;
 }
 
-static bool Find_And_Skip_Comments(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool Find_And_Skip_Comments(const char* buffer, size_t* pos){
     if(!strncmp(buffer + *pos, "STA_CAGATA", sizeof("STA_CAGATA") - 1)){
         *pos += sizeof("STA_CAGATA") - 1;
         while(true){

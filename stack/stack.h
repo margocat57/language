@@ -1,8 +1,9 @@
 #ifndef STACK_H
 #define STACK_H
 #include <stdlib.h>
+#include <unistd.h> 
 
-typedef int stack_elem_t; 
+typedef ssize_t stack_elem_t; 
 
 const size_t FRONT_CANARY_STACK = 0x4255463132333445;
 const size_t TAIL_CANARY_STACK = 0x4E45534255464145; 

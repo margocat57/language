@@ -44,29 +44,27 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
     static size_t count = 0;
+    size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
 
     switch(node->type){
-        case FUNCTION: case FUNCTION_MAIN:{
+        case INCORR_VAL: *err = INCORR_OPERATOR; break;
+        case FUNCTION: case FUNCTION_MAIN:
             mtk = table->nametables[count];
             count++;
             if(node->type == FUNCTION) fprintf(file, "( \"FUNC %s\"", node->var_func_name);
             if(node->type == FUNCTION_MAIN) fprintf(file, "( \"MAIN %s\"", node->var_func_name);
             break;
-        }
-        case OPERATOR:{
-            size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+        case OPERATOR:
             if(node->data.op >= num_of_op){
                 *err = INCORR_OPERATOR;
                 return;
             }
             fprintf(file, "( \"%s\"", OPERATORS_INFO[node->data.op].op_name_dump);
             break;
-        }
-        case CONST:{
-            fprintf(file, "( \"%d\"", node->data.const_value);
+        case CONST:
+            fprintf(file, "( \"%zd\"", node->data.const_value);
             break;
-        }
-        case VARIABLE:{
+        case VARIABLE:
             if(!mtk){
                 *err = NULL_MTK_PTR;
                 return;
@@ -75,17 +73,16 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
                 *err = INCORR_IDX_IN_MTK;
                 return;
             }
-            fprintf(file, "( \"VAR %zu\"", node->data.var_code);
+            fprintf(file, "( \"VAR %zd\"", node->data.var_code);
             break;
-        }
-        case FUNC_CALL:{
-        if(!mtk){
-            *err = NULL_MTK_PTR;
-            return;
-        }
-        fprintf(file, "( \"CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
-        break;
-        }
+        case FUNC_CALL:
+            if(!mtk){
+                *err = NULL_MTK_PTR;
+                return;
+            }
+            fprintf(file, "( \"CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
+            break;
+        default: *err = INCORR_OPERATOR; break;
     }
 
     if(node->left){

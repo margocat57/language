@@ -9,8 +9,6 @@
 #include <assert.h>
 #include "read_program.h"
 
-const size_t MAX_BUF_SIZE = 2048;
-
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 // Creating buffer for reading program info from disk
@@ -57,7 +55,7 @@ static bool is_stat_err(const char *name_of_file, struct stat *all_info_about_fi
     return false;
 }
 
-static void buffer_free(char* buffer){
+void buffer_free(char* buffer){
     if(buffer){
         memset(buffer, 0, strlen(buffer));
         free(buffer);

@@ -172,7 +172,7 @@ static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write)
         skip_space(buffer, pos);
         return NO_MISTAKE;
     }
-    fprintf(stderr, "Incorr file undef symbol(%s), pos(%llu)\n", buffer + *pos, *pos);
+    fprintf(stderr, "Incorr file undef symbol(%s), pos(%zu)\n", buffer + *pos, *pos);
     return INCORR_FILE;
 }
 
@@ -183,20 +183,20 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
     assert(buffer);
     assert(pos);
 
-    size_t len = 0;
+    ssize_t len = 0;
     char buffer_var[BUFFER_LEN] = {};
     sscanf(buffer + *pos, " \"%[^\"]\"%n", buffer_var, &len);
 
     TreeNode_t* node = NULL;
     if(!strncmp("VAR", buffer_var, 3)){
-        size_t idx = 0;
-        sscanf(buffer_var, "VAR %zu", &idx);
+        ssize_t idx = 0;
+        sscanf(buffer_var, "VAR %zd", &idx);
         node = NodeCtor(VARIABLE, (TreeElem_t){.var_code = idx}, NULL, NULL, NULL);
     }
     else if(!strncmp("CALL", buffer_var, 4)){
-        size_t idx = 0;
+        ssize_t idx = 0;
         char func_name[BUFFER_LEN] = {};
-        sscanf(buffer_var, "CALL[%zu] %s", &idx, func_name);
+        sscanf(buffer_var, "CALL[%zd] %s", &idx, func_name);
         node = NodeCtor(FUNC_CALL, (TreeElem_t){.var_code = idx}, NULL, NULL, NULL, strdup(func_name));
     }
     else if(!strncmp("FUNC", buffer_var, 4)){
@@ -210,7 +210,7 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
         node = NodeCtor(FUNCTION_MAIN, {}, NULL, NULL, NULL, strdup(func_name));
     }
     else if(isdigit(buffer_var[0])){
-        int val = strtol(buffer_var, NULL, 10);
+        ssize_t val = strtoll(buffer_var, NULL, 10);
         node = NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
     }
     else{
