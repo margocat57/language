@@ -653,8 +653,6 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
 // -------------------------------------------------------------------------------------
 // GetReturn , Input or output
 
-static TreeNode_t* GetRetOut(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, name_table* nametable, SyntaxErr_t* err);
-
 static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, name_table* nametable, SyntaxErr_t* err){
     if(*err) return NULL;
 
@@ -662,10 +660,21 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
             NO_RETURN_OP, 
             "No return op in return func\n")
 
-    TreeNode_t* node_ret = NULL;
-    CALL_AND_CHECK_ERR(node_ret = GetRetOut(pos, tokens, tokens_copy, stack, nametable, err));
+    TreeNode_t* node = tokens->node_arr[*pos];
+    (*pos)++; // skip OP_RET
 
-    return node_ret;
+    TreeNode_t* node_e = NULL;
+    CALL_AND_CHECK_ERR(node_e = GetE(pos, tokens, tokens_copy, stack, nametable, err, false));
+
+    node ->left = node_e;
+    node_e -> parent = node;
+
+    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+            NO_SP_AFT_RET_INP_OUTPUT, 
+            "No ; after return input or output\n")
+    (*pos)++; // skip OP_SP - не связываем потому что после return в блоке кода ничего идти не должно
+
+    return node;
 }
 
 static TreeNode_t* GetINPUT(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_table* nametable, SyntaxErr_t* err){
@@ -688,30 +697,25 @@ static TreeNode_t* GetOUTPUT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
             NO_RETURN_OP, 
             "No output op in output func\n")
 
-    TreeNode_t* node_out = NULL;
-    CALL_AND_CHECK_ERR(node_out = GetRetOut(pos, tokens, tokens_copy, stack, nametable, err));
-
-    return node_out;
-}
-
-static TreeNode_t* GetRetOut(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Stack_t* stack, name_table* nametable, SyntaxErr_t* err){
-    if(*err) return NULL;
-
-    TreeNode_t* node = tokens->node_arr[*pos];
+    TreeNode_t* node_out = tokens->node_arr[*pos];
     (*pos)++; // skip OP_RET
 
     TreeNode_t* node_e = NULL;
     CALL_AND_CHECK_ERR(node_e = GetE(pos, tokens, tokens_copy, stack, nametable, err, false));
 
-    node ->left = node_e;
-    node_e -> parent = node;
+    node_out ->left = node_e;
+    node_e -> parent = node_out;
 
     FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
             NO_SP_AFT_RET_INP_OUTPUT, 
             "No ; after return input or output\n")
-    (*pos)++; // skip OP_SP - не связываем потому что после return в блоке кода ничего идти не должно
 
-    return node;
+    TreeNode_t* node_sp = tokens->node_arr[*pos];
+    node_sp -> left = node_out;
+    node_out-> parent = node_sp;
+    (*pos)++; // skip OP_SP 
+
+    return node_sp;
 }
 
 //-------------------------------------------------------------------------------------

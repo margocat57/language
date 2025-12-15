@@ -55,7 +55,8 @@ static char* read_file_to_string_array(const char *name_of_file){
     assert(name_of_file != NULL);
     FILE *fptr = fopen(name_of_file, "r");
     if(!fptr){
-        fprintf(stderr, "Can't open file\n");
+        fprintf(stderr, "Can't open file '%s' for reading. Error: %s\n", 
+            name_of_file, strerror(errno));
         return NULL;
     }
 
@@ -209,7 +210,7 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
         node = NodeCtor(FUNCTION_MAIN, {}, NULL, NULL, NULL, strdup(func_name));
     }
     else if(isdigit(buffer_var[0])){
-        size_t val = strtod(buffer_var, NULL);
+        int val = strtol(buffer_var, NULL, 10);
         node = NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
     }
     else{

@@ -1,0 +1,31 @@
+STA_CAGATA 
+main(){
+n := 3;
+k := fact(n);
+output k;
+exit
+}
+fact(n){
+    if(n == 1){
+        return 1;
+    }
+    k := fact(n - 1) * n;
+    return k;
+}
+NON_PUBBLICARLA
+
+Che_grande_cazzo_main (Ciucciami il_cazzo!){Voi-Figlio
+    n fare_pompino 3 porco_dio!
+    k fare_pompino Che_cazzo_fact (Ciucciami n il_cazzo!) porco_dio!
+    Estrarre_cazzo k porco_dio!
+    Basta!
+di_putana}
+
+Che_cazzo_fact (Ciucciami n il_cazzo!) {Voi-Figlio 
+    Culo (Ciucciami n сazzo,fa 1 il_cazzo!) {Voi-Figlio
+        succhia 1 porco_dio!
+    di_putana}
+    k fare_pompino Che_cazzo_fact (Ciucciami n pazzi 1 il_cazzo!) merda n porco_dio!
+    succhia k porco_dio!
+di_putana}
+Fottiti!

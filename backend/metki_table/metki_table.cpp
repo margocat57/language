@@ -4,23 +4,23 @@
 #include <string.h>
 #include <assert.h>
 
-metki* MetkiInit(){
-    metki* mtk = (metki*)calloc(sizeof(metki), 1);
+metki_for_translate* MetkiInit(){
+    metki_for_translate* mtk = (metki_for_translate*)calloc(sizeof(metki_for_translate), 1);
 
-    variables* metki_arr = (variables*)calloc(sizeof(variables), MAX_NUMBER_OF_METKI); 
+    variables_info* metki_arr = (variables_info*)calloc(sizeof(variables_info), MAX_NUMBER_OF_METKI_TRANSLATE); 
     if(!metki_arr){
-        fprintf(stderr, "Can't allocate memory for metki array");
+        fprintf(stderr, "Can't allocate memory for metki_for_translate array");
         return mtk;
     }
 
-    mtk->num_of_metki = MAX_NUMBER_OF_METKI;
+    mtk->num_of_metki = MAX_NUMBER_OF_METKI_TRANSLATE;
     mtk->var_info = metki_arr;
     mtk->first_free = 1;
 
     return mtk;
 }
 
-size_t MetkiAddName(metki* mtk, char* num_of_variable){
+size_t MetkiAddName(metki_for_translate* mtk, char* num_of_variable){
     assert(mtk);
     assert(num_of_variable);
 
@@ -37,10 +37,10 @@ size_t MetkiAddName(metki* mtk, char* num_of_variable){
     return mtk->first_free - 1;
 }
 
-void MetkiRealloc(metki* mtk, size_t num_of_elem){
-    variables* metki_arr_copy = (variables*)realloc(mtk->var_info, num_of_elem * sizeof(variables));
+void MetkiRealloc(metki_for_translate* mtk, size_t num_of_elem){
+    variables_info* metki_arr_copy = (variables_info*)realloc(mtk->var_info, num_of_elem * sizeof(variables_info));
     if(!metki_arr_copy){
-        fprintf(stderr, "Can't alloc metki arr\n");
+        fprintf(stderr, "Can't alloc metki_for_translate arr\n");
         return;
     }
     mtk->var_info = metki_arr_copy;
@@ -50,7 +50,7 @@ void MetkiRealloc(metki* mtk, size_t num_of_elem){
     }
 }
 
-size_t FindVarInMtkArr(metki* mtk, char* num_of_variable){
+size_t FindVarInMtkArr(metki_for_translate* mtk, char* num_of_variable){
     for(size_t metka = 0; metka < mtk->first_free; metka++){
         if(!strcmp(mtk->var_info[metka].variable_name, num_of_variable)){
             return metka;
@@ -60,7 +60,7 @@ size_t FindVarInMtkArr(metki* mtk, char* num_of_variable){
 }
 
 
-void MetkiDestroy(metki* mtk){
+void MetkiDestroy(metki_for_translate* mtk){
     if(mtk){
         for(size_t i = 0; i < mtk->first_free; i++){
             free(mtk->var_info[i].variable_name);

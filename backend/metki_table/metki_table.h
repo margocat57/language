@@ -1,27 +1,27 @@
-#ifndef METKI_H
-#define METKI_H
+#ifndef METKI_TABLE_H
+#define METKI_TABLE_H
 #include <stdlib.h>
 
-const int MAX_NUMBER_OF_METKI = 20;
+const int MAX_NUMBER_OF_METKI_TRANSLATE = 20;
 
-struct variables{
+struct variables_info{
     char* variable_name;
 };
 
-struct metki{
-    variables* var_info;
+struct metki_for_translate{
+    variables_info* var_info;
     size_t num_of_metki;
     size_t first_free;
 };
 
-metki* MetkiInit();
+metki_for_translate* MetkiInit();
 
-size_t MetkiAddName(metki* mtk, char* num_of_variable);
+size_t MetkiAddName(metki_for_translate* mtk, char* num_of_variable);
 
-void MetkiRealloc(metki* mtk, size_t num_of_elem);
+void MetkiRealloc(metki_for_translate* mtk, size_t num_of_elem);
 
-size_t FindVarInMtkArr(metki* mtk, char* num_of_variable);
+size_t FindVarInMtkArr(metki_for_translate* mtk, char* num_of_variable);
 
-void MetkiDestroy(metki* mtk);
+void MetkiDestroy(metki_for_translate* mtk);
 
-#endif //METKI_H
+#endif //METKI_TABLE_H

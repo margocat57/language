@@ -74,54 +74,55 @@ run_leak_check_front: frontend_lang
 
 # BACKEND ------------------------------------------------------------------
 
+tree/tree_func.o: tree/tree_func.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
 backend/main_backend.o: backend/main_backend.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-backend/Processor-and-asssembler/assembler_task/file_work.o: backend/Processor-and-asssembler/assembler_task/file_work.cpp
+backend/Processor-and-assembler/assembler_task/file_work.o: backend/Processor-and-assembler/assembler_task/file_work.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
 
-backend/Processor-and-asssembler/assembler_task/parsing_str.o: backend/Processor-and-asssembler/assembler_task/parsing_str.cpp
+backend/Processor-and-assembler/assembler_task/parsing_str.o: backend/Processor-and-assembler/assembler_task/parsing_str.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
 
-backend/Processor-and-asssembler/assembler_task/assembler_struct.o: backend/Processor-and-asssembler/assembler_task/assembler_struct.cpp
+backend/Processor-and-assembler/assembler_task/assembler_struct.o: backend/Processor-and-assembler/assembler_task/assembler_struct.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
 
-backend/Processor-and-asssembler/assembler_task/metki.o: backend/Processor-and-asssembler/assembler_task/metki.cpp
+backend/Processor-and-assembler/assembler_task/metki.o: backend/Processor-and-assembler/assembler_task/metki.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
 
-backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o: backend/Processor-and-asssembler/processor_task/parse_asm_from_file.cpp
+backend/Processor-and-assembler/processor_task/parse_asm_from_file.o: backend/Processor-and-assembler/processor_task/parse_asm_from_file.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
 
-backend/Processor-and-asssembler/processor_task/processor.o: backend/Processor-and-asssembler/processor_task/processor.cpp
+backend/Processor-and-assembler/processor_task/processor.o: backend/Processor-and-assembler/processor_task/processor.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
 
-backend/Processor-and-asssembler/processor_task/do_instructions.o: backend/Processor-and-asssembler/processor_task/do_instructions.cpp
+backend/Processor-and-assembler/processor_task/do_instructions.o: backend/Processor-and-assembler/processor_task/do_instructions.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
 
 backend/metki_table/metki_table.o: backend/metki_table/metki_table.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-backend/translate_to_asm/translate_to_asm.o: backend/translate_to_asm/translate_to_asm.cpp
+backend/translate_to_asm/translator.o: backend/translate_to_asm/translator.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 backend/make_backend_tree/make_tree.o: backend/make_backend_tree/make_tree.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-backend/make_backend_tree/debug_output/graphviz_dump.o: backend/make_backend_tree/debug_output/graphviz_dump.cpp
+backend/make_backend_tree/debug_output_backend/graphviz_dump.o: backend/make_backend_tree/debug_output_backend/graphviz_dump.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-backend/make_backend_tree/debug_output/print_node.o: backend/make_backend_tree/debug_output/print_node.cpp
+backend/make_backend_tree/debug_output_backend/print_node.o: backend/make_backend_tree/debug_output_backend/print_node.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o stack_for_calcul/hash.o 
+backend_lang: tree/tree_func.o backend/main_backend.o backend/Processor-and-assembler/assembler_task/file_work.o backend/Processor-and-assembler/assembler_task/parsing_str.o backend/Processor-and-assembler/assembler_task/assembler_struct.o backend/Processor-and-assembler/assembler_task/metki.o backend/Processor-and-assembler/processor_task/parse_asm_from_file.o backend/Processor-and-assembler/processor_task/processor.o backend/Processor-and-assembler/processor_task/do_instructions.o  backend/metki_table/metki_table.o backend/translate_to_asm/translator.o  backend/make_backend_tree/make_tree.o backend/make_backend_tree/debug_output_backend/graphviz_dump.o backend/make_backend_tree/debug_output_backend/print_node.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-backend_lang: backend/main_backend.o backend/Processor-and-asssembler/assembler_task/file_work.o backend/Processor-and-asssembler/assembler_task/parsing_str.o backend/Processor-and-asssembler/assembler_task/assembler_struct.o backend/Processor-and-asssembler/assembler_task/metki.o backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o backend/Processor-and-asssembler/processor_task/processor.o backend/Processor-and-asssembler/processor_task/do_instructions.o  backend/metki_table/metki_table.o backend/translate_to_asm/translate_to_asm.o  backend/make_backend_tree/make_tree.o backend/make_backend_tree/debug_output/graphviz_dump.o backend/make_backend_tree/debug_output/print_node.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o
-	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_back: backend_lang
 	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./backend_lang
 
 
 clean:
-	rm -f frontend_lang frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/nametables/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output_frontend/images/*.dot frontend/debug_output_frontend/images/*.svg frontend/include/*.o stack/*.o tree/*.o backend/*.o backend/Processor-and-asssembler/assembler_task/*.o backend/Processor-and-asssembler/processor_task/*.o backend/metki_table/*.o backend_lang backend/translate_to_asm/*.o backend/make_backend_tree/*.o backend/make_backend_tree/debug_output/*.o backend/debug_output_backend/images/*.dot backend/debug_output_backend/images/*.svg
+	rm -f frontend_lang frontend/*.o frontend/common/*.o frontend/debug_output_frontend/*.o frontend/io/*.o frontend/nametables/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output_frontend/images/*.dot frontend/debug_output_frontend/images/*.svg frontend/include/*.o stack/*.o tree/*.o backend/*.o backend/Processor-and-assembler/assembler_task/*.o backend/Processor-and-assembler/processor_task/*.o backend/metki_table/*.o backend_lang backend/translate_to_asm/*.o backend/make_backend_tree/*.o backend/make_backend_tree/debug_output_backend/*.o backend/make_backend_tree/debug_output_backend/images/*.dot backend/make_backend_tree/debug_output_backend/images/*.svg
