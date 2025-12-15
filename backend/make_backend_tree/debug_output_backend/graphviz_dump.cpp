@@ -93,7 +93,7 @@ static filenames_for_dump filename_ctor(){
     struct tm *t = localtime(&now); 
 
     if(snprintf(dump.dot_filename, 200, 
-                "frontend/debug_output/images/dump%d_%04d%02d%02d_%02d%02d%02d.dot", num,
+                "frontend/debug_output_backend/images/dump%d_%04d%02d%02d_%02d%02d%02d.dot", num,
                 t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
                 t->tm_hour, t->tm_min, t->tm_sec) == -1) {
         fprintf(stderr, "Can't generate dot filename\n");
@@ -102,7 +102,7 @@ static filenames_for_dump filename_ctor(){
     }
     
     if(snprintf(dump.svg_filename, 200, 
-                "frontend/debug_output/images/dump%d_%04d%02d%02d_%02d%02d%02d.svg", num,
+                "frontend/debug_output_backend/images/dump%d_%04d%02d%02d_%02d%02d%02d.svg", num,
                 t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
                 t->tm_hour, t->tm_min, t->tm_sec) == -1) {
         fprintf(stderr, "Can't generate svg filename\n");

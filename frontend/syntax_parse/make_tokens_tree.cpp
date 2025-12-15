@@ -82,7 +82,7 @@ static TreeNode_t* GetSepNode(size_t* pos, Tokens_t* tokens_copy, TreeNode_t* no
 
     CHECK_PARSING_ERR(TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = sep_op}, NULL, node_left_child, NULL), tokens_copy), NULL);
     TreeNode_t* sep_node = tokens_copy->node_arr[tokens_copy->first_free_place - 1];
-    node_left_child -> parent = sep_node;
+    if (node_left_child) node_left_child -> parent = sep_node;
 
     return sep_node;
 }

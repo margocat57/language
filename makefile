@@ -29,10 +29,10 @@ tree/tree_func.o: tree/tree_func.cpp
 frontend/include/operators_func.o: frontend/include/operators_func.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/debug_output/graphviz_dump.o: frontend/debug_output/graphviz_dump.cpp
+frontend/debug_output_frontend/graphviz_dump.o: frontend/debug_output_frontend/graphviz_dump.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend/debug_output/print_node.o: frontend/debug_output/print_node.cpp
+frontend/debug_output_frontend/print_node.o: frontend/debug_output_frontend/print_node.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
 frontend/io/put_tree_to_file.o: frontend/io/put_tree_to_file.cpp
@@ -65,11 +65,11 @@ frontend/nametables/nametable.o: frontend/nametables/nametable.cpp
 frontend/nametables/table_of_nametable.o: frontend/nametables/table_of_nametable.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS)
 
-frontend: frontend/main_frontend.o frontend/common/tokens.o tree/tree_func.o frontend/debug_output/graphviz_dump.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o frontend/nametables/nametable.o  frontend/nametables/table_of_nametable.o
+frontend_lang: frontend/main_frontend.o frontend/common/tokens.o tree/tree_func.o frontend/debug_output_frontend/graphviz_dump.o frontend/debug_output_frontend/print_node.o frontend/io/put_tree_to_file.o frontend/io/read_program.o frontend/syntax_parse/make_tokens_tree.o frontend/tokenizing/tokenize.o frontend/include/operators_func.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o frontend/nametables/nametable.o  frontend/nametables/table_of_nametable.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-run_leak_check_front: frontend
-	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./frontend
+run_leak_check_front: frontend_lang
+	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./frontend_lang
 
 
 # BACKEND ------------------------------------------------------------------
@@ -116,12 +116,12 @@ backend/make_backend_tree/debug_output/print_node.o: backend/make_backend_tree/d
 assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o stack_for_calcul/hash.o 
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-backend: backend/main_backend.o backend/Processor-and-asssembler/assembler_task/file_work.o backend/Processor-and-asssembler/assembler_task/parsing_str.o backend/Processor-and-asssembler/assembler_task/assembler_struct.o backend/Processor-and-asssembler/assembler_task/metki.o backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o backend/Processor-and-asssembler/processor_task/processor.o backend/Processor-and-asssembler/processor_task/do_instructions.o  backend/metki_table/metki_table.o backend/translate_to_asm/translate_to_asm.o  backend/make_backend_tree/make_tree.o backend/make_backend_tree/debug_output/graphviz_dump.o backend/make_backend_tree/debug_output/print_node.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o
+backend_lang: backend/main_backend.o backend/Processor-and-asssembler/assembler_task/file_work.o backend/Processor-and-asssembler/assembler_task/parsing_str.o backend/Processor-and-asssembler/assembler_task/assembler_struct.o backend/Processor-and-asssembler/assembler_task/metki.o backend/Processor-and-asssembler/processor_task/parse_asm_from_file.o backend/Processor-and-asssembler/processor_task/processor.o backend/Processor-and-asssembler/processor_task/do_instructions.o  backend/metki_table/metki_table.o backend/translate_to_asm/translate_to_asm.o  backend/make_backend_tree/make_tree.o backend/make_backend_tree/debug_output/graphviz_dump.o backend/make_backend_tree/debug_output/print_node.o stack/hash.o stack/log.o stack/my_assert.o stack/stack_func.o
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-run_leak_check_back: backend
-	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./backend
+run_leak_check_back: backend_lang
+	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./backend_lang
 
 
 clean:
-	rm -f frontend frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/nametables/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o stack/*.o tree/*.o backend/*.o backend/Processor-and-asssembler/assembler_task/*.o backend/Processor-and-asssembler/processor_task/*.o backend/metki_table/*.o backend backend/translate_to_asm/*.o backend/make_backend_tree/*.o backend/make_backend_tree/debug_output/*.o
+	rm -f frontend_lang frontend/*.o frontend/common/*.o frontend/debug_output/*.o frontend/io/*.o frontend/nametables/*.o frontend/syntax_parse/*.o frontend/tokenizing/*.o frontend/debug_output/images/*.dot frontend/debug_output/images/*.svg frontend/include/*.o stack/*.o tree/*.o backend/*.o backend/Processor-and-asssembler/assembler_task/*.o backend/Processor-and-asssembler/processor_task/*.o backend/metki_table/*.o backend_lang backend/translate_to_asm/*.o backend/make_backend_tree/*.o backend/make_backend_tree/debug_output/*.o

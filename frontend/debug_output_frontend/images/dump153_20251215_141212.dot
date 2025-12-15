@@ -1,0 +1,30 @@
+digraph G{
+ rankdir=TB;
+ charset="utf-8";
+ graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
+ node_0x606000002c00 -> node_0x606000000d40[color = "#964B00", dir = both];
+ node_0x606000000d40 -> node_0x606000000e00[color = "#964B00", dir = both];
+ node_0x606000000e00[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=3, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = 0(a)} | {0 | 0}} "];
+ node_0x606000000d40[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=2, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 14(OP_WHILE)} | {L | R }} "];
+ node_0x606000000d40 -> node_0x606000001040[color = "#964B00", dir = both];
+ node_0x606000001040 -> node_0x606000000f80[color = "#964B00", dir = both];
+ node_0x606000000f80 -> node_0x606000000f20[color = "#964B00", dir = both];
+ node_0x606000000f20[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=5, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = 4(a)} | {0 | 0}} "];
+ node_0x606000000f80[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=4, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 6(OP_INIT)} | {L | R }} "];
+ node_0x606000000f80 -> node_0x606000000fe0[color = "#964B00", dir = both];
+ node_0x606000000fe0[shape="Mrecord", style="filled", fillcolor="#98FB98", rank=5, color = "#964B00", penwidth=1.0, label="{{type = CONST_VAR} | {val = 4} | {0 | 0}} "];
+ node_0x606000001040[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=3, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 11(OP_SP)} | {L | R }} "];
+ node_0x606000001040 -> node_0x606000001280[color = "#964B00", dir = both];
+ node_0x606000001280 -> node_0x606000001100[color = "#964B00", dir = both];
+ node_0x606000001100 -> node_0x6060000010a0[color = "#964B00", dir = both];
+ node_0x6060000010a0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=6, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = 4(a)} | {0 | 0}} "];
+ node_0x606000001100[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=5, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 7(OP_ASS)} | {L | R }} "];
+ node_0x606000001100 -> node_0x6060000011c0[color = "#964B00", dir = both];
+ node_0x6060000011c0 -> node_0x606000001160[color = "#964B00", dir = both];
+ node_0x606000001160[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=7, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = 4(a)} | {0 | 0}} "];
+ node_0x6060000011c0[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=6, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 1(OP_ADD)} | {L | R }} "];
+ node_0x6060000011c0 -> node_0x606000001220[color = "#964B00", dir = both];
+ node_0x606000001220[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=7, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = 2(c)} | {0 | 0}} "];
+ node_0x606000001280[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=4, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 11(OP_SP)} | {L | R }} "];
+ node_0x606000002c00[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=1, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 18(OP_CFB)} | {L | R }} "];
+}

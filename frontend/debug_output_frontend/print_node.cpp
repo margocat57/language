@@ -26,7 +26,7 @@ TreeErr_t PrintNode(const TreeNode_t* node, FILE* dot_file, int* rank, name_tabl
     }
     else{
         if(node->type == CONST){
-            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#98FB98\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = CONST_VAR} | {val = %lg} | {0 | 0}} \"];\n", node, *rank, node->data.const_value);
+            fprintf(dot_file, " node_%p[shape=\"Mrecord\", style=\"filled\", fillcolor=\"#98FB98\", rank=%d, color = \"#964B00\", penwidth=1.0, label=\"{{type = CONST_VAR} | {val = %d} | {0 | 0}} \"];\n", node, *rank, node->data.const_value);
         }
         else if(node->type == VARIABLE){
             if(node->var_func_name){

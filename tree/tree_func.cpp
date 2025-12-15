@@ -3,7 +3,6 @@
 #include <assert.h>
 #include "tree_func.h"
 #include "mistakes.h"
-#include "../include/operators_func.h"
 #include "tree.h"
 
 
