@@ -15,12 +15,16 @@ int main(){
     TreeHead_t* head = MakeBackendTree("backend/make_backend_tree/tree_file/tree.txt");
     TreeErr_t err = NO_MISTAKE;
     CreateAsmCode("backend/Processor-and-assembler/assembler_task/expr.txt", head, &err);
-    if(err) return 0;
+    if(err){
+        TreeDel(head);
+        return 0;
+    } 
 
     // making bytecode ------------------------------------
     assembler assembl = asm_init("backend/Processor-and-assembler/assembler_task/expr.txt");
-    if (parser(&assembl)){
+    if(parser(&assembl)){
         free_asm(&assembl);
+        TreeDel(head);
         return 0;
     }
     asm_dump(&assembl);
@@ -33,6 +37,7 @@ int main(){
     stack_err_bytes err_main = do_processor_comands(&baikal);
 
     processor_free(&baikal);
+    TreeDel(head);
 
     return 0;
 }

@@ -27,7 +27,7 @@ int main(){
     if(!head) return 0;
 
     TreeErr_t err = NO_MISTAKE;
-    PutTreeToFile("backend/make_backend_tree/tree_file/tree.txt", head, tokens->table, &err);
+    PutTreeToFile("middleend/tree_file/tree.txt", head, tokens->table, &err);
 
     free(head);
     TokensDtor(tokens);

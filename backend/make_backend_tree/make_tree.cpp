@@ -47,7 +47,7 @@ static void ConnectWithParents(TreeNode_t *node){
 
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-// Creating buffer for reading akinator info from disk
+// Creating buffer for reading tree info from disk
 
 static bool is_stat_err(const char *name_of_file, struct stat *all_info_about_file);
 
@@ -94,7 +94,7 @@ static bool is_stat_err(const char *name_of_file, struct stat *all_info_about_fi
 
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-// Make akinator tree
+// Make tree
 
 static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write);
 
@@ -143,7 +143,6 @@ static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write)
             return INCORR_FILE;
         }
 
-        // ReadStrchr(pos, buffer, node, head); 
         *node_to_write = ReadHeader(pos, buffer); 
         skip_space(buffer, pos);
 
@@ -179,22 +178,24 @@ static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write)
 //-------------------------------------------------------------------------------------------
 // Reading string from file
 
+// на будущее - дампить не по типу а число в енаме и делать свитч по числу
+
 static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
     assert(buffer);
     assert(pos);
 
-    ssize_t len = 0;
+    int len = 0;
     char buffer_var[BUFFER_LEN] = {};
     sscanf(buffer + *pos, " \"%[^\"]\"%n", buffer_var, &len);
 
     TreeNode_t* node = NULL;
     if(!strncmp("VAR", buffer_var, 3)){
-        ssize_t idx = 0;
-        sscanf(buffer_var, "VAR %zd", &idx);
+        int idx = 0;
+        sscanf(buffer_var, "VAR %lld", &idx);
         node = NodeCtor(VARIABLE, (TreeElem_t){.var_code = idx}, NULL, NULL, NULL);
     }
     else if(!strncmp("CALL", buffer_var, 4)){
-        ssize_t idx = 0;
+        int idx = 0;
         char func_name[BUFFER_LEN] = {};
         sscanf(buffer_var, "CALL[%zd] %s", &idx, func_name);
         node = NodeCtor(FUNC_CALL, (TreeElem_t){.var_code = idx}, NULL, NULL, NULL, strdup(func_name));
@@ -210,7 +211,7 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
         node = NodeCtor(FUNCTION_MAIN, {}, NULL, NULL, NULL, strdup(func_name));
     }
     else if(isdigit(buffer_var[0])){
-        ssize_t val = strtoll(buffer_var, NULL, 10);
+        int val = strtoll(buffer_var, NULL, 10);
         node = NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
     }
     else{

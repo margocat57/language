@@ -10,7 +10,7 @@
 #include "log.h"
 #include "stack.h"
 
-const char* FORM_SPEC_STK_EL = "%lg";
+const char* FORM_SPEC_STK_EL = "%zd";
 const int POISON = 6666;
 const double SIZE_INCREASE = 2;
 

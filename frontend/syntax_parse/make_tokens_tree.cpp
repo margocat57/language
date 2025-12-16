@@ -226,7 +226,7 @@ static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 
     TreeNode_t* func_name = NULL;
     CALL_AND_CHECK_ERR(func_name = GetFUNC_DECL(pos, tokens, tokens_copy, stack, nametable_func, err));
-    size_t num_of_params = nametable_func->first_free - 1;
+    int num_of_params = nametable_func->first_free - 1;
 
     TreeNode_t* bodynode = NULL;
     size_t numbers_of_var = 0;
@@ -901,7 +901,7 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_tabl
             "No variable\n")
 
     if(is_init){
-        ssize_t idx = NameTableAddName(nametable, tokens->node_arr[*pos]->var_func_name);
+        int idx = NameTableAddName(nametable, tokens->node_arr[*pos]->var_func_name);
         CALL_AND_CHECK_ERR(*err = stack_push(stack, &idx));
         tokens->node_arr[*pos]->data.var_code = idx;
     }
@@ -924,7 +924,7 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_tabl
 }
 
 static bool FindVarAtStack(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_table* nametable){
-    ssize_t idx2 = stack->top - 1;
+    int idx2 = stack->top - 1;
     while(idx2 >= 0 || stack->data[idx2] != stack->front_canary_data){
         if(!strcmp(nametable->var_info[stack->data[idx2]].variable_name, tokens->node_arr[*pos]->var_func_name)){
             tokens->node_arr[*pos]->data.var_code = stack->data[idx2];
