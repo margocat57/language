@@ -57,16 +57,16 @@ static void PutTreeToFileRecursiveMiddle(FILE *file, TreeNode_t *node, const Tre
                 *err = INCORR_OPERATOR;
                 return;
             }
-            fprintf(file, "( \"%s\"", OPERATORS_INFO[node->data.op].op_name_dump);
+            fprintf(file, "( \"OP %d\"", OPERATORS_INFO[node->data.op].op);
             break;
         case CONST:
-            fprintf(file, "( \"%d\"", node->data.const_value);
+            fprintf(file, "( \"%lg\"", node->data.const_value);
             break;
         case VARIABLE:
-            fprintf(file, "( \"VAR %d\"", node->data.var_code);
+            fprintf(file, "( \"VAR %zu\"", node->data.var_code);
             break;
         case FUNC_CALL:
-            fprintf(file, "( \"CALL[%d] %s \"", node->data.var_code, node->var_func_name);
+            fprintf(file, "( \"CALL[%zu] %s \"", node->data.var_code, node->var_func_name);
             break;
         default: *err = INCORR_OPERATOR; break;
     }

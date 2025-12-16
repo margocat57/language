@@ -3,7 +3,7 @@
 #include "../../tree/tree.h"
 #include "../../tree/mistakes.h"
 
-void CalcTreeExpression(TreeNode_t* node, int* result, TreeErr_t* err);
+void CalcTreeExpression(TreeNode_t* node, double* result, TreeErr_t* err);
 
 void TreeOptimize(TreeNode_t **node, TreeErr_t* err);
 

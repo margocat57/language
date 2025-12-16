@@ -23,7 +23,7 @@ const double EPS = 1e-15;
 #define RES_L *left_result
 #define RES_R *right_result
 #define DEF_OP(Op, Result) \
-static void Calc##Op(int* result, int* left_result, int* right_result){ \
+static void Calc##Op(double* result, double* left_result, double* right_result){ \
     assert(result); \
     *result = (Result); \
 }
@@ -32,7 +32,7 @@ DEF_OP(Add, RES_L + RES_R);
 DEF_OP(Sub, RES_L - RES_R);
 DEF_OP(Mul, RES_L * RES_R);
 DEF_OP(Div, (fabs(RES_R) > EPS) ? RES_L / RES_R : 0);
-DEF_OP(Deg, (RES_R > 0) ? pow(RES_L, RES_R) : pow(RES_L, 1 / (-1) * RES_R));
+DEF_OP(Deg, pow(RES_L, RES_R));
 DEF_OP(Eq,  RES_L == RES_R);
 DEF_OP(Le,  RES_L < RES_R);
 DEF_OP(Ge,  RES_L > RES_R);
@@ -42,9 +42,9 @@ DEF_OP(Ge,  RES_L > RES_R);
 //--------------------------------------------------------------------------------------------
 // First part of task - tree of expressions and main function for it
 
-static void CalcTreeExpressionRecursive(TreeNode_t* node, int* result, TreeErr_t* err);
+static void CalcTreeExpressionRecursive(TreeNode_t* node, double* result, TreeErr_t* err);
 
-void CalcTreeExpression(TreeNode_t* node, int* result, TreeErr_t* err){
+void CalcTreeExpression(TreeNode_t* node, double* result, TreeErr_t* err){
     if(*err) return;
     assert(result);
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR( *err = TreeNodeVerify(node);));
@@ -58,17 +58,17 @@ void CalcTreeExpression(TreeNode_t* node, int* result, TreeErr_t* err){
 // Postfix tree calculating
 // After will be verifying
 
-static void CalcExpWithOperator(TreeNode_t *node, int* result, int* left_result, int* right_result, TreeErr_t* err);
+static void CalcExpWithOperator(TreeNode_t *node, double* result, double* left_result, double* right_result, TreeErr_t* err);
 
-static void CalcExpWithConst(TreeNode_t* node, int* result);
+static void CalcExpWithConst(TreeNode_t* node, double* result);
 
 
-static void CalcTreeExpressionRecursive(TreeNode_t* node, int* result, TreeErr_t* err){
+static void CalcTreeExpressionRecursive(TreeNode_t* node, double* result, TreeErr_t* err){
     if(*err) return;
     assert(result);
 
-    int left_result = 0;
-    int right_result = 0;
+    double left_result = 0;
+    double right_result = 0;
 
     if(!node) return;
 
@@ -88,7 +88,7 @@ static void CalcTreeExpressionRecursive(TreeNode_t* node, int* result, TreeErr_t
 }
 //--------------------------------------------------------------------------------
 
-static void CalcExpWithOperator(TreeNode_t* node, int* result, int* left_result, int* right_result, TreeErr_t* err){
+static void CalcExpWithOperator(TreeNode_t* node, double* result, double* left_result, double* right_result, TreeErr_t* err){
     if(*err) return;
     assert(result); 
 
@@ -105,7 +105,7 @@ static void CalcExpWithOperator(TreeNode_t* node, int* result, int* left_result,
     }
 }
 
-static void CalcExpWithConst(TreeNode_t* node, int* result){
+static void CalcExpWithConst(TreeNode_t* node, double* result){
     *result = node->data.const_value;
 }
 

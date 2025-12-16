@@ -44,7 +44,7 @@ void printf_to_log_file(const char *string, ...)
 
     va_end(args);
 
-    if (LOG_FILE != stderr && LOG_FILE != stdout)
+    if (LOG_FILE != stderr || LOG_FILE != stdout)
         fflush(LOG_FILE);
 }
 

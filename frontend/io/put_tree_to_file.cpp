@@ -59,10 +59,10 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
                 *err = INCORR_OPERATOR;
                 return;
             }
-            fprintf(file, "( \"%s\"", OPERATORS_INFO[node->data.op].op_name_dump);
+            fprintf(file, "( \"OP %d\"", OPERATORS_INFO[node->data.op].op);
             break;
         case CONST:
-            fprintf(file, "( \"%d\"", node->data.const_value);
+            fprintf(file, "( \"%lg\"", node->data.const_value);
             break;
         case VARIABLE:
             if(!mtk){
@@ -73,14 +73,14 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
                 *err = INCORR_IDX_IN_MTK;
                 return;
             }
-            fprintf(file, "( \"VAR %d\"", node->data.var_code);
+            fprintf(file, "( \"VAR %zu\"", node->data.var_code);
             break;
         case FUNC_CALL:
             if(!mtk){
                 *err = NULL_MTK_PTR;
                 return;
             }
-            fprintf(file, "( \"CALL[%d] %s \"", mtk->first_free, node->var_func_name);
+            fprintf(file, "( \"CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
             break;
         default: *err = INCORR_OPERATOR; break;
     }

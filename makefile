@@ -21,14 +21,8 @@ endif
 
 # СOMMON ------------------------------------------------------------------
 
-STK = $(shell find stack -type f -name "*.cpp")
-STK_OBJS = $(STK:%.cpp=%.o)
-
 TREE = $(shell find tree -type f -name "*.cpp")
 TREE_OBJS = $(TREE:%.cpp=%.o)
-
-$(STK_OBJS): %.o: %.cpp                            
-	$(COMP) -c $< -o $@ $(CFLAGS) 
 
 $(TREE_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
@@ -41,7 +35,7 @@ FRNTD_OBJS = $(FRNTD:%.cpp=%.o)
 $(FRNTD_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
 
-frontend_lang: $(FRNTD_OBJS) $(STK_OBJS) $(TREE_OBJS)
+frontend_lang: $(FRNTD_OBJS)  $(TREE_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_front: frontend_lang
@@ -91,7 +85,7 @@ $(BCKND_PROC_OBJS): %.o: %.cpp
 generate_asm: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-backend_lang: $(STK_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS)
+backend_lang: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_back: backend_lang
@@ -100,7 +94,7 @@ run_leak_check_back: backend_lang
 # Frontend, middleend and backend --------------------------------------------------------
 
 lang: frontend_lang middleend_lang backend_lang 
-	./frontend_lang | ./middleend_lang | ./backend_lang 
+	(./frontend_lang; ./middleend_lang; ./backend_lang)
 
 run_leak_check_lang: lang
 	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./lang

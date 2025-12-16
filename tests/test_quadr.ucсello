@@ -1,0 +1,167 @@
+STA_CAGATA
+int main(){
+    param_a := IN;
+    param_b := IN;
+    param_c := IN;
+    quantaty_of_solutions := get_quantaty_of_solutions(a, b, c);
+    if(quantaty_of_solutions == 0){
+        print -1;
+        exit;
+    }
+    if(quantaty_of_solutions == 8){
+        print 8;
+        exit;
+    }
+    if(quantaty_of_solutions == 1){
+        x := solve_linear_eq(b, c);
+        print x;
+        exit;
+    }
+    d := b * b - 4 * a * c;
+    quantaty_of_solutions = get_quantaty_of_solutions_diskr(d);
+    if(quantaty_of_solutions == 0){
+        print -1;
+        exit;
+    }
+    if(quantaty_of_solutions == 1){
+        x1 := find_smaller_solution(a, b, c, d);
+        print x1;
+        exit;
+    }
+    if(quantaty_of_solutions == 2){
+        x1 := find_smaller_solution(a, b, c, d);
+        print x1;
+        x2 := find_bigger_solution(a, b, c, d);
+        print x2;
+        exit;
+    }
+
+}
+
+int get_quantaty_of_solutions(a, b, c){
+    quantaty_of_solutions := 0;
+    if(param_a == 0){
+        if(param_b == 0){
+            if(param_c == 0){
+                quantaty_of_solutions = 8;
+            }
+            else{
+                quantaty_of_solutions = 0;
+            }
+        }
+        else{
+            quantaty_of_solutions = 1;
+        }
+    }
+    else{
+        quantaty_of_solutions = 2;
+    }
+    return quantaty_of_solutions;
+}
+
+int solve_linear_eq(b, c){
+    return (-1) * c / b;
+}
+
+int get_quantaty_of_solutions_diskr(d){
+    if(d < 0){
+        return 0;
+    }
+    if(d == 0){
+        return 1;
+    }
+    return 2;
+}
+
+int find_smaller_solution(a, b, c, d){
+    return (-b - sqrt(d))/2a;
+}
+
+int find_bigger_solution(a, b, c, d){
+    return (-b + sqrt(d))/2a;
+}
+NON_PUBBLICARLA
+
+Che_grande_cazzo_main (Ciucciami il_cazzo!) {Voi-Figlio
+    param_a fare_pompino Infila_сazzo porco_dio!
+    param_b fare_pompino Infila_сazzo porco_dio!
+    param_c fare_pompino Infila_сazzo porco_dio!
+    quantaty_of_solutions fare_pompino Che_cazzo_get_quantaty_of_solutions (Ciucciami param_a сhe_culo param_b сhe_culo param_c il_cazzo!) porco_dio!
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 0 il_cazzo!) {Voi-Figlio
+        Estrarre_cazzo -1 porco_dio!
+        Basta!
+    di_putana}
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 8 il_cazzo!) {Voi-Figlio
+        Estrarre_cazzo 8 porco_dio!
+        Basta!
+    di_putana}
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 1 il_cazzo!) {Voi-Figlio
+        x fare_pompino Che_cazzo_solve_linear_eq (Ciucciami param_b сhe_culo param_c il_cazzo!) porco_dio!
+        Estrarre_cazzo x porco_dio!
+        Basta!
+    di_putana}
+    d fare_pompino param_b merda param_b pazzi 4 merda param_a merda param_c porco_dio!
+    quantaty_of_solutions a_fanculo Che_cazzo_get_quantaty_of_solutions_diskr (Ciucciami d il_cazzo!) porco_dio!
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 0 il_cazzo!) {Voi-Figlio
+        Estrarre_cazzo -1 porco_dio!
+        Basta!
+    di_putana}
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 1 il_cazzo!) {Voi-Figlio
+        x1 fare_pompino Che_cazzo_find_smaller_solution (Ciucciami param_a сhe_culo param_b сhe_culo param_c сhe_culo d il_cazzo!) porco_dio!
+        Estrarre_cazzo x1 porco_dio!
+        Basta!
+    di_putana}
+    Culo (Ciucciami quantaty_of_solutions сazzo,fa 2 il_cazzo!) {Voi-Figlio
+        x1 fare_pompino Che_cazzo_find_smaller_solution (Ciucciami param_a сhe_culo param_b сhe_culo param_c сhe_culo d il_cazzo!) porco_dio!
+        Estrarre_cazzo x1 porco_dio!
+        x2 fare_pompino Che_cazzo_find_bigger_solution (Ciucciami param_a сhe_culo param_b сhe_culo param_c сhe_culo d il_cazzo!) porco_dio!
+        Estrarre_cazzo x2 porco_dio!
+        Basta!
+    di_putana}
+di_putana}
+
+Che_cazzo_get_quantaty_of_solutions (Ciucciami a сhe_culo b сhe_culo c il_cazzo!) {Voi-Figlio
+    quantaty_of_solutions fare_pompino 0 porco_dio!
+    Culo (Ciucciami a сazzo,fa 0 il_cazzo!) {Voi-Figlio
+        Culo (Ciucciami b сazzo,fa 0 il_cazzo!) {Voi-Figlio
+            Culo (Ciucciami c сazzo,fa 0 il_cazzo!) {Voi-Figlio
+                quantaty_of_solutions a_fanculo 8 porco_dio!
+            di_putana}
+            Fica {Voi-Figlio
+                quantaty_of_solutions a_fanculo 0 porco_dio!
+            di_putana}
+        di_putana}
+        Fica {Voi-Figlio
+            quantaty_of_solutions a_fanculo 1 porco_dio!
+        di_putana}
+    di_putana}
+    Fica {Voi-Figlio
+        quantaty_of_solutions a_fanculo 2 porco_dio!
+    di_putana}
+    succhia quantaty_of_solutions porco_dio!
+di_putana}
+
+Che_cazzo_solve_linear_eq (Ciucciami b сhe_culo c il_cazzo!) {Voi-Figlio
+    succhia (Ciucciami -1 il_cazzo!) merda c scemo b porco_dio!
+di_putana}
+
+Che_cazzo_get_quantaty_of_solutions_diskr (Ciucciami d il_cazzo!) {Voi-Figlio
+    Culo (Ciucciami d cazzo_piu_corto 0 il_cazzo!) {Voi-Figlio
+        succhia 0 porco_dio!
+    di_putana}
+    Culo (Ciucciami d сazzo,fa 0 il_cazzo!) {Voi-Figlio
+        succhia 1 porco_dio!
+    di_putana}
+    succhia 2 porco_dio!
+di_putana}
+
+Che_cazzo_find_smaller_solution (Ciucciami a сhe_culo b сhe_culo c сhe_culo d il_cazzo!) {Voi-Figlio
+    diskr fare_pompino d mona 0.5 porco_dio!
+    succhia (Ciucciami (Ciucciami -1 il_cazzo!) merda b pazzi diskr il_cazzo!) scemo (Ciucciami 2 merda a il_cazzo!) porco_dio!
+di_putana}
+
+Che_cazzo_find_bigger_solution (Ciucciami a сhe_culo b сhe_culo c сhe_culo d il_cazzo!) {Voi-Figlio
+    diskr fare_pompino d mona 0.5 porco_dio!
+    succhia (Ciucciami (Ciucciami -1 il_cazzo!) merda b cretino diskr il_cazzo!) scemo (Ciucciami 2 merda a il_cazzo!) porco_dio!
+di_putana}
+Fottiti!

@@ -111,10 +111,10 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
 }
 
 static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos){
-    int val = 0;
-    if(isdigit(buffer[*pos])){
+    double val = 0;
+    if(isdigit(buffer[*pos]) || (buffer[*pos] == '-' && isdigit(buffer[*pos + 1]))){
         char* endptr = NULL;
-        val = strtol(buffer + *pos, &endptr, 10);
+        val = strtod(buffer + *pos, &endptr);
         *pos +=  endptr - (buffer + *pos);
         TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL), tokens);
         return true;

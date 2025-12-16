@@ -4,7 +4,7 @@
 #include "Processor-and-assembler/assembler_task/file_work.h"
 #include "Processor-and-assembler/assembler_task/parsing_str.h"
 #include "Processor-and-assembler/assembler_task/assembler_struct.h"
-#include "../stack/hash.h"
+#include "Processor-and-assembler/processor_task/stack_proc_backend/hash.h"
 #include "Processor-and-assembler/processor_task/parse_asm_from_file.h"
 #include "Processor-and-assembler/processor_task/do_instructions.h"
 #include "Processor-and-assembler/processor_task/processor.h"

@@ -4,9 +4,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "mistakes_code.h"
-#include "stack.h"
 
-typedef u_int64_t stack_err_bytes; 
+typedef uint64_t stack_err_bytes; 
+
+typedef size_t stack_elem_t; 
+
+struct Stack_t;
 
 #ifdef _DEBUG
     #define STACK_DUMP(stack) stack_dump(stack);

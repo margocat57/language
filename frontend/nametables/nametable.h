@@ -12,16 +12,16 @@ struct variables{
 struct name_table{
     variables* var_info;
     size_t num_of_elements;
-    int first_free;
+    size_t first_free;
 };
 
 name_table* NameTableInit();
 
-int NameTableAddName(name_table* mtk, char* num_of_variable);
+size_t NameTableAddName(name_table* mtk, char* num_of_variable);
 
 void NameTableRealloc(name_table* mtk, size_t num_of_elem);
 
-int FindVarInNameTable(name_table* mtk, char* num_of_variable);
+size_t FindVarInNameTable(name_table* mtk, char* num_of_variable);
 
 void NameTableDestroy(name_table* mtk);
 

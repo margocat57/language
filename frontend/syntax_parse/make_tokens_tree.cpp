@@ -9,8 +9,8 @@
 #include <assert.h>
 #include "make_tokens_tree.h"
 
-#include "../../stack/stack.h"
-#include "../../stack/stack_func.h"
+#include "stack_frontend/stack.h"
+#include "stack_frontend/stack_func.h"
 
 // -------------------------------------------------------------------------------------
 // Define lib
@@ -176,7 +176,7 @@ static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, St
     }
     assert(first_op);
     tree_dump_func(first_op, __FILE__, __func__, __LINE__, tokens->table->nametables[0], "Before ret GetG node %zu", *pos);
-    tree_dump_func(first_op, __FILE__, __func__, __LINE__, tokens->table->nametables[1], "Before ret GetG node %zu", *pos);
+    // tree_dump_func(first_op, __FILE__, __func__, __LINE__, tokens->table->nametables[1], "Before ret GetG node %zu", *pos);
     return first_op;
 }
 
@@ -226,7 +226,7 @@ static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 
     TreeNode_t* func_name = NULL;
     CALL_AND_CHECK_ERR(func_name = GetFUNC_DECL(pos, tokens, tokens_copy, stack, nametable_func, err));
-    int num_of_params = nametable_func->first_free - 1;
+    size_t num_of_params = nametable_func->first_free - 1;
 
     TreeNode_t* bodynode = NULL;
     size_t numbers_of_var = 0;
@@ -901,7 +901,7 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_tabl
             "No variable\n")
 
     if(is_init){
-        int idx = NameTableAddName(nametable, tokens->node_arr[*pos]->var_func_name);
+        size_t idx = NameTableAddName(nametable, tokens->node_arr[*pos]->var_func_name);
         CALL_AND_CHECK_ERR(*err = stack_push(stack, &idx));
         tokens->node_arr[*pos]->data.var_code = idx;
     }
@@ -924,13 +924,14 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_tabl
 }
 
 static bool FindVarAtStack(size_t* pos, Tokens_t* tokens, Stack_t* stack, name_table* nametable){
-    int idx2 = stack->top - 1;
-    while(idx2 >= 0 || stack->data[idx2] != stack->front_canary_data){
+    long long int idx2 = stack->top - 1;
+    while(idx2 >= -1 || stack->data[idx2] != (long long int)stack->front_canary_data){
         if(!strcmp(nametable->var_info[stack->data[idx2]].variable_name, tokens->node_arr[*pos]->var_func_name)){
             tokens->node_arr[*pos]->data.var_code = stack->data[idx2];
             return true;
         }
         idx2--;
+        if(idx2 == -1) break;
     }
     return false;
 }

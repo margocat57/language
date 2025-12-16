@@ -21,7 +21,7 @@ name_table* NameTableInit(){
     return nametab;
 }
 
-int NameTableAddName(name_table* nametab, char* num_of_variable){
+size_t NameTableAddName(name_table* nametab, char* num_of_variable){
     assert(nametab);
     assert(num_of_variable);
 
@@ -47,8 +47,8 @@ void NameTableRealloc(name_table* nametab, size_t num_of_elem){
     }
 }
 
-int FindVarInNameTable(name_table* nametab, char* num_of_variable){
-    for(int name = 0; name < nametab->first_free; name++){
+size_t FindVarInNameTable(name_table* nametab, char* num_of_variable){
+    for(size_t name = 0; name < nametab->first_free; name++){
         if(!strcmp(nametab->var_info[name].variable_name, num_of_variable)){
             return name;
         }
@@ -58,7 +58,7 @@ int FindVarInNameTable(name_table* nametab, char* num_of_variable){
 
 void NameTableDestroy(name_table* nametab){
     if(nametab){
-        for(int i = 0; i < nametab->first_free; i++){
+        for(size_t i = 0; i < nametab->first_free; i++){
             free(nametab->var_info[i].variable_name);
         }
         if(nametab->var_info){
