@@ -64,9 +64,11 @@ void MetkiDestroy(metki_for_translate* mtk){
     if(mtk){
         for(size_t i = 0; i < mtk->first_free; i++){
             free(mtk->var_info[i].variable_name);
+            mtk->var_info[i].variable_name = NULL;
         }
         if(mtk->var_info){
             free(mtk->var_info);
+            mtk->var_info = NULL;
         }
         free(mtk);
     }

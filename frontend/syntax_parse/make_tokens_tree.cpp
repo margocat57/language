@@ -41,31 +41,8 @@
 //-------------------------------------------------------------------------------------
 // DSL
 
-#define IS_FUNCTION_IN_POS             (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == FUNCTION)
-#define IS_FUNCTION_MAIN_IN_POS        (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == FUNCTION_MAIN)
-#define IS_VARIABLE_IN_POS             (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == VARIABLE)
-#define IS_CONST_IN_POS                (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == CONST)
-#define IS_OPEN_BRACKET_IN_POS         (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_OPEN_BR)
-#define IS_CLOSE_BRACKET_IN_POS        (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_CLOSE_BR)
-#define IS_OPEN_FIGURE_BRACKET_IN_POS  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_OPEN_FIG_BR)
-#define IS_CLOSE_FIGURE_BRACKET_IN_POS (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_CLOSE_FIG_BR)
-#define IS_IF_IN_POS                   (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_IF)
-#define IS_ELSE_IN_POS                 (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_ELSE)
-#define IS_WHILE_IN_POS                (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_WHILE)
-#define IS_RETURN_IN_POS               (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_RETURN)
-#define IS_SEPARATION_POINT_IN_POS     (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_SP)
-#define IS_COMMA_IN_POS                (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_COMMA)
-#define IS_GE_IN_POS                   (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_GE)
-#define IS_LE_IN_POS                   (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_LE)
-#define IS_EQ_IN_POS                   (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_EQ)
-#define IS_ADD_IN_POS                  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_ADD)
-#define IS_SUB_IN_POS                  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_SUB)
-#define IS_MUL_IN_POS                  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_MUL)
-#define IS_DIV_IN_POS                  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_DIV)
-#define IS_DEG_IN_POS                  (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_DEG)
-#define IS_INPUT_IN_POS                (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_INPUT)
-#define IS_OUTPUT_IN_POS               (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_OUTPUT)
-#define IS_EXIT_IN_POS                 (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR     && tokens->node_arr[*pos]->data.op == OP_EXIT)
+#define IS_TYPE_IN_POS(type_)           (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == type_)
+#define IS_OPERATOR_IN_POS(op_)         (*pos < tokens->first_free_place     && tokens->node_arr[*pos]     && tokens->node_arr[*pos]->type == OPERATOR  && tokens->node_arr[*pos]->data.op == op_)
 #define IS_INICIALIZE_IN_POS           (*pos + 1 < tokens->first_free_place && tokens->node_arr[*pos + 1] && tokens->node_arr[*pos + 1]->type == OPERATOR && tokens->node_arr[*pos + 1]->data.op == OP_INIT)
 #define IS_ASSIGN_IN_POS               (*pos + 1 < tokens->first_free_place && tokens->node_arr[*pos + 1] && tokens->node_arr[*pos + 1]->type == OPERATOR && tokens->node_arr[*pos + 1]->data.op == OP_ASS)
 
@@ -188,7 +165,7 @@ static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
 
     TreeNode_t* node_left = node_general;
 
-    while(IS_FUNCTION_IN_POS || IS_FUNCTION_MAIN_IN_POS){
+    while(IS_TYPE_IN_POS(FUNCTION) || IS_TYPE_IN_POS(FUNCTION_MAIN)){
         TreeNode_t* node_right = NULL;
         CALL_AND_CHECK_ERR(node_right = GetFUNC(pos, tokens, tokens_copy, err));
 
@@ -254,12 +231,12 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     if(*err) return NULL;
 
     if(is_declaration){
-        FAIL_IF(!(IS_FUNCTION_IN_POS || IS_FUNCTION_MAIN_IN_POS), 
+        FAIL_IF(!(IS_TYPE_IN_POS(FUNCTION) || IS_TYPE_IN_POS(FUNCTION_MAIN)), 
             NO_FUNC_NAME, 
             "No function name\n")
     }
     else{
-        FAIL_IF(!(IS_FUNCTION_IN_POS), 
+        FAIL_IF(!(IS_TYPE_IN_POS(FUNCTION)), 
             NO_FUNC_NAME, 
             "No function name\n")
     }
@@ -271,7 +248,7 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
         func_name->type = FUNC_CALL;
     }
 
-    FAIL_IF(!IS_OPEN_BRACKET_IN_POS,
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_BR),
             NO_OPEN_BR_BEFORE_CALL_FUNC, 
             "No open br before calling function\n")
     (*pos)++; // skip (
@@ -279,7 +256,7 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     TreeNode_t* prev_param = func_name;
 
     while(true){
-        if(IS_CLOSE_BRACKET_IN_POS){
+        if(IS_OPERATOR_IN_POS(OP_CLOSE_BR)){
             (*pos)++; // skip )
             break;
         }
@@ -287,11 +264,11 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
         TreeNode_t* current_param = NULL;
         CALL_AND_CHECK_ERR(current_param = GetE(pos, tokens, tokens_copy, err));
 
-        FAIL_IF(!(IS_CLOSE_BRACKET_IN_POS || IS_COMMA_IN_POS),
+        FAIL_IF(!(IS_OPERATOR_IN_POS(OP_CLOSE_BR) || IS_OPERATOR_IN_POS(OP_COMMA)),
             NO_CLOSE_BR_OR_COMMA_AFTER_PARAM, 
             "No ( or , after param\n")
 
-        if(IS_CLOSE_BRACKET_IN_POS){
+        if(IS_OPERATOR_IN_POS(OP_CLOSE_BR)){
             // Добавить запятую
             TreeNode_t* comma = GetSepNode(tokens_copy, NULL, OP_COMMA, err);
             ProcessComma(prev_param, current_param, comma);
@@ -327,7 +304,7 @@ static void ProcessComma(TreeNode_t* prev_param, TreeNode_t* current_param, Tree
 // GetBody
 
 static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
-    FAIL_IF(!IS_OPEN_FIGURE_BRACKET_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR), 
             NO_OPEN_FIG_BR_BEFORE_STATEMENT, 
             "No open figure br before statement\n")
     (*pos)++; //skip {
@@ -339,7 +316,7 @@ static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     TreeNode_t* node_right = NULL;
 
     while(true){
-        if(IS_CLOSE_FIGURE_BRACKET_IN_POS){
+        if(IS_OPERATOR_IN_POS(OP_CLOSE_FIG_BR)){
             (*pos)++; // skip }
             break;
         }
@@ -367,22 +344,22 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     else if(IS_ASSIGN_IN_POS){
         CALL_AND_CHECK_ERR(node = GetA(pos, tokens, tokens_copy, err));
     }
-    else if(IS_IF_IN_POS){
+    else if(IS_OPERATOR_IN_POS(OP_IF)){
         CALL_AND_CHECK_ERR(node = GetIF(pos, tokens, tokens_copy, err));
     }
-    else if(IS_WHILE_IN_POS){
+    else if(IS_OPERATOR_IN_POS(OP_WHILE)){
         CALL_AND_CHECK_ERR(node = GetWHILE(pos, tokens,tokens_copy, err));
     }
-    else if(IS_RETURN_IN_POS){
+    else if(IS_OPERATOR_IN_POS(OP_RETURN)){
         CALL_AND_CHECK_ERR(node = GetRETURN(pos, tokens, tokens_copy, err));
     }
-    else if(IS_FUNCTION_IN_POS){
+    else if(IS_TYPE_IN_POS(FUNCTION)){
         CALL_AND_CHECK_ERR(node = GetFUNC_USE(pos, tokens, tokens_copy, err));
     }
-    else if(IS_OUTPUT_IN_POS){
+    else if(IS_OPERATOR_IN_POS(OP_OUTPUT)){
         CALL_AND_CHECK_ERR(node = GetOUTPUT(pos, tokens, tokens_copy, err));
     }
-    else if(IS_EXIT_IN_POS){
+    else if(IS_OPERATOR_IN_POS(OP_EXIT)){
         CALL_AND_CHECK_ERR(node = GetEXIT(pos, tokens, err));
     }
     else{
@@ -435,7 +412,7 @@ static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, Tokens_t* 
     (*pos)++; // skip OP_INIT or OP_ASS
 
     TreeNode_t* node_right = NULL;
-    if(IS_INPUT_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_INPUT)){
         CALL_AND_CHECK_ERR(node_right = GetINPUT(pos, tokens, err));
     }
     else{
@@ -447,7 +424,7 @@ static TreeNode_t* GetInitOrAssSubtree(size_t* pos, Tokens_t* tokens, Tokens_t* 
     node_left->parent = node;
     node_right->parent = node;
 
-    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_SP), 
             NO_SP_AFTER_INIT_IN_INIT_FUNC, 
             "No ; after inicialization in init func\n")
 
@@ -468,14 +445,14 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_IF_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_IF), 
             NO_OP_IF_IN_IF_STAT, 
             "No op if in if statement\n")
 
     TreeNode_t* if_node = tokens->node_arr[*pos];
     (*pos) += 1; // skip if
 
-    FAIL_IF(!IS_OPEN_BRACKET_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_BR), 
             NO_OPEN_BR_BEFORE_CONDITION_IN_IF_EXPR, 
             "No open br before condition in if expression\n")
     (*pos)++; // skip (
@@ -486,13 +463,13 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     if_node -> left = exprnode;
     exprnode -> parent = if_node;
 
-    FAIL_IF(!IS_CLOSE_BRACKET_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_CLOSE_BR), 
             NO_CLOSE_BR_AFTER_CONDITION_IN_IF_EXPR, 
             "No close br after condition in if expression\n")
     (*pos)++; // skip )
 
     TreeNode_t* statnode = NULL;
-    if(IS_OPEN_FIGURE_BRACKET_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
         CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
     }
     else{
@@ -507,7 +484,7 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
 
     // else
     TreeNode_t* opnode_else = NULL;
-    if(IS_ELSE_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_ELSE)){
         CALL_AND_CHECK_ERR(opnode_else = GetELSE(pos, tokens, tokens_copy, err));
 
         sep_node -> right = opnode_else;
@@ -527,7 +504,7 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
 static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_ELSE_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_ELSE), 
             NO_OP_ELSE_IN_ELSE_STAT, 
             "No op else in else statement\n")
 
@@ -535,7 +512,7 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     (*pos) += 1; // skip else
 
     TreeNode_t* statnode = NULL;
-    if(IS_OPEN_FIGURE_BRACKET_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
         CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
     }
     else{
@@ -556,14 +533,14 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_WHILE_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_WHILE), 
             NO_OP_WHILE_IN_WHILE_STAT, 
             "No op while in while statement\n")
 
     TreeNode_t* while_node = tokens->node_arr[*pos];
     (*pos) += 1; // skip while
 
-    FAIL_IF(!IS_OPEN_BRACKET_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_BR), 
             NO_OPEN_BR_BEFORE_CONDITION_IN_WHILE, 
             "No open br in while expression before condition\n")
     (*pos)++; // skip (
@@ -574,14 +551,14 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     while_node -> left = exprnode;
     exprnode -> parent = while_node;
 
-    FAIL_IF(!IS_CLOSE_BRACKET_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_CLOSE_BR), 
             NO_CLOSE_BR_AFTER_CONDITION_IN_WHILE, 
             "No close br in while expression after condition\n")
     (*pos)++; // skip )
 
     TreeNode_t* statnode = NULL;
     size_t num_while_vars = 0;
-    if(IS_OPEN_FIGURE_BRACKET_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
         CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
     }
     else{
@@ -605,7 +582,7 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
 static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_RETURN_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_RETURN), 
             NO_RETURN_OP, 
             "No return op in return func\n")
 
@@ -618,7 +595,7 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
     node ->left = node_e;
     node_e -> parent = node;
 
-    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_SP), 
             NO_SP_AFT_RET_INP_OUTPUT, 
             "No ; after return input or output\n")
     (*pos)++; // skip OP_SP - не связываем потому что после return в блоке кода ничего идти не должно
@@ -629,7 +606,7 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
 static TreeNode_t* GetINPUT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_INPUT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_INPUT), 
             NO_RETURN_OP, 
             "No input op in input func\n")
 
@@ -642,7 +619,7 @@ static TreeNode_t* GetINPUT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 static TreeNode_t* GetOUTPUT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_OUTPUT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OUTPUT), 
             NO_RETURN_OP, 
             "No output op in output func\n")
 
@@ -655,7 +632,7 @@ static TreeNode_t* GetOUTPUT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
     node_out ->left = node_e;
     node_e -> parent = node_out;
 
-    FAIL_IF(!IS_SEPARATION_POINT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_SP), 
             NO_SP_AFT_RET_INP_OUTPUT, 
             "No ; after return input or output\n")
 
@@ -673,7 +650,7 @@ static TreeNode_t* GetOUTPUT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
 static TreeNode_t* GetEXIT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
     if(*err) return NULL;
 
-    FAIL_IF(!IS_EXIT_IN_POS, 
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_EXIT), 
             NO_RETURN_OP, 
             "No exit in exit func\n")
 
@@ -692,7 +669,7 @@ static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     TreeNode_t* left = NULL;
     CALL_AND_CHECK_ERR(left = GetL(pos, tokens, tokens_copy, err)); 
 
-    while(IS_GE_IN_POS || IS_LE_IN_POS || IS_EQ_IN_POS){
+    while(IS_OPERATOR_IN_POS(OP_GE)|| IS_OPERATOR_IN_POS(OP_LE) || IS_OPERATOR_IN_POS(OP_EQ)){
         TreeNode_t *new_node = tokens->node_arr[*pos];
 
         (*pos)++; // skip < or > or ==
@@ -722,7 +699,7 @@ static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     TreeNode_t* left = NULL;
     CALL_AND_CHECK_ERR(left = GetT(pos, tokens, tokens_copy, err)); 
 
-    while(IS_ADD_IN_POS || IS_SUB_IN_POS){
+    while(IS_OPERATOR_IN_POS(OP_ADD) || IS_OPERATOR_IN_POS(OP_SUB)){
         TreeNode_t *new_node = tokens->node_arr[*pos];
 
         (*pos)++; // skip + or -
@@ -752,7 +729,7 @@ static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     TreeNode_t* left = NULL;
     CALL_AND_CHECK_ERR(left = GetD(pos, tokens, tokens_copy, err)); 
 
-    while(IS_MUL_IN_POS || IS_DIV_IN_POS){
+    while(IS_OPERATOR_IN_POS(OP_MUL) || IS_OPERATOR_IN_POS(OP_DIV)){
         TreeNode_t *new_node = tokens->node_arr[*pos];
 
         (*pos)++; // skip * or /
@@ -782,7 +759,7 @@ static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     TreeNode_t* left = NULL;
     CALL_AND_CHECK_ERR(left = GetP(pos, tokens, tokens_copy, err)); 
 
-    while(IS_DEG_IN_POS){
+    while(IS_OPERATOR_IN_POS(OP_DEG)){
         TreeNode_t *new_node = tokens->node_arr[*pos];
 
         (*pos)++; // skip ^
@@ -810,26 +787,26 @@ static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     if(*err) return NULL;
     TreeNode_t* val = NULL;
 
-    if(IS_OPEN_BRACKET_IN_POS){
+    if(IS_OPERATOR_IN_POS(OP_OPEN_BR)){
         (*pos)++; // skip '('
 
         CALL_AND_CHECK_ERR(val = GetE(pos, tokens, tokens_copy, err));
 
-        FAIL_IF(!IS_CLOSE_BRACKET_IN_POS, 
+        FAIL_IF(!IS_OPERATOR_IN_POS(OP_CLOSE_BR), 
                 NO_CLOSE_BRACKET_IN_MATH_EXPR, 
                 "No close bracket in math expression\n")
         (*pos)++; // skip ')'
     }
     else{
-        if(IS_CONST_IN_POS){
+        if(IS_TYPE_IN_POS(CONST)){
             CALL_AND_CHECK_ERR(val = GetN(pos, tokens, err));
             (*pos)++;
         }
-        else if(IS_VARIABLE_IN_POS){
+        else if(IS_TYPE_IN_POS(VARIABLE)){
             CALL_AND_CHECK_ERR(val = GetV(pos, tokens, err));
             (*pos)++;
         }
-        else if(IS_FUNCTION_IN_POS){
+        else if(IS_TYPE_IN_POS(FUNCTION)){
             CALL_AND_CHECK_ERR(val = GetFUNC_USE(pos, tokens, tokens_copy,  err));
         }
         else{
@@ -845,7 +822,7 @@ static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
 // GetN
 
 static TreeNode_t* GetN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
-    FAIL_IF(!IS_CONST_IN_POS, 
+    FAIL_IF(!IS_TYPE_IN_POS(CONST), 
             NO_CONST, 
             "No const\n")
 
@@ -856,7 +833,7 @@ static TreeNode_t* GetN(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 // GetV and hrlping func
 
 static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
-    FAIL_IF(!IS_VARIABLE_IN_POS, 
+    FAIL_IF(!IS_TYPE_IN_POS(VARIABLE), 
             NO_VARIABLE, 
             "No variable\n")
 
@@ -870,28 +847,7 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 //----------------------------------------------------------------------
 // UNDEF DSL
 
-#undef IS_FUNCTION_IN_POS 
-#undef IS_VARIABLE_IN_POS 
-#undef IS_CONST_IN_POS  
-#undef IS_OPEN_BRACKET_IN_POS  
-#undef IS_CLOSE_BRACKET_IN_POS 
-#undef IS_OPEN_FIGURE_BRACKET_IN_POS
-#undef IS_CLOSE_FIGURE_BRACKET_IN_POS
-#undef IS_IF_IN_POS  
-#undef IS_ELSE_IN_POS 
-#undef IS_WHILE_IN_POS 
-#undef IS_RETURN_IN_POS  
-#undef IS_SEPARATION_POINT_IN_POS  
-#undef IS_COMMA_IN_POS  
-#undef IS_AND_IN_POS   
-#undef IS_OR_IN_POS   
-#undef IS_GE_IN_POS    
-#undef IS_LE_IN_POS   
-#undef IS_EQ_IN_POS   
-#undef IS_ADD_IN_POS   
-#undef IS_SUB_IN_POS  
-#undef IS_MUL_IN_POS     
-#undef IS_DIV_IN_POS  
-#undef IS_DEG_IN_POS   
+#undef IS_TYPE_IN_POS(type_)  
+#undef IS_OPERATOR_IN_POS(op_)     
 #undef IS_INICIALIZE_IN_POS   
 #undef IS_ASSIGN_IN_POS    
