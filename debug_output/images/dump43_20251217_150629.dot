@@ -1,6 +1,0 @@
-digraph G{
- rankdir=TB;
- charset="utf-8";
- graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
- node_0x6060000012e0[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=1, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 8(OP_EQ)} | {L | R }} "];
-}

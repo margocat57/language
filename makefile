@@ -120,7 +120,5 @@ run_leak_check_lang: lang
 clean:
 	rm -f frontend_lang backend_lang middleend_lang lang
 	rm -f $(FRNTD_OBJS) $(STK_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS)
-	rm -f frontend/debug_output_frontend/images/*.dot
-	rm -f frontend/debug_output_frontend/images/*.svg
-	rm -f backend/make_backend_tree/debug_output_backend/images/*.dot
-	rm -f backend/make_backend_tree/debug_output_backend/images/*.svg
+	rm -f debug_output/images/*.dot
+	rm -f debug_output/images/*.svg

@@ -1,6 +1,0 @@
-digraph G{
- rankdir=TB;
- charset="utf-8";
- graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
- node_0x606000001640[shape="Mrecord", style="filled", fillcolor="#a7a7f2", rank=1, color = "#964B00", penwidth=1.0, label="{{type = FUNCTION} | {val = Che_cazzo_fact} | {0 | 0}} "];
-}
