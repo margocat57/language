@@ -1,8 +1,7 @@
-
 #include <stdio.h>
 #include <assert.h>
 #include "translator.h"
-#include "../../frontend/include/operators_func.h"
+#include "../../include/operators_func.h"
 
 const size_t MAX_SIZE_BUFFER = 300;
 
@@ -68,19 +67,19 @@ void CreateAsmCode(const char* file_name, const TreeHead_t* head, TreeErr_t* err
 }
 
 //-----------------------------------------------------------------------------------------------
-static void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
-static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* first_free, int* param_count,TreeErr_t* err);
-static void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
+static void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* first_free, int* param_count,   TreeErr_t* err);
+static void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
 static void CreateConstAsm       (FILE *file, TreeNode_t *node);
 static void CreateVariableAsm    (FILE *file, TreeNode_t *node);
-static void CreateCommaAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* first_free, int* param_count,TreeErr_t* err);
-static void CreateReturnAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
-static void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
-static void CreateInitAssAsm     (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
-static void CreateIfAsm          (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count,                        TreeErr_t* err);
-static void CreateElseAsm        (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* else_count,                      TreeErr_t* err);
-static void CreateWhileAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* while_count,                     TreeErr_t* err);
-static void CreateOutputAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                           TreeErr_t* err);
+static void CreateCommaAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* first_free, int* param_count,   TreeErr_t* err);
+static void CreateReturnAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
+static void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
+static void CreateInitAssAsm     (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
+static void CreateIfAsm          (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* if_count,                       TreeErr_t* err);
+static void CreateElseAsm        (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* else_count,                     TreeErr_t* err);
+static void CreateWhileAsm       (FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* while_count,                    TreeErr_t* err);
+static void CreateOutputAsm      (FILE *file, TreeNode_t *node, metki_for_translate* mtk,                                      TreeErr_t* err);
 
 //-----------------------------------------------------------------------------------------------
 // Recursive function to create assembler

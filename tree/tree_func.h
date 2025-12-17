@@ -2,7 +2,6 @@
 #define TREE_FUNC_H
 #include "tree.h"
 #include "mistakes.h"
-#include "../frontend/nametables/nametable.h"
 #include <stdio.h>
 
 TreeHead_t* TreeCtor();

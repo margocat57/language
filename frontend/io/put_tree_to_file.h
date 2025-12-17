@@ -3,8 +3,7 @@
 
 #include "../../tree/tree.h"
 #include "../../tree/mistakes.h"
-#include "../nametables/table_of_nametable.h"
 
-void PutTreeToFile(const char* file_name, const TreeHead_t* head, table_of_nametable* table, TreeErr_t* err);
+void PutTreeToFile(const char* file_name, const TreeHead_t* head, TreeErr_t* err);
 
 #endif // PUT_TREE_TO_FILE_H

@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "../backend/make_backend_tree/make_tree.h"
+#include "../backend/make_backend_tree/read_tree_from_file/make_tree.h"
 #include "../tree/tree_func.h"
 #include "optimization/tree_optimize.h"
-#include "put_tree_to_file_middle/put_tree_to_file.h"
+#include "../frontend/io/put_tree_to_file.h"
 
 int main(){
     
@@ -14,7 +14,7 @@ int main(){
         return 0;
     }
 
-    PutTreeToFileMiddle("backend/make_backend_tree/tree_file/tree.txt", head, &err);
+    PutTreeToFile("backend/make_backend_tree/tree_file/tree.txt", head, &err);
     if(err){
         TreeDel(head);
         return 0;

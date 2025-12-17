@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include "io/read_program.h"
 #include "tokenizing/tokenize.h"
 #include "syntax_parse/make_tokens_tree.h"
@@ -19,7 +19,7 @@ int main(){
 
     // DEBUG FOR TOKENS
     for(int i = 0; i < tokens->first_free_place; i++){
-        tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, NULL, "%d pos", i);
+        tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, "%d pos", i);
     }
 
     Tokens_t* tokens_copy = TokensCtor(10);
@@ -27,7 +27,7 @@ int main(){
     if(!head) return 0;
 
     TreeErr_t err = NO_MISTAKE;
-    PutTreeToFile("middleend/tree_file/tree.txt", head, tokens->table, &err);
+    PutTreeToFile("middleend/tree_file/tree.txt", head, &err);
 
     free(head);
     TokensDtor(tokens);

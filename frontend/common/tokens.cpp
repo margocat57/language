@@ -21,7 +21,6 @@ Tokens_t* TokensCtor(size_t num_of_nodes){
     }
     tokens->node_arr = node_arr;
     tokens->num_of_nodes = num_of_nodes;
-    tokens->table = TableOfNameTableInit();
     tokens->first_free_place = 0;
     return tokens;
 }
@@ -88,8 +87,6 @@ void TokensDtor(Tokens_t* tokens){
     if(!tokens){
         return;
     }
-
-    TableDestroy(tokens->table);
 
     for(size_t idx = 0; idx < tokens->first_free_place; idx++){
         if(!tokens->node_arr[idx]){

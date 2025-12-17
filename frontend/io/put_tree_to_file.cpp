@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "put_tree_to_file.h"
 #include "../../tree/tree_func.h"
-#include "../include/operators_func.h"
+#include "../../include/operators_func.h"
 
 #define CALL_FUNC_AND_CHECK_ERR(function)\
     do{\
@@ -17,9 +17,9 @@
 //------------------------------------------------------------------------------------------
 // For program as tree to disk
 
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, table_of_nametable* table, TreeErr_t* err);
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, TreeErr_t* err);
 
-void PutTreeToFile(const char* file_name, const TreeHead_t* head, table_of_nametable* table,  TreeErr_t* err){
+void PutTreeToFile(const char* file_name, const TreeHead_t* head,TreeErr_t* err){
     if(*err) return;
     assert(file_name); assert(head);
 
@@ -32,13 +32,13 @@ void PutTreeToFile(const char* file_name, const TreeHead_t* head, table_of_namet
         return;
     }
 
-    CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(fp, head->root, head, NULL, table, err));
+    CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(fp, head->root, head, err));
     fclose(fp);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
 }
 
-static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, name_table* mtk, table_of_nametable* table, TreeErr_t* err){
+static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_t* head, TreeErr_t* err){
     if(*err) return;
     assert(file); assert(head);
 
@@ -49,7 +49,6 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
     switch(node->type){
         case INCORR_VAL: *err = INCORR_OPERATOR; break;
         case FUNCTION: case FUNCTION_MAIN:
-            mtk = table->nametables[count];
             count++;
             if(node->type == FUNCTION) fprintf(file, "( \"FUNC %s\"", node->var_func_name);
             if(node->type == FUNCTION_MAIN) fprintf(file, "( \"MAIN %s\"", node->var_func_name);
@@ -65,35 +64,23 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
             fprintf(file, "( \"%lg\"", node->data.const_value);
             break;
         case VARIABLE:
-            if(!mtk){
-                *err = NULL_MTK_PTR;
-                return;
-            }
-            if(node->data.var_code >= mtk->first_free){
-                *err = INCORR_IDX_IN_MTK;
-                return;
-            }
-            fprintf(file, "( \"VAR %zu\"", node->data.var_code);
+            fprintf(file, "( \"VAR %s\"", node->var_func_name);
             break;
         case FUNC_CALL:
-            if(!mtk){
-                *err = NULL_MTK_PTR;
-                return;
-            }
-            fprintf(file, "( \"CALL[%zu] %s \"", mtk->first_free, node->var_func_name);
+            fprintf(file, "( \"CALL %s \"", node->var_func_name);
             break;
         default: *err = INCORR_OPERATOR; break;
     }
 
     if(node->left){
-        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->left, head, mtk, table, err));
+        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->left, head, err));
     } 
     else{
         fprintf(file, " nil");
     }
 
     if(node->right){
-        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->right, head, mtk, table, err));
+        CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->right, head, err));
     } 
     else{
         fprintf(file, " nil");

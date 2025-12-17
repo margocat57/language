@@ -2,12 +2,10 @@
 #define FOREST_H
 #include "../../tree/tree.h"
 #include "../../tree/mistakes.h"
-#include "../nametables/table_of_nametable.h"
 
 
 struct Tokens_t{
     TreeNode_t** node_arr; // array of top of tree
-    table_of_nametable* table;
     size_t num_of_nodes;
     size_t first_free_place;
 };

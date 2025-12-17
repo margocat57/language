@@ -1,5 +1,5 @@
 #include "tokenize.h"
-#include "../include/operators_func.h"
+#include "../../include/operators_func.h"
 #include "../io/read_program.h"
 #include <stdlib.h>
 #include <string.h>

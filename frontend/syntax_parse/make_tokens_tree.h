@@ -3,9 +3,8 @@
 #include "../../tree/tree.h"
 #include "../../tree/tree_func.h"
 #include "../../tree/mistakes.h"
-#include "../nametables/table_of_nametable.h"
-#include "../debug_output_frontend/graphviz_dump.h"
-#include "../include/operators_func.h"
+#include "../../debug_output/graphviz_dump.h"
+#include "../../include/operators_func.h"
 #include "../common/tokens.h"
 
 typedef uint64_t SyntaxErr_t;
@@ -31,7 +30,6 @@ enum SyntaxErr{
     NO_CLOSE_FIGURE_BR_AFTER_WHILE, 
     NO_CLOSE_BRACKET_IN_MATH_EXPR, 
     INCORR_OPERAND_NOT_VAR_NOT_NUM,
-    USE_VAR_BEFORE_INIT,
     NO_OPEN_BR_BEFORE_CALL_FUNC,
     NO_CLOSE_BR_OR_COMMA_AFTER_PARAM,
     CANT_GET_FUNC_NAME_AND_PARAMS_CHAIN,

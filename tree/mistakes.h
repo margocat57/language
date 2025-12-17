@@ -34,6 +34,7 @@ enum Err{
     INCORR_USER_INPUT_VALUE,
     CANT_CREATE_FILE_FOR_GP_DUMP,
     CANT_MAKE_GRAPH,
+    USE_VAR_BEFORE_INIT, // может сделать отдельный енам для ошибок для регистрового парсинга
 };
 
 #endif //MISTAKES_H

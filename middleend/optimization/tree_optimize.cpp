@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
-#include "../../backend/make_backend_tree/debug_output_backend/graphviz_dump.h"
+#include "../../debug_output/graphviz_dump.h"
 #include "../../tree/tree_func.h"
 
 

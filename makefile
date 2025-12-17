@@ -24,7 +24,13 @@ endif
 TREE = $(shell find tree -type f -name "*.cpp")
 TREE_OBJS = $(TREE:%.cpp=%.o)
 
+DEBUG_OUTPUT = $(shell find debug_output -type f -name "*.cpp")
+DEBUG_OUTPUT_OBJS = $(DEBUG_OUTPUT:%.cpp=%.o)
+
 $(TREE_OBJS): %.o: %.cpp                            
+	$(COMP) -c $< -o $@ $(CFLAGS) 
+
+$(DEBUG_OUTPUT_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
 
 # FRONTEND ------------------------------------------------------------------
@@ -35,7 +41,7 @@ FRNTD_OBJS = $(FRNTD:%.cpp=%.o)
 $(FRNTD_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
 
-frontend_lang: $(FRNTD_OBJS)  $(TREE_OBJS)
+frontend_lang: $(FRNTD_OBJS)  $(TREE_OBJS) $(DEBUG_OUTPUT_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_front: frontend_lang
@@ -46,8 +52,11 @@ run_leak_check_front: frontend_lang
 MDLND = $(shell find middleend -type f -name "*.cpp")
 MDLND_OBJS = $(MDLND:%.cpp=%.o)
 
-BCKND_MID_HELP = $(shell find backend/make_backend_tree -type f -name "*.cpp")
+BCKND_MID_HELP = $(shell find backend/make_backend_tree/read_tree_from_file -type f -name "*.cpp")
 BCKND_MID_HELP_OBJS= $(BCKND_MID_HELP:%.cpp=%.o)
+
+PUT_TREE_CPP = $(wildcard frontend/io/put_tree_to_file.cpp)
+PUT_TREE_CPP_OBJS= $(PUT_TREE_CPP:%.cpp=%.o)
 
 $(MDLND_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
@@ -55,7 +64,10 @@ $(MDLND_OBJS): %.o: %.cpp
 $(BCKND_MID_HELP_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
 
-middleend_lang: $(MDLND_OBJS) $(TREE_OBJS) $(BCKND_MID_HELP_OBJS)
+$(PUT_TREE_CPP_OBJS): %.o: %.cpp                            
+	$(COMP) -c $< -o $@ $(CFLAGS) 
+
+middleend_lang: $(MDLND_OBJS) $(TREE_OBJS) $(BCKND_MID_HELP_OBJS) $(DEBUG_OUTPUT_OBJS) $(PUT_TREE_CPP_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_middle: middleend_lang
@@ -64,7 +76,10 @@ run_leak_check_middle: middleend_lang
 
 # BACKEND ------------------------------------------------------------------
 
-BCKND_NOT_PROC_ASM = $(shell find backend -type f -name "*.cpp" -not -path "*/Processor-and-assembler/*")
+MAIN_RUN_ASM_CPP = $(wildcard backend/main_run_asm.cpp)
+MAIN_RUN_ASM_OBJS= $(MAIN_RUN_ASM_CPP:%.cpp=%.o)
+
+BCKND_NOT_PROC_ASM = $(shell find backend -type f -name "*.cpp" -not -path "*/Processor-and-assembler/*" | grep -v "main_run_asm.cpp")
 BCKND_NOT_PROC_OBJS = $(BCKND_NOT_PROC_ASM:%.cpp=%.o)
 
 BCKND_ASM = $(shell find backend/Processor-and-assembler/assembler_task -type f -name "*.cpp")
@@ -76,16 +91,19 @@ BCKND_PROC_OBJS = $(BCKND_PROC:%.cpp=%.o)
 $(BCKND_NOT_PROC_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
 
+$(MAIN_RUN_ASM_OBJS): %.o: %.cpp                            
+	$(COMP) -c $< -o $@ $(CFLAGS) 
+
 $(BCKND_ASM_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS_ASM)
 
 $(BCKND_PROC_OBJS): %.o: %.cpp    
 	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
 
-generate_asm: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS)
+generate_asm: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS)  $(DEBUG_OUTPUT_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-backend_lang: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS)
+backend_lang: $(TREE_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(DEBUG_OUTPUT_OBJS) $(MAIN_RUN_ASM_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_back: backend_lang
@@ -94,7 +112,7 @@ run_leak_check_back: backend_lang
 # Frontend, middleend and backend --------------------------------------------------------
 
 lang: frontend_lang middleend_lang backend_lang 
-	(./frontend_lang; ./middleend_lang; ./backend_lang)
+	(./frontend_lang; ./middleend_lang; ./generate_asm; ./backend_lang)
 
 run_leak_check_lang: lang
 	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./lang
