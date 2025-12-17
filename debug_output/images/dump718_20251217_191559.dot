@@ -1,0 +1,18 @@
+digraph G{
+ rankdir=TB;
+ charset="utf-8";
+ graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
+ node_0x606000009500 -> node_0x6060000063e0[color = "#964B00", dir = both];
+ node_0x6060000063e0 -> node_0x606000006500[color = "#964B00", dir = both];
+ node_0x606000006500 -> node_0x6060000064a0[color = "#964B00", dir = both];
+ node_0x6060000064a0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=4, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = d} | {0 | 0}} "];
+ node_0x606000006500[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=3, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 10(OP_LE)} | {L | R }} "];
+ node_0x606000006500 -> node_0x606000006560[color = "#964B00", dir = both];
+ node_0x606000006560[shape="Mrecord", style="filled", fillcolor="#98FB98", rank=4, color = "#964B00", penwidth=1.0, label="{{type = CONST_VAR} | {val = 0} | {0 | 0}} "];
+ node_0x6060000063e0[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=2, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 12(OP_IF)} | {L | R }} "];
+ node_0x6060000063e0 -> node_0x606000006680[color = "#964B00", dir = both];
+ node_0x606000006680 -> node_0x6060000066e0[color = "#964B00", dir = both];
+ node_0x6060000066e0[shape="Mrecord", style="filled", fillcolor="#98FB98", rank=4, color = "#964B00", penwidth=1.0, label="{{type = CONST_VAR} | {val = 0} | {0 | 0}} "];
+ node_0x606000006680[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=3, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 20(OP_RET)} | {L | R }} "];
+ node_0x606000009500[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=1, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 18(OP_CFB)} | {L | R }} "];
+}

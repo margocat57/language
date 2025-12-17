@@ -1,0 +1,10 @@
+digraph G{
+ rankdir=TB;
+ charset="utf-8";
+ graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
+ node_0x606000001f40 -> node_0x606000001ee0[color = "#964B00", dir = both];
+ node_0x606000001ee0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=2, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = param_b} | {0 | 0}} "];
+ node_0x606000001f40[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=1, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 3(OP_MUL)} | {L | R }} "];
+ node_0x606000001f40 -> node_0x606000001fa0[color = "#964B00", dir = both];
+ node_0x606000001fa0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=2, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = param_b} | {0 | 0}} "];
+}

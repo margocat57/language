@@ -1,0 +1,22 @@
+digraph G{
+ rankdir=TB;
+ charset="utf-8";
+ graph [bgcolor="#FFFAFA", nodesep = 0.3, ranksep=0.8];
+ node_0x606000002d20 -> node_0x606000002e40[color = "#964B00", dir = both];
+ node_0x606000002e40 -> node_0x606000002de0[color = "#964B00", dir = both];
+ node_0x606000002de0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=3, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = param_a} | {0 | 0}} "];
+ node_0x606000002e40[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=2, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 19(OP_COM)} | {L | R }} "];
+ node_0x606000002e40 -> node_0x606000002f00[color = "#964B00", dir = both];
+ node_0x606000002f00 -> node_0x606000002ea0[color = "#964B00", dir = both];
+ node_0x606000002ea0[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=4, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = param_b} | {0 | 0}} "];
+ node_0x606000002f00[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=3, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 19(OP_COM)} | {L | R }} "];
+ node_0x606000002f00 -> node_0x606000002fc0[color = "#964B00", dir = both];
+ node_0x606000002fc0 -> node_0x606000002f60[color = "#964B00", dir = both];
+ node_0x606000002f60[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=5, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = param_c} | {0 | 0}} "];
+ node_0x606000002fc0[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=4, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 19(OP_COM)} | {L | R }} "];
+ node_0x606000002fc0 -> node_0x606000008ea0[color = "#964B00", dir = both];
+ node_0x606000008ea0 -> node_0x606000003020[color = "#964B00", dir = both];
+ node_0x606000003020[shape="Mrecord", style="filled", fillcolor="#DAA520", rank=6, color = "#964B00", penwidth=1.0, label="{{type = VARIABLE} | {val = d} | {0 | 0}} "];
+ node_0x606000008ea0[shape="Mrecord", style="filled", fillcolor="#00FFFF", rank=5, color = "#964B00", penwidth=1.0, label="{{type = OPERATOR} | {val = 19(OP_COM)} | {L | R }} "];
+ node_0x606000002d20[shape="Mrecord", style="filled", fillcolor="#a7a7f2", rank=1, color = "#964B00", penwidth=1.0, label="{{type = FUNCTION_CALL} | {val = Che_cazzo_find_smaller_solution} | {0 | 0}} "];
+}

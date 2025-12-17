@@ -11,7 +11,7 @@ int main(){
         return 0;
     })
 
-    char* buffer = read_file_to_string_array("tests/test_recursive_fact.uccelo");
+    char* buffer = read_file_to_string_array("tests/test_quadr.ucсello");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);

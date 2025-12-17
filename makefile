@@ -111,7 +111,7 @@ run_leak_check_back: backend_lang
 
 # Frontend, middleend and backend --------------------------------------------------------
 
-lang: frontend_lang middleend_lang backend_lang 
+lang: frontend_lang middleend_lang generate_asm backend_lang 
 	(./frontend_lang; ./middleend_lang; ./generate_asm; ./backend_lang)
 
 run_leak_check_lang: lang
