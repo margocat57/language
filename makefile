@@ -100,7 +100,7 @@ run_leak_check_lang: lang
 	ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" ./lang
 
 clean:
-	rm -f frontend_lang backend_lang lang
+	rm -f frontend_lang backend_lang middleend_lang lang
 	rm -f $(FRNTD_OBJS) $(STK_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS)
 	rm -f frontend/debug_output_frontend/images/*.dot
 	rm -f frontend/debug_output_frontend/images/*.svg
