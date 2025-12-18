@@ -32,6 +32,7 @@ enum OPERATORS
     OP_INPUT,
     OP_OUTPUT,
     OP_EXIT,
+    OP_RAM_DUMP,
 };
 
 union TreeElem_t{
@@ -46,12 +47,14 @@ union TreeElem_t{
 #define DEBUG_TREE(...)
 #endif //_DEBUG_SMALL_TREE
 
-#define CHECK_AND_RET_TREEERR(bad_condition)                                                    \
-    if (bad_condition)                                                                          \
+#define CHECK_AND_RET_TREEERR(bad_condition)\
+    {\
+    TreeErr_t err = (bad_condition);\
+    if (err)                                                                          \
     {                                                                                           \
-        fprintf(stderr, "err = %llu, %s, %s, %d", bad_condition, __FILE__, __func__, __LINE__); \
-        return bad_condition;                                                                   \
-    }
+        fprintf(stderr, "err = %llu, %s, %s, %d\n", err, __FILE__, __func__, __LINE__); \
+        return err;                                                                   \
+    }}
 
 enum VALUE_TYPE
 {

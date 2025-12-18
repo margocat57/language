@@ -74,7 +74,7 @@ void CreateAsmCode(const char* file_name, const TreeHead_t* head, TreeErr_t* err
 
     metki_for_translate* mtk = MetkiInit();
 
-    fprintf(fp, "CALL :0\n");
+    fprintf(fp, ";calling main\nCALL :0\n");
 
     CALL_FUNC_AND_CHECK_ERR_FREE(CreateAsmCodeRecursive(fp, head->root, mtk, err));
     fclose(fp);
@@ -123,7 +123,7 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, metki_for_trans
             if(node->data.op == OP_IF)              {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, mtk, &if_count, NULL, err)); break;}     
             if(node->data.op == OP_ELSE)            {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, mtk, &else_count, NULL, err)); break;}  
             if(node->data.op == OP_WHILE)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, mtk, &while_count, NULL, err)); break;}              
-            if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR; break;}
+            if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR;  break;}
             CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, mtk, NULL, NULL, err)); break;                                                                                                                          break;
         default:                                    *err = INCORR_TYPE; break;
     }
@@ -137,7 +137,7 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, metki_for_trans
 void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, TreeErr_t* err){
     if(*err) return;
 
-    fprintf(file, ":%zu ;%s\n", MetkiAddName(mtk, node->var_func_name), node->var_func_name); 
+    fprintf(file, ":%zu ;creating function %s\n", MetkiAddName(mtk, node->var_func_name), node->var_func_name); 
 
     free(node->var_func_name);
     node->var_func_name = NULL;
@@ -150,26 +150,28 @@ void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, metki_for_translate* mt
 
     *first_free = node->data.var_code;
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
-    fprintf(file,   "PUSHR RBX\n"
+    fprintf(file,   "PUSHR RBX ;start shift RBX\n"
                     "PUSH %zu\n"
                     "ADD\n"
-                    "POPR RBX ; сдвигаем на новый стековый фрейм\n"
-                    "PUSHF %zu ; дампим сдвиг в стек чтобы вернуться\n" 
+                    "POPR RBX\n"
+                    "PUSHF %zu ;end shift RBX\n" 
                     "CALL :%zu ;calling %s\n",  node->data.var_code, node->data.var_code, 
                                                 MetkiAddName(mtk, node->var_func_name), node->var_func_name); 
     *param_count = 0;
+
 }
 
 void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, TreeErr_t* err){
     if(*err) return;
 
     mtk->var_info[0].variable_name = strdup(node->var_func_name);
-    fprintf(file, ":0 ;%s\n", node->var_func_name); 
+    fprintf(file, ":0 ;creating %s\n", node->var_func_name); 
 
     free(node->var_func_name);
     node->var_func_name = NULL;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
+
 }
 
 void CreateConstAsm(FILE *file, TreeNode_t *node){
@@ -177,7 +179,7 @@ void CreateConstAsm(FILE *file, TreeNode_t *node){
 }
 
 void CreateVariableAsm(FILE *file, TreeNode_t *node){
-    fprintf(file,   "PUSHR RBX\n"
+    fprintf(file,   "PUSHR RBX ;start woking with variable\n"
                     "PUSH %zu\n"
                     "ADD\n"
                     "POPR RCX\n", node->data.var_code); 
@@ -190,13 +192,13 @@ void CreateCommaAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int*
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
 
-    fprintf(file,   "PUSHR RBX\n"
+    fprintf(file,   "PUSHR RBX ;copying variable start\n"
                     "PUSH %d\n"
                     "ADD\n"
                     "PUSH %d\n"
                     "ADD\n"
                     "POPR RCX\n"
-                    "POPM [CX]\n", *op_count, *param_count); 
+                    "POPM [CX] ;copying variable end\n", *op_count, *param_count); 
     
     (*param_count)++;
 
@@ -209,19 +211,22 @@ void CreateReturnAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
 
     // сдвигаем регистры
-    fprintf(file,   "POPF RDX\n"
+    fprintf(file,   "POPF RDX  ;start copying shift to return\n"
                     "PUSHR RBX\n"
                     "PUSHR RDX\n"
                     "SUB\n" 
-                    "POPR RDX\n");
-    fprintf(file,  "PUSHR RDX\n"
-                    "POPR RBX\n"
+                    "POPR RDX\n"
+                    "PUSHR RDX\n"
+                    "POPR RBX ;end copying shift to return\n"
                     "RET\n");
 
 }
 
 void CreateIfAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
     if(*err) return;
+
+    bool has_else = false;
+    size_t metka_else = 0;
 
     char if_buffer[MAX_SIZE_BUFFER] = {};
     snprintf(if_buffer, MAX_SIZE_BUFFER, "if_%d", *op_count);
@@ -231,27 +236,33 @@ void CreateIfAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op
 
     fprintf(file, "PUSH 0\n");
     size_t metka_if = MetkiAddName(mtk, if_buffer);
-    fprintf(file, "JE :%zu ;%s\n", metka_if, if_buffer);
+    fprintf(file, "JE :%zu ;start if %s\n", metka_if, if_buffer);
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
-    fprintf(file, ":%zu\n", metka_if);
+    if(node->parent && node->parent->right && node->parent->right->type == OPERATOR && node->parent->right->data.op == OP_ELSE){
+        has_else = true;
+
+        char else_buffer[MAX_SIZE_BUFFER] = {};
+        snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%d", *op_count);
+        (*op_count)++;
+
+        metka_else = MetkiAddName(mtk, else_buffer);
+
+        fprintf(file, "JMP :%zu ; else %s\n", metka_else, else_buffer);
+    }
+    fprintf(file, ":%zu ;end if\n", metka_if);
+    if(has_else) CALL_FUNC_AND_CHECK_ERR(CreateElseAsm(file, node->parent->right, mtk, op_count, param_count, err));
+
+    if(has_else){
+        fprintf(file, ":%zu ;end if/else \n", metka_else);
+    } 
+
 }
 
 void CreateElseAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
     if(*err) return;
 
-    char else_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%d", *op_count);
-    (*op_count)++;
-
-    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->parent->left->left, mtk, err)); 
-
-    fprintf(file, "PUSH 0\n");
-    size_t metka_else = MetkiAddName(mtk, else_buffer);
-    fprintf(file, "JNE :%zu ;%s\n", metka_else, else_buffer);
-
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
-    fprintf(file, ":%zu\n", metka_else);
 }
 
 void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
@@ -262,7 +273,7 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int*
     (*op_count)++;
 
     size_t metka_while = MetkiAddName(mtk, while_buffer);
-    fprintf(file, ":%zu ;%s\n", metka_while, while_buffer);
+    fprintf(file, ":%zu ;start loop %s\n", metka_while, while_buffer);
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
 
@@ -274,19 +285,21 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int*
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
 
-    fprintf(file, "JMP :%zu\n", metka_while);
-    fprintf(file, ":%zu\n", metka_while1);
+    fprintf(file, "JMP :%zu ;end %s\n", metka_while, while_buffer);
+    fprintf(file, ":%zu \n", metka_while1);
 }
 
 
 void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
     if(*err) return;                                                                    
-    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));                            
+    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
+
+    if(node->right && node->right->type == OPERATOR && node->right->data.op == OP_ELSE)  return;                         
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
 }
 
 void CreateInitAssAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
-    if(*err) return;                                                                      
+    if(*err) return;                                                                   
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, mtk, err));
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, mtk, err));
     fprintf(file, "POPM [CX]\n");
@@ -298,12 +311,16 @@ void CreateOutputAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int
     fprintf(file, "OUT\n");
 }
 
+void CreateRamDumpAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
+    fprintf(file, "DRAW\n");
+}
+
 void CreateInputAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
     fprintf(file, "IN\n"); 
 }
 
 void CreateExitAsm(FILE *file, TreeNode_t *node, metki_for_translate* mtk, int* op_count, int* param_count, TreeErr_t* err){
-    fprintf(file, "HLT\n RET\n");
+    fprintf(file, "HLT\nRET\n");
 }
 
 #pragma GCC diagnostic pop

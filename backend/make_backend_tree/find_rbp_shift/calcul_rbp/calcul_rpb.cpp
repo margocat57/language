@@ -96,6 +96,7 @@ void CalculRpbShiftFuncCall(TreeNode_t* node, Stack_t* stack, name_table* nameta
     node->data.var_code = nametable->first_free;
 
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, is_init));
+    CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->right, stack, nametable, num_of_variables_init, err, false));
 }
 
 void CalculRpbShiftFuncDecl(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
@@ -106,6 +107,12 @@ void CalculRpbShiftFuncDecl(TreeNode_t* node, Stack_t* stack, name_table* nameta
     *num_of_variables_init = 0;
     CALL_FUNC_AND_CHECK_ERR_FREE(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, true));
     CALL_FUNC_AND_CHECK_ERR_FREE_NAMETAB(CalculRpbShiftRecursive(node->right, stack, nametable, num_of_variables_init, err, is_init));
+
+    for(size_t idx = 0; idx < *num_of_variables_init; idx++){
+        CHECK_PARSING_ERR(*err = stack_pop(stack, NULL));
+    }
+
+    *num_of_variables_init = 0;
     NameTableDestroy(nametable);
 }
 
@@ -122,7 +129,6 @@ void CalculRpbShiftIfElseWhile(TreeNode_t* node, Stack_t* stack, name_table* nam
 
 void CalculRpbShiftInit(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, true));
-    (*num_of_variables_init)++;
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->right, stack, nametable,  num_of_variables_init, err, false));
 }
 
@@ -133,6 +139,7 @@ static bool FindVarAtStack(TreeNode_t* node, Stack_t* stack, name_table* nametab
 
 void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init, TreeErr_t* err, bool is_init){
     if(is_init){
+        (*num_of_variables_init)++;
         size_t idx = NameTableAddName(nametable, node->var_func_name);
         CHECK_PARSING_ERR(*err = stack_push(stack, &idx));
         node->data.var_code = idx;

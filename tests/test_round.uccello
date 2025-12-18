@@ -1,0 +1,76 @@
+STA_CAGATA 
+main(){
+    x := 1;
+    y := 1;
+    R := 2;
+    square(x, y, R);
+    ram_dump;
+    exit;
+}
+square(x, y, R){
+    if(x == 7){
+        x = 1;
+        y = y + 1;
+    }
+    else{
+        x = x + 3;
+    }
+    if(y == 10){
+        return 1;
+    }
+    square(x, y, R);
+    if(x^2 + y ^ 2 <= R){
+        a := 1;
+        b := 1;
+        c := 1;
+    }
+    else{
+        a := 0;
+        b := 0;
+        c := 0;
+    }
+    return 1;
+}
+NON_PUBBLICARLA
+
+Che_grande_cazzo_main (Ciucciami il_cazzo!) {Voi-Figlio
+    x fare_pompino 1 porco_dio!
+    y fare_pompino 1 porco_dio!
+    R fare_pompino 2 porco_dio!
+    Che_cazzo_square (Ciucciami x сhe_culo y сhe_culo R il_cazzo!)
+    Fotino_morella 
+    Basta!
+di_putana}
+
+Che_cazzo_square (Ciucciami x сhe_culo y сhe_culo R il_cazzo!) {Voi-Figlio
+    Culo (Ciucciami x сazzo,fa 7 il_cazzo!) {Voi-Figlio
+        x a_fanculo 1 porco_dio!
+        y a_fanculo y cretino 1 porco_dio!
+    di_putana}
+    Fica {Voi-Figlio
+        x a_fanculo x cretino 3 porco_dio!
+    di_putana}
+    Culo (Ciucciami y сazzo,fa 10 il_cazzo!) {Voi-Figlio
+        succhia 1 porco_dio!
+    di_putana}
+    Che_cazzo_square (Ciucciami x сhe_culo y сhe_culo R il_cazzo!)
+    Culo (Ciucciami x сazzo,fa 1 il_cazzo!) {Voi-Figlio
+        x a_fanculo 7 porco_dio!
+        y a_fanculo y pazzi 1 porco_dio!
+    di_putana}
+    Fica {Voi-Figlio
+        x a_fanculo x pazzi 3 porco_dio!
+    di_putana}
+    Culo (Ciucciami (Ciucciami x pazzi 3.5 il_cazzo!) mona 2 cretino (Ciucciami y pazzi 4.5 il_cazzo!) mona 2 cazzo_piu_corto R merda R il_cazzo!) {Voi-Figlio
+        a fare_pompino 1 porco_dio!
+        b fare_pompino 1 porco_dio!
+        c fare_pompino 1 porco_dio!
+    di_putana}
+    Fica {Voi-Figlio
+        a fare_pompino 0 porco_dio!
+        b fare_pompino 0 porco_dio!
+        c fare_pompino 0 porco_dio!
+    di_putana}
+    succhia 1 porco_dio!
+di_putana}
+Fottiti!

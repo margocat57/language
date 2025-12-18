@@ -69,7 +69,7 @@ static TreeNode_t* GetSepNode(Tokens_t* tokens_copy, TreeNode_t* node_left_child
     FUNC_DECL ::= "func_name" (E {, E}*)+ 
     FUNC_USE ::= "func_name" (E {, E}*)+ 
     BODY ::= '{'STATEMENT+'}'
-    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT | EXIT;
+    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT(без точки с запятой) | EXIT | RAM_DUMP;
     INIT  ::= V ':=' E  | INPUT; 
     A     ::= V  '=' E  | INPUT;
     IF ::= "if" "(" E ")" STATEMENT | BODY ("else" STATEMENT | BODY)?
@@ -103,6 +103,7 @@ static TreeNode_t* GetRETURN    (size_t* pos, Tokens_t* tokens, Tokens_t* tokens
 static TreeNode_t* GetINPUT     (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetOUTPUT    (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetEXIT      (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
+static TreeNode_t* GetRAM_DUMP  (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetE         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetL         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetT         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
@@ -355,6 +356,9 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     }
     else if(IS_TYPE_IN_POS(FUNCTION)){
         CALL_AND_CHECK_ERR(node = GetFUNC_USE(pos, tokens, tokens_copy, err));
+        
+        TreeNode_t* sep_point = GetSepNode(tokens_copy, node, OP_CLOSE_FIG_BR, err);
+        node = sep_point;
     }
     else if(IS_OPERATOR_IN_POS(OP_OUTPUT)){
         CALL_AND_CHECK_ERR(node = GetOUTPUT(pos, tokens, tokens_copy, err));
@@ -362,9 +366,12 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     else if(IS_OPERATOR_IN_POS(OP_EXIT)){
         CALL_AND_CHECK_ERR(node = GetEXIT(pos, tokens, err));
     }
+    else if(IS_OPERATOR_IN_POS(OP_RAM_DUMP)){
+        CALL_AND_CHECK_ERR(node = GetRAM_DUMP(pos, tokens, err));
+    }
     else{
         *err = INCORR_STATEMENT;
-        fprintf(stderr, "incorrect statement\n");
+        fprintf(stderr, "incorrect statement %zu\n", *pos);
         return NULL;
     }
     return node;
@@ -656,6 +663,22 @@ static TreeNode_t* GetEXIT(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 
     TreeNode_t* node = tokens->node_arr[*pos];
     (*pos)++; // skip OP_EXIT
+
+    return node;
+}
+
+//----------------------------------------------------------------------------
+// Get RAM_DUMP
+
+static TreeNode_t* GetRAM_DUMP(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
+    if(*err) return NULL;
+
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_RAM_DUMP), 
+            NO_RETURN_OP, 
+            "No ram dump in ram dump func\n")
+
+    TreeNode_t* node = tokens->node_arr[*pos];
+    (*pos)++; // skip RAM_DUMP
 
     return node;
 }
