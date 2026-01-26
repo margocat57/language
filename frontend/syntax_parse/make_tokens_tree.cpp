@@ -79,7 +79,7 @@ static TreeNode_t* GetSepNode(Tokens_t* tokens_copy, TreeNode_t* node_left_child
     OUTPUT ::= "output" E ;
     EXIT   ::= "exit";
     E     ::= M{[&&, ||]M}*
-    M     ::= L{[>, == ,<]L}*
+    M     ::= L{[>, == ,<, <=, >=]L}*
     L     ::= T{[+, -]T}* 
     T     ::= D{[*, \]D}*
     D     ::= P{[^] P}* 
@@ -148,14 +148,12 @@ static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy){
         return NULL;
     }
     assert(first_op);
-    tree_dump_func(first_op, __FILE__, __func__, __LINE__ , "Before ret GetG node %zu", *pos);
+    // tree_dump_func(first_op, __FILE__, __func__, __LINE__ , "Before ret GetG node %zu", *pos);
     return first_op;
 }
 
 // -------------------------------------------------------------------------------------
 // GetX and helping functions
-
-static TreeNode_t* GetFuncAndNametable(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 
 static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
     assert(err);
@@ -176,7 +174,7 @@ static TreeNode_t* GetX(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     }
     
     assert(node_general);
-    tree_dump_func(node_general, __FILE__, __func__, __LINE__, "Before ret GetX node %zu", *pos);
+    // tree_dump_func(node_general, __FILE__, __func__, __LINE__, "Before ret GetX node %zu", *pos);
     return node_general;
 }
 
@@ -198,7 +196,7 @@ static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     CALL_AND_CHECK_ERR(sep_node = GetSepNode(tokens_copy, func_name, OP_CLOSE_FIG_BR, err));
 
 
-    tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetFUNC node %zu", *pos);
+    // tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetFUNC node %zu", *pos);
 
     return sep_node;
 }
@@ -285,7 +283,7 @@ static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     }
 
     assert(func_name);
-    tree_dump_func(func_name, __FILE__, __func__, __LINE__, "Before ret GetFUNCCALL node %zu", *pos);
+    // tree_dump_func(func_name, __FILE__, __func__, __LINE__, "Before ret GetFUNCCALL node %zu", *pos);
     return func_name;
 }
 
@@ -371,7 +369,8 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     }
     else{
         *err = INCORR_STATEMENT;
-        fprintf(stderr, "incorrect statement %zu\n", *pos);
+        TreeNode_t* node = tokens->node_arr[*pos];
+        fprintf(stderr, "incorrect statement %zu %d %d\n", *pos, node->type, node->data.op);
         return NULL;
     }
     return node;
@@ -504,7 +503,7 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
     }
     // ---
 
-    tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetIF node %zu", *pos);
+    // tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetIF node %zu", *pos);
     return sep_node;
 }
 
@@ -529,7 +528,7 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     else_node -> right = statnode;
     statnode -> parent = else_node;
 
-    tree_dump_func(else_node, __FILE__, __func__, __LINE__, "Before ret GetELSE node %zu", *pos);
+    // tree_dump_func(else_node, __FILE__, __func__, __LINE__, "Before ret GetELSE node %zu", *pos);
 
     return else_node;
 }
@@ -578,7 +577,7 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     TreeNode_t* sep_node = NULL;
     CALL_AND_CHECK_ERR(sep_node = GetSepNode(tokens_copy, while_node, OP_CLOSE_FIG_BR, err));
 
-    tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetWHILE node %zu", *pos);
+    // tree_dump_func(sep_node, __FILE__, __func__, __LINE__, "Before ret GetWHILE node %zu", *pos);
 
     return sep_node;
 }
@@ -692,10 +691,10 @@ static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
     TreeNode_t* left = NULL;
     CALL_AND_CHECK_ERR(left = GetL(pos, tokens, tokens_copy, err)); 
 
-    while(IS_OPERATOR_IN_POS(OP_GE)|| IS_OPERATOR_IN_POS(OP_LE) || IS_OPERATOR_IN_POS(OP_EQ)){
+    while(IS_OPERATOR_IN_POS(OP_GE)|| IS_OPERATOR_IN_POS(OP_LE) || IS_OPERATOR_IN_POS(OP_EQ) || IS_OPERATOR_IN_POS(OP_GEQ)|| IS_OPERATOR_IN_POS(OP_LEQ)){
         TreeNode_t *new_node = tokens->node_arr[*pos];
 
-        (*pos)++; // skip < or > or ==
+        (*pos)++; // skip < or > or == or <= or >=
 
         TreeNode_t* right = NULL;
         CALL_AND_CHECK_ERR(right = GetL(pos, tokens, tokens_copy, err));
@@ -709,7 +708,7 @@ static TreeNode_t* GetE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
         left = new_node;
     }
     assert(left);
-    tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetE node %zu", *pos);
+    // tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetE node %zu", *pos);
     return left;
 }
 
@@ -739,7 +738,7 @@ static TreeNode_t* GetL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
         left = new_node;
     }
     assert(left);
-    tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetE node %zu", *pos);
+    // tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetE node %zu", *pos);
     return left;
 }
 
@@ -769,7 +768,7 @@ static TreeNode_t* GetT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
         left = new_node;
     }
     assert(left);
-    tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetT node %zu", *pos);
+    // tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetT node %zu", *pos);
     return left;
 }
 
@@ -799,7 +798,7 @@ static TreeNode_t* GetD(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
         left = new_node;
     }
     assert(left);
-    tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetD node %zu", *pos);
+    // tree_dump_func(left, __FILE__, __func__, __LINE__, "Before ret GetD node %zu", *pos);
     return left;
 }
 
@@ -837,7 +836,7 @@ static TreeNode_t* GetP(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, Sy
             fprintf(stderr, "Incorrect operand - not num or variable\n");
         } 
     }
-    tree_dump_func(val, __FILE__, __func__, __LINE__, "Before ret GetP node %zu", *pos);
+    // tree_dump_func(val, __FILE__, __func__, __LINE__, "Before ret GetP node %zu", *pos);
     return val;
 }
 

@@ -8,7 +8,6 @@
 #include "Processor-and-assembler/processor_task/processor.h"
 
 int main(){
-
     // making bytecode ------------------------------------
     assembler assembl = asm_init("backend/Processor-and-assembler/assembler_task/expr.txt");
     if(parser(&assembl)){
@@ -16,6 +15,7 @@ int main(){
         return 0;
     }
     asm_dump(&assembl);
+
     put_buffer_to_file("backend/Processor-and-assembler/assembler_task/ass.bin", &assembl);
     free_asm(&assembl);
 

@@ -64,7 +64,7 @@ void CalculRpbShift(const TreeHead_t* head, TreeErr_t* err){
     CALL_FUNC_AND_CHECK_ERR_FREE(CalculRpbShiftRecursive(head->root, stack, nametable, &num_of_variables, err, false));
     stack_free(stack);
 
-    tree_dump_func(head->root, __FILE__, __func__, __LINE__, "RBP shifts counted\n");
+    // tree_dump_func(head->root, __FILE__, __func__, __LINE__, "RBP shifts counted\n");
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
 }
@@ -146,6 +146,7 @@ void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nameta
     }
     else{
         bool is_found = FindVarAtStack(node, stack, nametable);
+        // fprintf(stderr, "%s\n", node->var_func_name);
 
         FAIL_IF(!is_found,
             USE_VAR_BEFORE_INIT,

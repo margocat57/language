@@ -122,7 +122,7 @@ TreeHead_t* MakeBackendTree(const char *name_of_file){
     )
     free(buffer);
     ConnectWithParents(head->root);
-    tree_dump_func(head->root, __FILE__, __func__, __LINE__, "Debug backend tree\n");
+    // tree_dump_func(head->root, __FILE__, __func__, __LINE__, "Debug backend tree\n");
     return head;
 }
 

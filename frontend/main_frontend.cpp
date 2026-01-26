@@ -11,16 +11,18 @@ int main(){
         return 0;
     })
 
-    char* buffer = read_file_to_string_array("tests/test_quadr.ucсello");
+    char* buffer = read_file_to_string_array("tests/test_round2.uccello");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);
     if(!tokens) return 0;
 
     // DEBUG FOR TOKENS
-    for(int i = 0; i < tokens->first_free_place; i++){
+    /*
+    for(int i = 0; i < 434; i++){
         tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, "%d pos", i);
     }
+    */
 
     Tokens_t* tokens_copy = TokensCtor(10);
     TreeHead_t* head = MakeLangExprTokens(tokens, tokens_copy);

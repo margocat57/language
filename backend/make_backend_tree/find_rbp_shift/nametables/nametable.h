@@ -2,7 +2,7 @@
 #define NAMETABLES_H
 #include <stdlib.h>
 
-const int MAX_NUMBER_OF_NAMETABLE = 20;
+const int MAX_NUMBER_OF_NAMETABLE = 320;
 
 struct variables{
     char* variable_name;

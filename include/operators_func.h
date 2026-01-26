@@ -29,7 +29,7 @@ struct op_info{
     // shift count
     SHIFT_RBP(void(*shift_func)(TreeNode_t*, Stack_t*, name_table*,  size_t*,  TreeErr_t*, bool);)
     // translator function
-    TRASLATE(void(*translate_func)(FILE*, TreeNode_t*, metki_for_translate*, int*, int*, TreeErr_t*);)
+    TRASLATE(void(*translate_func)(FILE*, TreeNode_t*, op_counters*, TreeErr_t*);)
 };
 
 

@@ -19,6 +19,8 @@ enum OPERATORS
     OP_EQ,
     OP_GE,
     OP_LE,
+    OP_GEQ,
+    OP_LEQ,
     OP_SP,
     OP_IF,
     OP_ELSE,

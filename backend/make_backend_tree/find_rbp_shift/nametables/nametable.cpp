@@ -27,7 +27,7 @@ size_t NameTableAddName(name_table* nametab, char* num_of_variable){
 
     nametab->var_info[nametab->first_free].variable_name = strdup(num_of_variable); // уже за стрдюплено
     nametab->first_free++;
-    if(nametab->first_free > nametab->num_of_elements){
+    if(nametab->first_free >= nametab->num_of_elements){
         NameTableRealloc(nametab, nametab->num_of_elements*2);
     }
     return nametab->first_free - 1;
