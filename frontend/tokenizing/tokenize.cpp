@@ -1,5 +1,6 @@
 #include "tokenize.h"
 #include "../../include/operators_func.h"
+#include "../../include/standart_func.h"
 #include "../io/read_program.h"
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,8 @@ const size_t MAX_SIZE_BUFFER = 256;
 static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size_t* num_of_symb_above);
 
 static bool FindOperators(Tokens_t* tokens,  const char* buffer, size_t* pos);
+
+static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos);
 
 static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos);
 
@@ -38,6 +41,8 @@ Tokens_t* TokenizeInput(const char* buffer){
         if(Find_And_Skip_Comments(buffer, &pos))              continue;
 
         else if(FindOperators(tokens, buffer, &pos))          continue; 
+
+        else if(FindStandartFunc(tokens, buffer, &pos))       continue;
 
         else if(Tokenize_FUNC(tokens, buffer, &pos))          continue; 
 
@@ -104,6 +109,26 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
         if(!strncmp(buffer + *pos, OPERATORS_INFO[idx].op_name_in_code, OPERATORS_INFO[idx].num_of_symb_code)){
             TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL), tokens);
             *pos += OPERATORS_INFO[idx].num_of_symb_code;
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos){
+    size_t num_of_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
+    for(size_t idx = 0; idx < num_of_func; idx++){
+        if(!FUNC_INFO[idx].func_name_in_code){
+            continue;
+        }
+        if(!strncmp(buffer + *pos, FUNC_INFO[idx].func_name_in_code, FUNC_INFO[idx].num_of_symb_code)){
+            if(FUNC_INFO[idx].is_void){
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL), tokens);
+            }
+            else{
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL), tokens);
+            }
+            *pos += FUNC_INFO[idx].num_of_symb_code;
             return true;
         }
     }

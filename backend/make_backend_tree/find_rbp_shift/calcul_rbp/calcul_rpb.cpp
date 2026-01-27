@@ -1,6 +1,7 @@
 #include "assert.h"
 #define CALCUL_SHIFT
 #include "../../../../include/operators_func.h"
+#include "../../../../include/standart_func.h"
 #include "../../../../debug_output/graphviz_dump.h"
 
 #define CALL_FUNC_AND_CHECK_ERR(function)\
@@ -74,25 +75,33 @@ void CalculRpbShift(const TreeHead_t* head, TreeErr_t* err){
 
 static void CalculRpbShiftRecursive(TreeNode_t* node, Stack_t* stack, name_table* nametable,  size_t *num_of_variables_init, TreeErr_t* err, bool is_init){
     if(!node) return;
-    size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
+
+    static size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    static size_t num_of_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
     switch(node->type){
-        case INCORR_VAL:                      *err = INCORR_TYPE;                                                                                                                    break;                                                                     
-        case FUNCTION: case FUNCTION_MAIN:    CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftFuncDecl(node, stack, nametable, num_of_variables_init, err, is_init));                             break; 
-        case FUNC_CALL:                       CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftFuncCall(node, stack, nametable, num_of_variables_init, err, is_init));                             break; 
-        case CONST:                           CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftOther(node, stack, nametable,  num_of_variables_init, err, is_init));                               break;          
-        case VARIABLE:                        CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftVariable(node, stack, nametable, num_of_variables_init, err, is_init));                    break; 
+        case INCORR_VAL:                      *err = INCORR_TYPE;                                                                                                                  break;                                                                     
+        case FUNCTION: case FUNCTION_MAIN:    CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftFuncDecl(node, stack, nametable, num_of_variables_init, err, is_init));                        break; 
+        case FUNC_CALL:                       CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftFuncCall(node, stack, nametable, num_of_variables_init, err, is_init));                        break; 
+        case CONST:                           CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftOther(node, stack, nametable,  num_of_variables_init, err, is_init));                          break;          
+        case VARIABLE:                        CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftVariable(node, stack, nametable, num_of_variables_init, err, is_init));                        break; 
+        case FUNCTION_STANDART_VOID:          
+        case FUNCTION_STANDART_NON_VOID:      if(node->data.stdlib_func >= num_of_func) *err = INCORR_OPERATOR;
+                                              CALL_FUNC_AND_CHECK_ERR(FUNC_INFO[node->data.stdlib_func].shift_func(node, stack, nametable, num_of_variables_init, err, is_init));  break;
         case OPERATOR:                        if(node->data.op >= num_of_operators) *err = INCORR_OPERATOR;
-                                              CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].shift_func(node, stack, nametable, num_of_variables_init, err, is_init));  break;
-        default:                              *err = INCORR_TYPE;                                                                                                                    break; 
+                                              CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].shift_func(node, stack, nametable, num_of_variables_init, err, is_init));      break;
+        default:                              *err = INCORR_TYPE;                                                                                                                  break; 
         }
 }
 
 void CalculRpbShiftOther(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
+    if(*err) return;
+
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, is_init));
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->right, stack, nametable, num_of_variables_init, err, is_init));
 }
 
 void CalculRpbShiftFuncCall(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
+    if(*err) return;
     node->data.var_code = nametable->first_free;
 
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, is_init));
@@ -100,6 +109,8 @@ void CalculRpbShiftFuncCall(TreeNode_t* node, Stack_t* stack, name_table* nameta
 }
 
 void CalculRpbShiftFuncDecl(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
+    if(*err) return;
+
     nametable = NameTableInit();
     for(size_t count = 0; count < *num_of_variables_init; count++){
         CHECK_PARSING_ERR(*err = stack_pop(stack, NULL));
@@ -117,6 +128,7 @@ void CalculRpbShiftFuncDecl(TreeNode_t* node, Stack_t* stack, name_table* nameta
 }
 
 void CalculRpbShiftIfElseWhile(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
+    if(*err) return;
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, is_init));
 
     size_t num_of_variables = 0;
@@ -128,6 +140,8 @@ void CalculRpbShiftIfElseWhile(TreeNode_t* node, Stack_t* stack, name_table* nam
 }
 
 void CalculRpbShiftInit(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init){
+    if(*err) return;
+
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->left, stack, nametable, num_of_variables_init, err, true));
     CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftRecursive(node->right, stack, nametable,  num_of_variables_init, err, false));
 }
@@ -138,6 +152,8 @@ void CalculRpbShiftInit(TreeNode_t* node, Stack_t* stack, name_table* nametable,
 static bool FindVarAtStack(TreeNode_t* node, Stack_t* stack, name_table* nametable);
 
 void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init, TreeErr_t* err, bool is_init){
+    if(*err) return;
+
     if(is_init){
         (*num_of_variables_init)++;
         size_t idx = NameTableAddName(nametable, node->var_func_name);
@@ -145,8 +161,8 @@ void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nameta
         node->data.var_code = idx;
     }
     else{
+        // fprintf(stderr, "%s %d %d\n", node->var_func_name, node->parent->data.op, node==node->parent->left);
         bool is_found = FindVarAtStack(node, stack, nametable);
-        // fprintf(stderr, "%s\n", node->var_func_name);
 
         FAIL_IF(!is_found,
             USE_VAR_BEFORE_INIT,

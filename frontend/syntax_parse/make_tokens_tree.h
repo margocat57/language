@@ -5,6 +5,7 @@
 #include "../../tree/mistakes.h"
 #include "../../debug_output/graphviz_dump.h"
 #include "../../include/operators_func.h"
+#include "../../include/standart_func.h"
 #include "../common/tokens.h"
 
 typedef uint64_t SyntaxErr_t;
@@ -49,6 +50,10 @@ enum SyntaxErr{
     NO_VARIABLE,
     INCORR_STATEMENT,
     EMPTY_VAR_NAME,
+    INCORRECT_NUM_OF_PARAMS_FOR_STD_FUNC,
+    NUMBER_OF_STD_FUNC_OUT_OF_ARR,
+    NO_CLOSE_BR_AFTER_CALL_FUNC,
+    NO_SP_AFTER_CALLING_FUNC
 };
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);

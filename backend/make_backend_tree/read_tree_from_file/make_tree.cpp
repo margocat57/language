@@ -11,6 +11,7 @@
 #include "../../../tree/mistakes.h"
 #include "../../../debug_output/graphviz_dump.h"
 #include "../../../include/operators_func.h"
+#include "../../../include/standart_func.h"
 
 const size_t BUFFER_LEN = 300;
 
@@ -122,7 +123,7 @@ TreeHead_t* MakeBackendTree(const char *name_of_file){
     )
     free(buffer);
     ConnectWithParents(head->root);
-    // tree_dump_func(head->root, __FILE__, __func__, __LINE__, "Debug backend tree\n");
+    tree_dump_func(head->root, __FILE__, __func__, __LINE__, "Debug backend tree\n");
     return head;
 }
 
@@ -218,8 +219,18 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
     }
     else if(!strncmp("OP", buffer_var, 2)){
         int idx = 0;
-        sscanf(buffer_var, "OP %d", &idx);
+        sscanf(buffer_var, "OP %d", &idx); //TODO проверка на допустимый индекс
         node = NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL);
+    }
+    else if(!strncmp("STD", buffer_var, 3)){
+        int idx = 0;
+        sscanf(buffer_var, "STD %d", &idx);
+        if(FUNC_INFO[idx].is_void){
+            node = NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+        }
+        else{
+            node = NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+        }
     }
     (*pos) += len;
 

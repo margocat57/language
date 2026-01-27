@@ -1,0 +1,37 @@
+Che_grande_cazzo_main (Ciucciami il_cazzo!){Voi-Figlio
+    x fare_pompino 0 porco_dio!
+    y fare_pompino 0 porco_dio!
+    R fare_pompino 50 porco_dio!
+    Fottere (Ciucciami y cazzo_piu_corto 100 il_cazzo!) {Voi-Figlio
+        Fottere (Ciucciami x cazzo_piu_corto 100 il_cazzo!) {Voi-Figlio
+            Culo (Ciucciami (Ciucciami x pazzi 49.5 il_cazzo!) mona 2 cretino (Ciucciami y pazzi 49.5 il_cazzo!) mona 2 cazzo_medio_o_piu_corto R merda R il_cazzo!) {Voi-Figlio
+                Disegnare_un_cazzo(Ciucciami x сhe_culo y il_cazzo!) porco_dio!
+            di_putana}
+            x a_fanculo x cretino 1 porco_dio!
+        di_putana}
+        x a_fanculo 0 porco_dio!
+        y a_fanculo y cretino 1 porco_dio!
+    di_putana}
+    Fotino_morella 
+    Basta!
+di_putana}
+Fottiti!
+
+STA_CAGATA
+main(){
+y := 0;
+x := 0;
+R := IN;
+while (y < 10){
+    while (x < 10){
+        if((x-5)^2 + (y-5)^2 <= R){
+            DRAW(x,y);
+        }
+        x++;
+    }
+    x = 0;
+    y++;
+}
+exit
+}
+NON_PUBBLICARLA

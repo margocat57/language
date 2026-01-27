@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <math.h>
 #include <assert.h>
 #include "translator.h"
 #define TRANSLATOR
 #include "../../include/operators_func.h"
+#include "../../include/standart_func.h"
+#include "../Processor-and-assembler/processor_task/processor.h"
 
 /*
 Короче здесь может быть стоит
@@ -119,7 +122,10 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
             if(node->data.op == OP_ELSE)            {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}  
             if(node->data.op == OP_WHILE)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}              
             if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR;  break;}
-            CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters,  err)); break;                                                                                                                          break;
+            CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters,  err)); break;    
+        case FUNCTION_STANDART_VOID:  case FUNCTION_STANDART_NON_VOID:    
+            if(!(FUNC_INFO[node->data.stdlib_func].translate_func)){ *err = INCORR_OPERATOR;  break;}
+            CALL_FUNC_AND_CHECK_ERR(FUNC_INFO[node->data.stdlib_func].translate_func(file, node, counters, err)); break;                                                                                                                    break;
         default:                                    *err = INCORR_TYPE; break;
     }
 
@@ -180,15 +186,21 @@ void CreateVariableAsm(FILE *file, TreeNode_t *node, op_counters* counters){
     fprintf(file, "PUSHM [CX]\n");
 }
 
+void CreateOpenBrAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
+    if(*err) return;
+    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
+    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
+}
+
 void CreateCommaAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
 
     fprintf(file,   "PUSHR RBX ;copying variable start\n"
-                    "PUSH %d\n"
+                    "PUSH %zu\n"
                     "ADD\n"
-                    "PUSH %d\n"
+                    "PUSH %zu\n"
                     "ADD\n"
                     "POPR RCX\n"
                     "POPM [CX] ;copying variable end\n", counters->first_free, counters->param_count); 
@@ -221,7 +233,7 @@ void CreateIfAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t*
     bool has_else = false;
 
     char if_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(if_buffer, MAX_SIZE_BUFFER, "if_%d", counters->if_count);
+    snprintf(if_buffer, MAX_SIZE_BUFFER, "if_%zu", counters->if_count);
     (counters->if_count)++;
 
     char else_buffer[MAX_SIZE_BUFFER] = {};
@@ -235,7 +247,7 @@ void CreateIfAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t*
     if(node->parent && node->parent->right && node->parent->right->type == OPERATOR && node->parent->right->data.op == OP_ELSE){
         has_else = true;
 
-        snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%d", counters->else_count);
+        snprintf(else_buffer, MAX_SIZE_BUFFER, "else_%zu", counters->else_count);
         (counters->else_count)++;
 
         fprintf(file, "JMP :%s\n", else_buffer);
@@ -258,7 +270,7 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     if(*err) return;
 
     char while_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_cycle_%d", counters->while_count);
+    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_cycle_%zu", counters->while_count);
     (counters->while_count)++;
 
     fprintf(file, ":%s\n", while_buffer);
@@ -266,7 +278,7 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
 
     char while_buffer1[MAX_SIZE_BUFFER] = {};
-    snprintf(while_buffer1, MAX_SIZE_BUFFER, "while_jmp_%d", counters->while_count);
+    snprintf(while_buffer1, MAX_SIZE_BUFFER, "while_jmp_%zu", counters->while_count);
 
     fprintf(file, "PUSH 0\n");
     fprintf(file, "JE :%s\n", while_buffer1);
@@ -291,6 +303,21 @@ void CreateInitAssAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeE
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
     fprintf(file, "POPM [CX]\n");
+}
+
+void CreateDrawStdFuncAsm (FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
+    if(*err) return;  
+    CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
+    fprintf(file,   "PUSH %d\n"
+                    "MUL\n"
+                    "PUSH %d\n" 
+                    "ADD\n"
+                    "ADD\n"
+                    "POPR RGX\n"
+                    "PUSH 1\n" 
+                    "POPM [GX]\n", 
+                    (int)(sqrt(RAM_MAX_SIZE/2)), RAM_MAX_SIZE/2);
+    
 }
 
 void CreateOutputAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){

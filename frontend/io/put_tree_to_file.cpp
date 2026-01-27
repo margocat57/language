@@ -3,6 +3,7 @@
 #include "put_tree_to_file.h"
 #include "../../tree/tree_func.h"
 #include "../../include/operators_func.h"
+#include "../../include/standart_func.h"
 
 #define CALL_FUNC_AND_CHECK_ERR(function)\
     do{\
@@ -44,7 +45,8 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
     static size_t count = 0;
-    size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    static size_t num_of_std_func = sizeof(FUNC_INFO) / sizeof(num_of_std_func);
 
     switch(node->type){
         case INCORR_VAL: *err = INCORR_OPERATOR; break;
@@ -59,6 +61,13 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
                 return;
             }
             fprintf(file, "( \"OP %d\"", OPERATORS_INFO[node->data.op].op);
+            break;
+        case FUNCTION_STANDART_NON_VOID: case FUNCTION_STANDART_VOID:
+            if(node->data.stdlib_func >= num_of_std_func){
+                *err = INCORR_OPERATOR;
+                return;
+            }
+            fprintf(file, "( \"STD %d\"", FUNC_INFO[node->data.stdlib_func].function);
             break;
         case CONST:
             fprintf(file, "( \"%lg\"", node->data.const_value);

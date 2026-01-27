@@ -14,6 +14,8 @@ void CreateAsmCode(const char* file_name, const TreeHead_t* head, TreeErr_t* err
 
 void CreateCommaAsm       (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateReturnAsm      (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
+void CreateDrawStdFuncAsm (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
+void CreateOpenBrAsm      (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateInitAssAsm     (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateIfAsm          (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);

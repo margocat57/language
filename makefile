@@ -35,7 +35,7 @@ $(DEBUG_OUTPUT_OBJS): %.o: %.cpp
 
 # FRONTEND ------------------------------------------------------------------
 
-FRNTD = $(shell find frontend -type f -name "*.cpp")
+FRNTD = $(shell find frontend include -type f -name "*.cpp")
 FRNTD_OBJS = $(FRNTD:%.cpp=%.o)
 
 $(FRNTD_OBJS): %.o: %.cpp                            
@@ -131,6 +131,6 @@ run_leak_check_lang:
 
 clean:
 	rm -f frontend_lang backend_lang middleend_lang lang generate_asm
-	rm -f $(FRNTD_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS) $(MAIN_RUN_ASM_OBJS)
+	rm -f $(FRNTD_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS) $(MAIN_RUN_ASM_OBJS) $(DEBUG_OUTPUT_OBJS)
 	rm -f debug_output/images/*.dot
 	rm -f debug_output/images/*.svg

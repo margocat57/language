@@ -37,8 +37,13 @@ enum OPERATORS
     OP_RAM_DUMP,
 };
 
+enum STANDART_FUNCTIONS{
+    DRAW_RAM_ELEM,
+};
+
 union TreeElem_t{
     enum OPERATORS op;
+    enum STANDART_FUNCTIONS stdlib_func;
     double const_value;
     size_t var_code; 
 };
@@ -65,6 +70,8 @@ enum VALUE_TYPE
     VARIABLE,
     FUNCTION,
     FUNCTION_MAIN,
+    FUNCTION_STANDART_VOID,
+    FUNCTION_STANDART_NON_VOID,
     CONST,
     FUNC_CALL
 };

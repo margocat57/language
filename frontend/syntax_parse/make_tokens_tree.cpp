@@ -63,13 +63,14 @@ static TreeNode_t* GetSepNode(Tokens_t* tokens_copy, TreeNode_t* node_left_child
 // -------------------------------------------------------------------------------------
 
 /*
+    !ПОКА НЕ ДОБАВЛЕНА СТАНДАРТНАЯ НЕ VOID ФУНКЦИЯ то пока соотв парсера нет
     G     ::= X
     X     ::= FUNCTION+
     FUNCTION := FUNC_DECL BODY
     FUNC_DECL ::= "func_name" (E {, E}*)+ 
     FUNC_USE ::= "func_name" (E {, E}*)+ 
     BODY ::= '{'STATEMENT+'}'
-    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT(без точки с запятой) | EXIT | RAM_DUMP;
+    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT(без точки с запятой) | FUNC_STANDART_VOID_CALL | EXIT | RAM_DUMP;
     INIT  ::= V ':=' E  | INPUT; 
     A     ::= V  '=' E  | INPUT;
     IF ::= "if" "(" E ")" STATEMENT | BODY ("else" STATEMENT | BODY)?
@@ -148,7 +149,7 @@ static TreeNode_t* GetG(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy){
         return NULL;
     }
     assert(first_op);
-    // tree_dump_func(first_op, __FILE__, __func__, __LINE__ , "Before ret GetG node %zu", *pos);
+    tree_dump_func(first_op, __FILE__, __func__, __LINE__ , "Before ret GetG node %zu", *pos);
     return first_op;
 }
 
@@ -225,6 +226,71 @@ static TreeNode_t* GetFUNC_USE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_c
 // GetFuncCall and helping functions -------------------------------
 
 static void ProcessComma(TreeNode_t* prev_param, TreeNode_t* current_param, TreeNode_t* comma);
+
+static TreeNode_t* GetFUNC_STD_VOID_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+    if(*err) return NULL;
+
+    FAIL_IF(!(IS_TYPE_IN_POS(FUNCTION_STANDART_VOID)), 
+        NO_FUNC_NAME, 
+        "No function name\n")
+
+    size_t number_of_standart_func = tokens->node_arr[*pos]->data.stdlib_func;
+    FAIL_IF(number_of_standart_func >= sizeof(FUNC_INFO) / sizeof(std_func_info), 
+        NUMBER_OF_STD_FUNC_OUT_OF_ARR, 
+        "Number of standart func out of arr\n")
+
+    TreeNode_t* func_name = tokens->node_arr[*pos];
+    (*pos)++; // skip FUNC_NAME
+    size_t standart_func_param_count = 0;
+
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_BR),
+            NO_OPEN_BR_BEFORE_CALL_FUNC, 
+            "No open br before calling function\n")
+    (*pos)++; // skip (
+
+    TreeNode_t* prev_param = func_name;
+
+    while(true){
+        if(IS_OPERATOR_IN_POS(OP_CLOSE_BR)){
+            (*pos)++; // skip )
+            break;
+        }
+
+        TreeNode_t* current_param = NULL;
+        CALL_AND_CHECK_ERR(current_param = GetE(pos, tokens, tokens_copy, err));
+
+        FAIL_IF(!(IS_OPERATOR_IN_POS(OP_CLOSE_BR) || IS_OPERATOR_IN_POS(OP_COMMA)),
+            NO_CLOSE_BR_OR_COMMA_AFTER_PARAM, 
+            "No ( or , after param\n")
+
+        if(IS_OPERATOR_IN_POS(OP_CLOSE_BR)){
+            // Добавить запятую
+            TreeNode_t* comma = GetSepNode(tokens_copy, NULL, OP_OPEN_BR, err);
+            ProcessComma(prev_param, current_param, comma);
+            (*pos)++; // skip )
+            break;
+        }
+
+        TreeNode_t* comma = GetSepNode(tokens_copy, NULL, OP_OPEN_BR, err);
+        ProcessComma(prev_param, current_param, comma);
+
+        (*pos)++; // skip comma
+        prev_param = comma;
+        standart_func_param_count++;
+    }
+
+    FAIL_IF(!(standart_func_param_count <= FUNC_INFO[number_of_standart_func].num_of_params),
+            INCORRECT_NUM_OF_PARAMS_FOR_STD_FUNC, 
+            "Incorrect number of params for standart func\n")
+
+    FAIL_IF(!(IS_OPERATOR_IN_POS(OP_SP)),
+            NO_SP_AFTER_CALLING_FUNC, 
+            "No ; after calling void func\n")
+    (*pos)++;
+
+    // tree_dump_func(func_name, __FILE__, __func__, __LINE__, "Before ret GetFUNCCALL node %zu", *pos);
+    return func_name;
+}
 
 static TreeNode_t* GetFUNC_CALL(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, bool is_declaration, SyntaxErr_t* err){
     if(*err) return NULL;
@@ -355,6 +421,12 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     else if(IS_TYPE_IN_POS(FUNCTION)){
         CALL_AND_CHECK_ERR(node = GetFUNC_USE(pos, tokens, tokens_copy, err));
         
+        TreeNode_t* sep_point = GetSepNode(tokens_copy, node, OP_CLOSE_FIG_BR, err);
+        node = sep_point;
+    }
+    else if(IS_TYPE_IN_POS(FUNCTION_STANDART_VOID)){
+        CALL_AND_CHECK_ERR(node = GetFUNC_STD_VOID_CALL(pos, tokens, tokens_copy, err));
+
         TreeNode_t* sep_point = GetSepNode(tokens_copy, node, OP_CLOSE_FIG_BR, err);
         node = sep_point;
     }

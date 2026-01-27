@@ -7,11 +7,18 @@
 
 int main(){
     DEBUG_TREE(
-    if(find_operators_info_mistake()){
+    if(find_operators_info_mistake() || find_functions_info_mistake()){
         return 0;
     })
 
-    char* buffer = read_file_to_string_array("tests/test_round2.uccello");
+    /*
+    size_t num = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    for(size_t i = 1; i < num; i++){
+        fprintf(stderr, "[idx] = %zu\t op_num = %d\t op_debug = %s\n", i, OPERATORS_INFO[i].op, OPERATORS_INFO[i].name_for_graph_dump);
+    }
+    */
+
+    char* buffer = read_file_to_string_array("tests/test_round_new.uccello");
     if(!buffer) return 0;
 
     Tokens_t* tokens = TokenizeInput(buffer);
@@ -19,7 +26,7 @@ int main(){
 
     // DEBUG FOR TOKENS
     /*
-    for(int i = 0; i < 434; i++){
+    for(int i = 0; i < tokens->num_of_nodes; i++){
         tree_dump_func(tokens->node_arr[i], __FILE__, __func__, __LINE__, "%d pos", i);
     }
     */
