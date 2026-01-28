@@ -97,7 +97,7 @@ static bool is_stat_err(const char *name_of_file, struct stat *all_info_about_fi
 //-----------------------------------------------------------------------------------------
 // Make tree
 
-static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write);
+static void ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write, TreeErr_t* err);
 
 TreeHead_t* MakeBackendTree(const char *name_of_file){
     assert(name_of_file);
@@ -108,7 +108,9 @@ TreeHead_t* MakeBackendTree(const char *name_of_file){
     }
     TreeHead_t* head = TreeCtor();
     size_t pos = 0;
-    if(ReadNode(&pos, buffer, &(head->root))){
+    TreeErr_t err = NO_MISTAKE;
+    ReadNode(&pos, buffer, &(head->root), &err);
+    if(err){
         TreeDel(head);
         free(buffer);
         return NULL;
@@ -127,12 +129,15 @@ TreeHead_t* MakeBackendTree(const char *name_of_file){
     return head;
 }
 
-static TreeNode_t* ReadHeader(size_t* pos, char* buffer);
+static TreeNode_t* ReadHeader(size_t* pos, char* buffer, TreeErr_t* err);
 
-static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write){
+static void ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write, TreeErr_t* err){
     assert(pos);
+    assert(err);
     assert(buffer);
     assert(node_to_write);
+
+    if(*err) return;
 
     skip_space(buffer, pos);
     if(buffer[(*pos)] == '('){
@@ -141,40 +146,48 @@ static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write)
 
         if(buffer[(*pos)] != '"'){
             fprintf(stderr, "Incorr file no \"\n");
-            return INCORR_FILE;
+            *err = NO_QUOTES_BEFORE_NEW_NODE;
+            return;
         }
 
-        *node_to_write = ReadHeader(pos, buffer); 
+        *node_to_write = ReadHeader(pos, buffer, err); 
         skip_space(buffer, pos);
-        if(!*node_to_write) return INCORR_FILE;
-
-        if(ReadNode(pos, buffer, &((*node_to_write)->left))){
-            fprintf(stderr, "Incorr file\n");
-            return INCORR_FILE;
+        if(!*node_to_write || *err){
+            *err = UNDEFINED_NODE_TYPE;
+            return;
         }
 
-        if(ReadNode(pos, buffer, &((*node_to_write)->right))){
-            fprintf(stderr, "Incorr file\n");
-            return INCORR_FILE;
+        ReadNode(pos, buffer, &((*node_to_write)->left), err);
+        if(*err){
+            fprintf(stderr, "Incorr file while reading left node\n");
+            return;
+        }
+
+        ReadNode(pos, buffer, &((*node_to_write)->right), err);
+        if(*err){
+            fprintf(stderr, "Incorr file  while reading right node\n");
+            return;
         }
 
         skip_space(buffer, pos);
         if(buffer[(*pos)] != ')'){
             fprintf(stderr, "Incorr file no )\n");
-            return INCORR_FILE;
+            *err = NO_CLOSE_BR_IN_FILE;
+            return;
         }
         (*pos)++; //skip ')'
         skip_space(buffer, pos);
-        return NO_MISTAKE;
+        return;
     }
     else if(!strncmp(buffer + *pos, "nil", 3)){
         (*pos) += strlen("nil");
         *node_to_write = NULL;
         skip_space(buffer, pos);
-        return NO_MISTAKE;
+        return;
     }
     fprintf(stderr, "Incorr file undef symbol(%s), pos(%zu)\n", buffer + *pos, *pos);
-    return INCORR_FILE;
+    *err = UNDEFINED_SYMBOL;
+    return;
 }
 
 //-------------------------------------------------------------------------------------------
@@ -182,57 +195,94 @@ static TreeErr_t ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write)
 
 // на будущее - дампить не по типу а число в енаме и делать свитч по числу
 
-static TreeNode_t* ReadHeader(size_t* pos, char* buffer){
+#define CREATE_PARSER_FUNCTION(func_name, prefix, node_type) \
+    static TreeNode_t* parse_##func_name(const char* buffer) { \
+        if(!strncmp(prefix, buffer, strlen(prefix))) { \
+            char name[BUFFER_LEN] = {}; \
+            sscanf(buffer, prefix " %s", name); \
+            return NodeCtor(node_type, {}, NULL, NULL, NULL, strdup(name)); \
+        }\
+        return NULL;\
+    }
+
+CREATE_PARSER_FUNCTION(variable, "VAR", VARIABLE)
+CREATE_PARSER_FUNCTION(func_call, "CALL", FUNC_CALL)
+CREATE_PARSER_FUNCTION(function, "FUNC", FUNCTION)
+CREATE_PARSER_FUNCTION(function_main, "MAIN", FUNCTION_MAIN)
+
+static TreeNode_t* parse_digit(const char* buffer);
+
+static TreeNode_t* parse_op(const char* buffer, TreeErr_t* err);
+
+static TreeNode_t* parse_std_func(const char* buffer, TreeErr_t* err);
+
+static TreeNode_t* ReadHeader(size_t* pos, char* buffer, TreeErr_t* err){
     assert(buffer);
     assert(pos);
+    assert(err);
+
+    if(*err) return NULL;
 
     int len = 0;
     char buffer_var[BUFFER_LEN] = {};
     sscanf(buffer + *pos, " \"%[^\"]\"%n", buffer_var, &len);
 
     TreeNode_t* node = NULL;
-    if(!strncmp("VAR", buffer_var, 3)){
-        size_t idx = 0;
-        char var_name[BUFFER_LEN] = {};
-        sscanf(buffer_var, "VAR %s", var_name);
-        node = NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(var_name));
-    }
-    else if(!strncmp("CALL", buffer_var, 4)){
-        size_t idx = 0;
-        char func_name[BUFFER_LEN] = {};
-        sscanf(buffer_var, "CALL %s", func_name);
-        node = NodeCtor(FUNC_CALL, {}, NULL, NULL, NULL, strdup(func_name));
-    }
-    else if(!strncmp("FUNC", buffer_var, 4)){
-        char func_name[BUFFER_LEN] = {};
-        sscanf(buffer_var, "FUNC %s", func_name);
-        node = NodeCtor(FUNCTION, {}, NULL, NULL, NULL, strdup(func_name));
-    }
-    else if(!strncmp("MAIN", buffer_var, 4)){
-        char func_name[BUFFER_LEN] = {};
-        sscanf(buffer_var, "MAIN %s", func_name);
-        node = NodeCtor(FUNCTION_MAIN, {}, NULL, NULL, NULL, strdup(func_name));
-    }
-    else if(isdigit(buffer_var[0]) || (buffer_var[0] == '-' && isdigit(buffer_var[1]))){
-        double val = strtod(buffer_var, NULL);
-        node = NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
-    }
-    else if(!strncmp("OP", buffer_var, 2)){
-        int idx = 0;
-        sscanf(buffer_var, "OP %d", &idx); //TODO проверка на допустимый индекс
-        node = NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL);
-    }
-    else if(!strncmp("STD", buffer_var, 3)){
-        int idx = 0;
-        sscanf(buffer_var, "STD %d", &idx);
-        if(FUNC_INFO[idx].is_void){
-            node = NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
-        }
-        else{
-            node = NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
-        }
-    }
+
+    node = parse_variable(buffer_var);
+
+    if(!node) node = parse_func_call(buffer_var);
+
+    if(!node) node = parse_function(buffer_var);
+
+    if(!node) node = parse_function_main(buffer_var);
+
+    if(!node) node = parse_digit(buffer_var);
+
+    if(!node) node = parse_op(buffer_var, err);
+
+    if(!node) node = parse_std_func(buffer_var, err);
+
     (*pos) += len;
 
     return node;
+}
+
+static TreeNode_t* parse_digit(const char* buffer){ 
+    if(isdigit(buffer[0]) || (buffer[0] == '-' && isdigit(buffer[1]))){
+        double val = strtod(buffer, NULL);
+        return NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
+    }
+    return NULL;
+}
+
+static TreeNode_t* parse_op(const char* buffer, TreeErr_t* err){ 
+    if(!strncmp("OP", buffer, 2)){
+        size_t idx = 0;
+        static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+        sscanf(buffer, "OP %zu", &idx); 
+        if(idx >= num_of_op){
+            *err = OP_OUT_OF_RANGE;
+            return NULL;
+        }
+        return NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL);
+    }
+    return NULL;
+}
+
+static TreeNode_t* parse_std_func(const char* buffer, TreeErr_t* err){ 
+    if(!strncmp("STD", buffer, 3)){
+        size_t idx = 0;
+        static size_t num_of_std_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
+        sscanf(buffer, "STD %zu", &idx);
+        if(idx >= num_of_std_func){
+            *err = FUNC_OUT_OF_RANGE;
+            return NULL;
+        }
+        else if(FUNC_INFO[idx].is_void){
+            return NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+        }
+        return NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+    }
+    return NULL;
 }

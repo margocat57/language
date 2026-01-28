@@ -35,6 +35,12 @@ enum Err{
     CANT_CREATE_FILE_FOR_GP_DUMP,
     CANT_MAKE_GRAPH,
     USE_VAR_BEFORE_INIT, // может сделать отдельный енам для ошибок для регистрового парсинга
+    OP_OUT_OF_RANGE,
+    FUNC_OUT_OF_RANGE,
+    UNDEFINED_NODE_TYPE,
+    NO_CLOSE_BR_IN_FILE,
+    UNDEFINED_SYMBOL,
+    NO_QUOTES_BEFORE_NEW_NODE,
 };
 
 #endif //MISTAKES_H
