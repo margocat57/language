@@ -62,7 +62,6 @@ static void CalcExpWithOperator(TreeNode_t *node, double* result, double* left_r
 
 static void CalcExpWithConst(TreeNode_t* node, double* result);
 
-
 static void CalcTreeExpressionRecursive(TreeNode_t* node, double* result, TreeErr_t* err){
     if(*err) return;
     assert(result);
@@ -116,6 +115,10 @@ static void TreeOptimizeConst(TreeNode_t *node, bool *is_optimized, TreeErr_t* e
 
 static void TreeOptimizeNeutral(TreeNode_t **result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
 
+static void TreeOptimizeIf0Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
+static void TreeOptimizeIf1Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
 void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
     assert(node);
     if(*err) return;
@@ -127,6 +130,8 @@ void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
         is_optimized = false; 
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeConst(*node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeNeutral(node, *node, &is_optimized, err));
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(node, *node, &is_optimized, err));
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(node, *node, &is_optimized, err));
     }while(is_optimized);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeNodeVerify(node));)
@@ -190,13 +195,15 @@ static void TreeOptimizeNeutral(TreeNode_t **result, TreeNode_t *node, bool *is_
 }
 
 static void ChangeKidParrentConn(TreeNode_t** result, TreeNode_t* node_for_change, TreeNode_t* new_node, bool* is_optimized){
-    new_node->parent = node_for_change->parent;
-    if(node_for_change->parent){
-        if(node_for_change == node_for_change->parent->left){
-            node_for_change->parent->left = new_node;
+    assert(new_node);
+
+    new_node->parent = (node_for_change)->parent;
+    if((node_for_change)->parent){
+        if((node_for_change) == (node_for_change)->parent->left){
+            (node_for_change)->parent->left = new_node;
         }
         else{
-            node_for_change->parent->right = new_node;
+            (node_for_change)->parent->right = new_node;
         }
     }
     else{
@@ -280,8 +287,97 @@ static void TreeOptimizeNeutralDeg(TreeNode_t** result, TreeNode_t* node, bool* 
 }
 
 //-----------------------------------------------------------------------------
+// Optimizing if(0)
+
+//node && node->type == OPERATOR && node->data.op == OP_IF
+// #define IS_NODE_OP(node, op) ((node) && (node)->type == OPERATOR && (OPERATORS)(node)->data.op == (OPERATORS)(op))
+
+static void TreeOptimizeIf0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
+static void TreeOptimizeIf0Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+    if(!node) return;
+
+    if(node && node->left){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(result, node->left, is_optimized, err));
+    }
+    if(node && node->right){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(result, node->right, is_optimized, err));
+    }
+
+    if(node && node->type == OPERATOR && node->data.op == OP_IF && IS_EQUAL(node->left, 0)){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0(result, node, is_optimized, err));
+        return;
+    }
+
+    if(node && node->need_to_delete){
+        ChangeKidParrentConn(result, node, node->right, is_optimized);
+    }
+
+}
+
+static void TreeOptimizeIf0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+
+    node = node->parent;
+    TreeDelNodeRecur(node->left);
+    node->left = NULL;
+
+    if(node->right && node->right->type == OPERATOR && node->right->data.op == OP_ELSE){
+        ChangeKidParrentConn(result, (node->right), node->right->right, is_optimized);
+    }
+
+    node->need_to_delete = true;
+}
+
+//-----------------------------------------------------------------------------
+// Optimizing if(1)
+
+static void TreeOptimizeIf1(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
+static void TreeOptimizeIf1Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+    if(!node) return;
+
+    if(node->left){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(result, node->left, is_optimized, err));
+    }
+    if(node->right){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(result, node->right, is_optimized, err));
+    }
+
+    if(node && node->type == OPERATOR && node->data.op == OP_IF && node->left->type == CONST && !IS_EQUAL(node->left, 0)){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1(result, node, is_optimized, err));
+
+        return;
+    }
+
+    if(node->need_to_delete){
+        ChangeKidParrentConn(result, node, node->left, is_optimized);
+    }
+}
+
+static void TreeOptimizeIf1(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    TreeDelNodeRecur(node->left);
+    node->left = NULL;
+    bool is_else = false;
+
+    if(node->parent->right && node->parent->right->type == OPERATOR && node->parent->right->data.op == OP_ELSE){
+        TreeDelNodeRecur(node->parent->right);
+        node->parent->right = NULL;
+        is_else = true;
+    }
+
+    node = node->parent;
+    ChangeKidParrentConn(result, (node->left), node->left->right, is_optimized);
+
+    if(is_else) node->need_to_delete = true;
+}
+
+//-----------------------------------------------------------------------------
 // Undef dsl
 #undef IS_EQUAL
+// #undef IS_NODE_OP
 #undef RES_L
 #undef RES_R
 #undef DEF_OP

@@ -123,3 +123,14 @@ void NodeDtor(TreeNode_t* node){
         free(node);
     }
 }
+
+void NodeDtorPtr(TreeNode_t** node){
+    if(node && *node){
+        if((*node)->var_func_name){
+            free((*node)->var_func_name);
+            (*node)->var_func_name = NULL;
+        }
+        free((*node));
+    }
+    *node = NULL;
+}

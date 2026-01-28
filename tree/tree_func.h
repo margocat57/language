@@ -18,4 +18,6 @@ void TreeDelNodeRecur(TreeNode_t* node);
 
 void NodeDtor(TreeNode_t* node);
 
+void NodeDtorPtr(TreeNode_t** node);
+
 #endif //TREE_FUNC_H

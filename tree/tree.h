@@ -85,6 +85,7 @@ struct TreeNode_t
     TreeNode_t *right;
     TreeNode_t *parent;
     const char *signature;
+    bool need_to_delete;
 };
 
 struct TreeHead_t
