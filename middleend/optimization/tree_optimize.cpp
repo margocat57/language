@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "../../debug_output/graphviz_dump.h"
 #include "../../tree/tree_func.h"
+#include "../../include/operators_func.h"
+#include "../../include/standart_func.h"
 
 
 const double EPS = 1e-15;
@@ -131,6 +133,7 @@ void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeConst(*node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeNeutral(node, *node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(node, *node, &is_optimized, err));
+        tree_dump_func(*node, __FILE__, __func__, __LINE__, "After if(0)");
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(node, *node, &is_optimized, err));
     }while(is_optimized);
 
@@ -287,10 +290,12 @@ static void TreeOptimizeNeutralDeg(TreeNode_t** result, TreeNode_t* node, bool* 
 }
 
 //-----------------------------------------------------------------------------
-// Optimizing if(0)
+// Dump warnings for if optimization
 
-//node && node->type == OPERATOR && node->data.op == OP_IF
-// #define IS_NODE_OP(node, op) ((node) && (node)->type == OPERATOR && (OPERATORS)(node)->data.op == (OPERATORS)(op))
+static void TreeReadIf(TreeNode_t *node, bool is_if0);
+
+//-----------------------------------------------------------------------------
+// Optimizing if(0)
 
 static void TreeOptimizeIf0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
 
@@ -319,7 +324,10 @@ static void TreeOptimizeIf0Recursive(TreeNode_t** result, TreeNode_t *node, bool
 static void TreeOptimizeIf0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
     if(*err) return;
 
+    TreeReadIf(node, true);
+
     node = node->parent;
+
     TreeDelNodeRecur(node->left);
     node->left = NULL;
 
@@ -348,7 +356,6 @@ static void TreeOptimizeIf1Recursive(TreeNode_t** result, TreeNode_t *node, bool
 
     if(node && node->type == OPERATOR && node->data.op == OP_IF && node->left->type == CONST && !IS_EQUAL(node->left, 0)){
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1(result, node, is_optimized, err));
-
         return;
     }
 
@@ -358,6 +365,10 @@ static void TreeOptimizeIf1Recursive(TreeNode_t** result, TreeNode_t *node, bool
 }
 
 static void TreeOptimizeIf1(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+
+    TreeReadIf(node, false);
+
     TreeDelNodeRecur(node->left);
     node->left = NULL;
     bool is_else = false;
@@ -373,6 +384,52 @@ static void TreeOptimizeIf1(TreeNode_t** result, TreeNode_t *node, bool *is_opti
 
     if(is_else) node->need_to_delete = true;
 }
+
+//-----------------------------------------------------------------------------
+// Making warning for if(0) and if(1)
+
+#define PURPLE_WARNING             "\033[1;35m"
+#define RESET                      "\033[0m"
+
+static void TreeReadIfRecursive(TreeNode_t *node);
+
+static void TreeReadIf(TreeNode_t *node, bool is_if0){
+    if(is_if0) fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will never be executed:\n");
+    else       fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will always be executed:\n");
+
+    fprintf(stderr, "\t %s %s",  OPERATORS_INFO[OP_IF].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+
+    TreeReadIfRecursive(node->left);
+
+    fprintf(stderr, "%s\n",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+}
+
+static void TreeReadIfRecursive(TreeNode_t *node){
+    if(!node) return;
+
+    static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    static size_t std_func  = sizeof(FUNC_INFO) / sizeof(std_func_info);
+
+    TreeReadIfRecursive(node->left);
+
+    if(node->type == OPERATOR && node->data.op < num_of_op){
+        fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op]);
+    }
+    else if(node->type == CONST){
+        fprintf(stderr, " %lg ", node->data.const_value);
+    }
+    else if((node->type == VARIABLE || node->type == FUNCTION || node->type == FUNCTION_MAIN || node->type == FUNC_CALL) && node->var_func_name){
+        fprintf(stderr, " %s ", node->var_func_name);
+    }
+    else if((node->type == FUNCTION_STANDART_VOID || node->type == FUNCTION_STANDART_NON_VOID ) && node->data.stdlib_func < std_func){
+        fprintf(stderr, " %s ", FUNC_INFO[node->data.op]);
+    }
+
+    TreeReadIfRecursive(node->right);
+}
+
+#undef PURPLE_WARNING             
+#undef RESET              
 
 //-----------------------------------------------------------------------------
 // Undef dsl
