@@ -5,6 +5,6 @@
 #include "../common/tokens.h"
 #include "../../tree/tree_func.h"
 
-Tokens_t* TokenizeInput(const char* buffer);
+Tokens_t* TokenizeInput(char* buffer);
 
 #endif //TOKENIZE_H

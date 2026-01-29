@@ -441,7 +441,7 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     }
     else{
         *err = INCORR_STATEMENT;
-        TreeNode_t* node = tokens->node_arr[*pos];
+        node = tokens->node_arr[*pos];
         fprintf(stderr, "incorrect statement %zu %d %d\n", *pos, node->type, node->data.op);
         return NULL;
     }

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h> 
+#include <math.h> 
 
 const size_t MAX_SIZE_BUFFER = 256;
 
@@ -24,7 +25,9 @@ static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos)
 
 static bool Find_And_Skip_Comments(const char* buffer, size_t* pos);
 
-Tokens_t* TokenizeInput(const char* buffer){
+static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, size_t num_of_symb_above);
+
+Tokens_t* TokenizeInput(char* buffer){
     Tokens_t* tokens = TokensCtor(10);
     size_t pos = 0;
     size_t slash_n_count = 0;
@@ -54,11 +57,11 @@ Tokens_t* TokenizeInput(const char* buffer){
 
         else{
             TokensDtor(tokens);
-            fprintf(stderr, "Syntax error incorr symbol %c line %zu pos %zu\n", buffer[pos], slash_n_count, pos - num_of_symb_above);
+            OutputErrorMsg(buffer, &pos, slash_n_count, num_of_symb_above);
             return NULL;
         }
     }
-    buffer_free((char*)buffer); // временная мера
+    buffer_free(buffer);
     return tokens;
 }
 
@@ -67,7 +70,7 @@ static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size
     while(isspace(ch) && ch != '\0'){
         if(str[(*pos)] == '\n'){
             (*slash_n_count)++;
-            *num_of_symb_above = *pos - 1;
+            if(*pos!= 0) *num_of_symb_above = *pos - 1;
         }
         (*pos)++;
         ch = str[(*pos)];
@@ -173,3 +176,43 @@ static bool Find_And_Skip_Comments(const char* buffer, size_t* pos){
     }
     return false;
 }
+
+//--------------------------------------------------------------
+// Errors aka GCC output
+
+#define RED                        "\033[1;31m"
+#define GREEN                      "\033[0;32m"
+#define RESET                      "\033[0m"
+
+uint8_t DIGIT_FOR_SKIP_SLASH_N = 2;
+
+size_t count_digits_log(size_t num);
+
+static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, size_t num_of_symb_above){
+    for(size_t current_pos = *pos ; buffer[current_pos] != '\0'; current_pos++){
+        if(buffer[current_pos] == '\n'){
+            buffer[current_pos] = '\0';
+            break;
+        }
+    }
+
+    size_t width = count_digits_log(slash_n_count);
+    fprintf(stderr, RED "error: " RESET "Incorrect symbol %c\n", buffer[*pos]);
+    if((*pos) < num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N){
+        fprintf(stderr, "%*zu | %s\n", width, slash_n_count, buffer + (*pos));
+        return;
+    }
+    fprintf(stderr, "%*zu |%s\n", width, slash_n_count, buffer + num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N);
+    fprintf(stderr, "%*s |", width, ""); 
+    fprintf(stderr, "%*s" GREEN "^" RESET"\n", (*pos) - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N, "");
+}
+
+size_t count_digits_log(size_t num){
+    if (num == 0) return 1;
+    return (size_t)log10(num) + 1;
+}
+
+#undef RED   
+#undef GREEN                      
+#undef RESET 
+//--------------------------------------------------------------
