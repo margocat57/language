@@ -113,6 +113,13 @@ static void CalcExpWithConst(TreeNode_t* node, double* result){
 //---------------------------------------------------------------------------
 // Optimization
 
+//---------------------------------------------------------------------------
+// For reading
+
+static void TreeReadExpr(TreeNode_t *node);
+
+//---------------------------------------------------------------------------
+
 static void TreeOptimizeConst(TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
 
 static void TreeOptimizeNeutral(TreeNode_t **result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
@@ -133,7 +140,6 @@ void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeConst(*node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeNeutral(node, *node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(node, *node, &is_optimized, err));
-        tree_dump_func(*node, __FILE__, __func__, __LINE__, "After if(0)");
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(node, *node, &is_optimized, err));
     }while(is_optimized);
 
@@ -151,6 +157,7 @@ static void TreeOptimizeConst(TreeNode_t *node, bool *is_optimized, TreeErr_t* e
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeConst(node->right, is_optimized, err));
     }
     if(node->left && node->right && node->left->type == CONST && node->right->type == CONST && node->type == OPERATOR){
+        TreeReadExpr(node);
         CALL_FUNC_AND_CHECK_ERR(CalcExpWithOperator(node, &(node->data.const_value), &(node->left->data.const_value), &(node->right->data.const_value), err));
         NodeDtor(node->left);
         NodeDtor(node->right);
@@ -223,10 +230,12 @@ static void TreeOptimizeNeutralAddSub(TreeNode_t** result, TreeNode_t* node, boo
         return;
     }
     if(IS_EQUAL(node->left, 0) && node->data.op != OP_SUB){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->left);
         ChangeKidParrentConn(result, node, node->right, is_optimized); 
     }
     else if(IS_EQUAL(node->right, 0)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
@@ -239,10 +248,12 @@ static void TreeOptimizeNeutralMul(TreeNode_t** result, TreeNode_t* node, bool* 
         return;
     }
     if(IS_EQUAL(node->left, 0) || IS_EQUAL(node->right, 1)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
     else if(IS_EQUAL(node->right, 0) || IS_EQUAL(node->left, 1)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->left);
         ChangeKidParrentConn(result, node, node->right, is_optimized);
     }
@@ -255,10 +266,12 @@ static void TreeOptimizeNeutralDiv(TreeNode_t** result, TreeNode_t* node, bool* 
         return;
     }
     if(IS_EQUAL(node->left, 0) && !IS_EQUAL(node->right, 0)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
     else if(IS_EQUAL(node->right, 1)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
@@ -271,19 +284,23 @@ static void TreeOptimizeNeutralDeg(TreeNode_t** result, TreeNode_t* node, bool* 
         return;
     }
     if((IS_EQUAL(node->left, 0) && !IS_EQUAL(node->right, 0))){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
     else if(IS_EQUAL(node->left, 1)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
     else if(IS_EQUAL(node->right, 0) && !IS_EQUAL(node->left, 0)){
+        TreeReadExpr(node);
         node->right->data.const_value += 1;
         TreeDelNodeRecur(node->left);
         ChangeKidParrentConn(result, node, node->right, is_optimized);
     }
     else if(IS_EQUAL(node->right, 1)){
+        TreeReadExpr(node);
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
@@ -413,7 +430,7 @@ static void TreeReadIfRecursive(TreeNode_t *node){
     TreeReadIfRecursive(node->left);
 
     if(node->type == OPERATOR && node->data.op < num_of_op){
-        fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op]);
+        fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op].op_name_in_code);
     }
     else if(node->type == CONST){
         fprintf(stderr, " %lg ", node->data.const_value);
@@ -422,14 +439,24 @@ static void TreeReadIfRecursive(TreeNode_t *node){
         fprintf(stderr, " %s ", node->var_func_name);
     }
     else if((node->type == FUNCTION_STANDART_VOID || node->type == FUNCTION_STANDART_NON_VOID ) && node->data.stdlib_func < std_func){
-        fprintf(stderr, " %s ", FUNC_INFO[node->data.op]);
+        fprintf(stderr, " %s ", FUNC_INFO[node->data.op].func_name_in_code);
     }
 
     TreeReadIfRecursive(node->right);
 }
 
-#undef PURPLE_WARNING             
-#undef RESET              
+//-----------------------------------------------------------------------------
+
+static void TreeReadExpr(TreeNode_t *node){
+    fprintf(stderr, PURPLE_WARNING "warning: " RESET "Expression can be simplified:\n");
+
+    fprintf(stderr, "\t"); 
+
+    TreeReadIfRecursive(node);
+
+    fprintf(stderr, "\n"); 
+}
+
 
 //-----------------------------------------------------------------------------
 // Undef dsl
@@ -439,3 +466,5 @@ static void TreeReadIfRecursive(TreeNode_t *node){
 #undef RES_R
 #undef DEF_OP
 #undef CALL_FUNC_AND_CHECK_ERR
+#undef PURPLE_WARNING             
+#undef RESET 
