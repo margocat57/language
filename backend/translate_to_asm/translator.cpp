@@ -89,7 +89,7 @@ void CreateAsmCode(const char* file_name, const TreeHead_t* head, TreeErr_t* err
 //-----------------------------------------------------------------------------------------------
 void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err);
 void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err);
-void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, op_counters* counters,TreeErr_t* err);
+void CreateFunctionMainAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err);
 void CreateConstAsm       (FILE *file, TreeNode_t *node, op_counters* counters);
 void CreateVariableAsm    (FILE *file, TreeNode_t *node, op_counters* counters);
 
@@ -117,12 +117,12 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
         case CONST:                                 CreateConstAsm(file, node, counters); break;
         case VARIABLE:                              CreateVariableAsm(file, node, counters); break;
         case OPERATOR:                              if(node->data.op >= num_of_operators){*err = INCORR_OPERATOR;  break;}
-            if(node->data.op == OP_COMMA)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err));break;} 
+            if(node->data.op == OP_COMMA)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;} 
             if(node->data.op == OP_IF)              {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}     
             if(node->data.op == OP_ELSE)            {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}  
             if(node->data.op == OP_WHILE)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}              
             if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR;  break;}
-            CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters,  err)); break;    
+            CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;    
         case FUNCTION_STANDART_VOID:  case FUNCTION_STANDART_NON_VOID:    
             if(!(FUNC_INFO[node->data.stdlib_func].translate_func)){ *err = INCORR_OPERATOR;  break;}
             CALL_FUNC_AND_CHECK_ERR(FUNC_INFO[node->data.stdlib_func].translate_func(file, node, counters, err)); break;                                                                                                                    break;
@@ -146,7 +146,7 @@ void CreateFunctionDeclAsm(FILE *file, TreeNode_t *node, op_counters* counters, 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
 }
 
-void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, op_counters* counters,  TreeErr_t* err){
+void CreateFunctionCallAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;
 
     counters->first_free = node->data.var_code; //вот это я вообще не поняла
@@ -210,7 +210,7 @@ void CreateCommaAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
 }
 
-void CreateReturnAsm(FILE *file, TreeNode_t *node, op_counters* counters,  TreeErr_t* err){
+void CreateReturnAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
@@ -269,11 +269,11 @@ void CreateElseAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_
 void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;
 
-    char while_buffer[MAX_SIZE_BUFFER] = {};
-    snprintf(while_buffer, MAX_SIZE_BUFFER, "while_cycle_%zu", counters->while_count);
+    char while_buffer0[MAX_SIZE_BUFFER] = {};
+    snprintf(while_buffer0, MAX_SIZE_BUFFER, "while_cycle_%zu", counters->while_count);
     (counters->while_count)++;
 
-    fprintf(file, ":%s\n", while_buffer);
+    fprintf(file, ":%s\n", while_buffer0);
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->left, counters, err));
 
@@ -283,12 +283,17 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     fprintf(file, "PUSH 0\n");
     fprintf(file, "JE :%s\n", while_buffer1);
 
+    node->var_func_name = strdup(while_buffer1); // для break
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
 
-    fprintf(file, "JMP :%s ; end while\n", while_buffer);
+    fprintf(file, "JMP :%s \n", while_buffer0);
     fprintf(file, ":%s\n", while_buffer1);
+
+    free(node->var_func_name);
+    node->var_func_name = NULL;
 }
 
+// , while_buffer1
 
 void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;                                                                    
@@ -337,6 +342,16 @@ void CreateInputAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
 
 void CreateExitAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     fprintf(file, "HLT\nRET\n");
+}
+
+void CreateBreakAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
+    while(node){
+        node = node -> parent;
+        if(node->type == OPERATOR && node->data.op == OP_WHILE && node->var_func_name){
+            fprintf(file, "JMP :%s\n", node->var_func_name);
+            break;
+        }
+    }
 }
 
 #pragma GCC diagnostic pop

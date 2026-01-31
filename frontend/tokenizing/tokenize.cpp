@@ -82,9 +82,13 @@ static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos, siz
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
+        ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+        if (pos_in_str < 0) pos_in_str = 0;
+
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         if(num_of_symb < 0) return false;
-        TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+
+        TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, pos_in_str), tokens);
         *pos += num_of_symb;
         return true;
     }
@@ -95,9 +99,13 @@ static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_grande_cazzo", sizeof("Che_grande_cazzo") - 1)){
+        ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+        if (pos_in_str < 0) pos_in_str = 0;
+
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         if(num_of_symb < 0) return false;
-        TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+
+        TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, pos_in_str), tokens);
         *pos += num_of_symb;
         return true;
     }
@@ -111,7 +119,10 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos, siz
             continue;
         }
         if(!strncmp(buffer + *pos, OPERATORS_INFO[idx].op_name_in_code, OPERATORS_INFO[idx].num_of_symb_code)){
-            TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+            ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+            if (pos_in_str < 0) pos_in_str = 0;
+
+            TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL, NULL, slash_n_count + 1, pos_in_str), tokens);
             *pos += OPERATORS_INFO[idx].num_of_symb_code;
             return true;
         }
@@ -126,11 +137,14 @@ static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos, 
             continue;
         }
         if(!strncmp(buffer + *pos, FUNC_INFO[idx].func_name_in_code, FUNC_INFO[idx].num_of_symb_code)){
+            ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+            if (pos_in_str < 0) pos_in_str = 0;
+
             if(FUNC_INFO[idx].is_void){
-                TokensAddElem(NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, pos_in_str), tokens);
             }
             else{
-                TokensAddElem(NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, pos_in_str), tokens);
             }
             *pos += FUNC_INFO[idx].num_of_symb_code;
             return true;
@@ -142,9 +156,13 @@ static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos, 
 static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     double val = 0;
     if(isdigit(buffer[*pos]) || (buffer[*pos] == '-' && isdigit(buffer[*pos + 1]))){
+        ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+        if (pos_in_str < 0) pos_in_str = 0;
+
         char* endptr = NULL;
         val = strtod(buffer + *pos, &endptr);
-        TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N, endptr - (buffer + *pos)), tokens);
+
+        TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL, NULL, slash_n_count + 1, pos_in_str, endptr - (buffer + *pos)), tokens);
         *pos +=  endptr - (buffer + *pos);
         return true;
     }
@@ -155,8 +173,12 @@ static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos,
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(isalpha(buffer[*pos])){
+        ssize_t pos_in_str = *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N;
+        if (pos_in_str < 0) pos_in_str = 0;
+
         sscanf(buffer + *pos, " %s%n", buffer_var, &num_of_symb);
-        TokensAddElem(NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
+        TokensAddElem(NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, pos_in_str), tokens);
+
         *pos += num_of_symb;
         return true;
     }

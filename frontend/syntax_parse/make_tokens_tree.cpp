@@ -157,7 +157,7 @@ static void OutputUnderline(size_t* pos, Tokens_t* tokens, size_t width, size_t 
     FUNC_DECL ::= "func_name" (E {, E}*)+ 
     FUNC_USE ::= "func_name" (E {, E}*)+ 
     BODY ::= '{'STATEMENT+'}'
-    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT(без точки с запятой) | FUNC_STANDART_VOID_CALL | EXIT | RAM_DUMP;
+    STATEMENT :=  INIT; |  A; | IF | WHILE | RETURN; | OUTPUT; | FUNC_CALL_AFTER_INIT(без точки с запятой) | FUNC_STANDART_VOID_CALL | EXIT | RAM_DUMP | Break(только для while);
     INIT  ::= V ':=' E  | INPUT; 
     A     ::= V  '=' E  | INPUT;
     IF ::= "if" "(" E ")" STATEMENT | BODY ("else" STATEMENT | BODY)?
@@ -181,8 +181,8 @@ static TreeNode_t* GetX         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens
 static TreeNode_t* GetFUNC      (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetFUNC_DECL (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetFUNC_USE  (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
-static TreeNode_t* GetBODY      (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
-static TreeNode_t* GetSTATEMENT (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetBODY      (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err, bool is_while);
+static TreeNode_t* GetSTATEMENT (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err, bool is_while);
 static TreeNode_t* GetINIT      (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetA         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetIF        (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
@@ -190,6 +190,7 @@ static TreeNode_t* GetWHILE     (size_t* pos, Tokens_t* tokens, Tokens_t* tokens
 static TreeNode_t* GetRETURN    (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
 static TreeNode_t* GetINPUT     (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetOUTPUT    (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
+static TreeNode_t* GetBreak     (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetEXIT      (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetRAM_DUMP  (size_t* pos, Tokens_t* tokens,                        SyntaxErr_t* err);
 static TreeNode_t* GetE         (size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err);
@@ -275,7 +276,7 @@ static TreeNode_t* GetFUNC(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
     CALL_AND_CHECK_ERR(func_name = GetFUNC_DECL(pos, tokens, tokens_copy, err));
 
     TreeNode_t* bodynode = NULL;
-    CALL_AND_CHECK_ERR(bodynode = GetBODY(pos, tokens, tokens_copy, err));
+    CALL_AND_CHECK_ERR(bodynode = GetBODY(pos, tokens, tokens_copy, err, false));
 
     bodynode -> parent = func_name;
     func_name -> right = bodynode;
@@ -455,14 +456,14 @@ static void ProcessComma(TreeNode_t* prev_param, TreeNode_t* current_param, Tree
 // -------------------------------------------------------------------------------------
 // GetBody
 
-static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err, bool is_while){
     FAIL_IF(!IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR), 
             NO_OPEN_FIG_BR_BEFORE_STATEMENT, 
             false)
     (*pos)++; //skip {
 
     TreeNode_t* node = NULL;
-    CALL_AND_CHECK_ERR(node = GetSTATEMENT(pos, tokens, tokens_copy, err));
+    CALL_AND_CHECK_ERR(node = GetSTATEMENT(pos, tokens, tokens_copy, err, is_while));
 
     TreeNode_t* node_left = node;
     TreeNode_t* node_right = NULL;
@@ -473,7 +474,7 @@ static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
             break;
         }
 
-        CALL_AND_CHECK_ERR(node_right = GetSTATEMENT(pos, tokens, tokens_copy,  err));
+        CALL_AND_CHECK_ERR(node_right = GetSTATEMENT(pos, tokens, tokens_copy, err, is_while));
 
         node_left -> right   = node_right;
         node_right -> parent = node_left;
@@ -486,7 +487,7 @@ static TreeNode_t* GetBODY(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 // -------------------------------------------------------------------------------------
 // GetSTATEMENT
 
-static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err){
+static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, SyntaxErr_t* err, bool is_while){
     if(*err) return NULL;
 
     TreeNode_t* node = NULL;
@@ -525,6 +526,12 @@ static TreeNode_t* GetSTATEMENT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_
     }
     else if(IS_OPERATOR_IN_POS(OP_RAM_DUMP)){
         CALL_AND_CHECK_ERR(node = GetRAM_DUMP(pos, tokens, err));
+    }
+    else if(IS_OPERATOR_IN_POS(OP_BREAK)){
+        FAIL_IF(!is_while, 
+                USING_BREAK_WITHOUT_WHILE, 
+                false)
+        CALL_AND_CHECK_ERR(node = GetBreak(pos, tokens, err));
     }
     else{
         FAIL_IF(true, 
@@ -634,10 +641,10 @@ static TreeNode_t* GetIF(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy, S
 
     TreeNode_t* statnode = NULL;
     if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err, false));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err, false));
     }
 
     if_node -> right = statnode;
@@ -677,10 +684,10 @@ static TreeNode_t* GetELSE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy,
 
     TreeNode_t* statnode = NULL;
     if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err, false));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err, false));
     }
 
     else_node -> right = statnode;
@@ -723,10 +730,10 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     TreeNode_t* statnode = NULL;
     size_t num_while_vars = 0;
     if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
-        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err, true));
     }
     else{
-        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err));
+        CALL_AND_CHECK_ERR(statnode = GetSTATEMENT(pos, tokens, tokens_copy, err, true));
     }
 
     while_node -> right = statnode;
@@ -748,7 +755,7 @@ static TreeNode_t* GetRETURN(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
 
     FAIL_IF(!IS_OPERATOR_IN_POS(OP_RETURN), 
             NO_RETURN_OP, 
-            true)
+            false)
 
     TreeNode_t* node = tokens->node_arr[*pos];
     (*pos)++; // skip OP_RET
@@ -806,6 +813,26 @@ static TreeNode_t* GetOUTPUT(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_cop
     (*pos)++; // skip OP_SP 
 
     return node_sp;
+}
+
+// ------------------------------------------------------------------------------------
+
+static TreeNode_t* GetBreak(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
+    if(*err) return NULL;
+
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_BREAK), 
+            NO_BREAK_OP, 
+            false)
+
+    TreeNode_t* node = tokens->node_arr[*pos];
+    (*pos)++; // skip OP_BREAK
+
+    FAIL_IF(!IS_OPERATOR_IN_POS(OP_SP), 
+            NO_SP_AFT_RET_INP_OUTPUT, 
+            true)
+    (*pos)++; // skip OP_SP - не связываем потому что после break в блоке кода ничего идти не должно
+
+    return node;
 }
 
 //-------------------------------------------------------------------------------------

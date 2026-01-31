@@ -35,5 +35,6 @@ void CreateGeqAsm         (FILE *file, TreeNode_t *node, op_counters* counters, 
 void CreateLeqAsm         (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateDegAsm         (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
 void CreateRamDumpAsm     (FILE *file, TreeNode_t *node, op_counters* counters,   TreeErr_t* err);
+void CreateBreakAsm       (FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err);
 
 #endif //TRASLATOR_H

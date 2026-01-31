@@ -18,7 +18,7 @@ int main(){
     }
     */
 
-    char* buffer = read_file_to_string_array("tests/test_while0.uccello");
+    char* buffer = read_file_to_string_array("tests/break.uccello");
     if(!buffer) return 0;
 
 

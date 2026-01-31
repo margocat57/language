@@ -61,6 +61,7 @@ const op_info OPERATORS_INFO[] = {
     {OP_OUTPUT,       "Estrarre_cazzo",         sizeof("Estrarre_cazzo")          - 1,  "output", "OP_OUTPUT",SHIFT_RBP(CalculRpbShiftOther,)      TRASLATE(CreateOutputAsm)},
     {OP_EXIT,         "Basta!",                 sizeof("Basta!")                  - 1,  "exit",   "OP_EXIT",  SHIFT_RBP(CalculRpbShiftOther,)      TRASLATE(CreateExitAsm)},
     {OP_RAM_DUMP,     "Fotino_morella",         sizeof("Fotino_morella")          - 1,  "ram_dp", "OP_RAM_D", SHIFT_RBP(CalculRpbShiftOther,)      TRASLATE(CreateRamDumpAsm)},
+    {OP_BREAK,        "Vattone!",               sizeof("Vattone!")                - 1,  "break",  "OP_BREAK", SHIFT_RBP(CalculRpbShiftOther,)      TRASLATE(CreateBreakAsm)},
 };
 
 typedef uint64_t Op_info_mistake_t;

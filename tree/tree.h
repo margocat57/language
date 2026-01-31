@@ -35,6 +35,7 @@ enum OPERATORS
     OP_OUTPUT,
     OP_EXIT,
     OP_RAM_DUMP,
+    OP_BREAK
 };
 
 enum STANDART_FUNCTIONS{

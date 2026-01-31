@@ -48,6 +48,9 @@ enum SyntaxErr{
     NO_SP_AFTER_CALLING_FUNC,
     NO_INPUT_OP,
     NO_OUTPUT_OP,
+    NO_BREAK_OP,
+    NO_SP_AFTER_BREAK,
+    USING_BREAK_WITHOUT_WHILE,
 };
 
 struct ErrAndMsg{
@@ -93,6 +96,9 @@ const ErrAndMsg ErrorsAndInfo[] = {
     {NO_SP_AFTER_CALLING_FUNC, "porco_dio! expected"}, 
     {NO_INPUT_OP, "Infila_сazzo expected"},
     {NO_OUTPUT_OP, "Estrarre_cazzo expected"},
+    {NO_BREAK_OP, "Vattone! expected"},
+    {NO_SP_AFTER_BREAK, "porco_dio! expected"}, 
+    {USING_BREAK_WITHOUT_WHILE, "Vattone! statement not in loop"}
 };
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);
