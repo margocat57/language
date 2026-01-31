@@ -6,7 +6,7 @@
 
 TreeHead_t* TreeCtor();
 
-TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name = NULL);
+TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name = NULL, size_t num_of_str = 0, ssize_t pos_in_str = 0, ssize_t num_of_symb_double = 0);
 
 TreeErr_t TreeVerify(const TreeHead_t *head);
 

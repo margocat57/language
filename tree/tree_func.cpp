@@ -17,7 +17,7 @@ TreeHead_t* TreeCtor(){
     return head;
 }
 
-TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name){
+TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeNode_t* left, TreeNode_t* right, char* var_func_name, size_t num_of_str, ssize_t pos_in_str, ssize_t num_of_symb_double){
     TreeNode_t* node = (TreeNode_t*)calloc(1, sizeof(TreeNode_t));
     if(!node){
         fprintf(stderr, "Can't alloc data for node");
@@ -30,6 +30,9 @@ TreeNode_t* NodeCtor(VALUE_TYPE type, TreeElem_t data, TreeNode_t* parent, TreeN
     node->right = right;
     node->parent = parent;
     node->signature = TREE_SIGNATURE;
+    node->num_of_str = num_of_str;
+    node->pos_in_str = pos_in_str;
+    node->num_of_symb_double = num_of_symb_double;
 
     return node;
 }
@@ -122,15 +125,4 @@ void NodeDtor(TreeNode_t* node){
         }
         free(node);
     }
-}
-
-void NodeDtorPtr(TreeNode_t** node){
-    if(node && *node){
-        if((*node)->var_func_name){
-            free((*node)->var_func_name);
-            (*node)->var_func_name = NULL;
-        }
-        free((*node));
-    }
-    *node = NULL;
 }

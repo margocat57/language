@@ -52,34 +52,36 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
         case INCORR_VAL: *err = INCORR_OPERATOR; break;
         case FUNCTION: case FUNCTION_MAIN:
             count++;
-            if(node->type == FUNCTION) fprintf(file, "( \"FUNC %s\"", node->var_func_name);
-            if(node->type == FUNCTION_MAIN) fprintf(file, "( \"MAIN %s\"", node->var_func_name);
+            if(node->type == FUNCTION) fprintf(file, "( \"FUNC %s ", node->var_func_name);
+            if(node->type == FUNCTION_MAIN) fprintf(file, "( \"MAIN %s ", node->var_func_name);
             break;
         case OPERATOR:
             if(node->data.op >= num_of_op){
                 *err = INCORR_OPERATOR;
                 return;
             }
-            fprintf(file, "( \"OP %d\"", OPERATORS_INFO[node->data.op].op);
+            fprintf(file, "( \"OP %d ", OPERATORS_INFO[node->data.op].op);
             break;
         case FUNCTION_STANDART_NON_VOID: case FUNCTION_STANDART_VOID:
             if(node->data.stdlib_func >= num_of_std_func){
                 *err = INCORR_OPERATOR;
                 return;
             }
-            fprintf(file, "( \"STD %d\"", FUNC_INFO[node->data.stdlib_func].function);
+            fprintf(file, "( \"STD %d ", FUNC_INFO[node->data.stdlib_func].function);
             break;
         case CONST:
-            fprintf(file, "( \"%lg\"", node->data.const_value);
+            fprintf(file, "( \"%lg ", node->data.const_value);
             break;
         case VARIABLE:
-            fprintf(file, "( \"VAR %s\"", node->var_func_name);
+            fprintf(file, "( \"VAR %s ", node->var_func_name);
             break;
         case FUNC_CALL:
-            fprintf(file, "( \"CALL %s \"", node->var_func_name);
+            fprintf(file, "( \"CALL %s ", node->var_func_name);
             break;
         default: *err = INCORR_OPERATOR; break;
     }
+
+    fprintf(file, "line %zu pos %zd\"", node->num_of_str, node->pos_in_str);
 
     if(node->left){
         CALL_FUNC_AND_CHECK_ERR(PutTreeToFileRecursive(file, node->left, head, err));

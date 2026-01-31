@@ -18,8 +18,9 @@ int main(){
     }
     */
 
-    char* buffer = read_file_to_string_array("tests/test_if1_two.uccello");
+    char* buffer = read_file_to_string_array("tests/test_while0.uccello");
     if(!buffer) return 0;
+
 
     Tokens_t* tokens = TokenizeInput(buffer);
     if(!tokens) return 0;

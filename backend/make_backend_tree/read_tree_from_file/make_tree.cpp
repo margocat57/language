@@ -198,9 +198,11 @@ static void ReadNode(size_t* pos, char* buffer, TreeNode_t** node_to_write, Tree
 #define CREATE_PARSER_FUNCTION(func_name, prefix, node_type) \
     static TreeNode_t* parse_##func_name(const char* buffer) { \
         if(!strncmp(prefix, buffer, strlen(prefix))) { \
+            size_t line = 0;\
+            ssize_t position_in_line = 0;\
             char name[BUFFER_LEN] = {}; \
-            sscanf(buffer, prefix " %s", name); \
-            return NodeCtor(node_type, {}, NULL, NULL, NULL, strdup(name)); \
+            sscanf(buffer, prefix " %s line %zu pos %zd", name, &line, &position_in_line); \
+            return NodeCtor(node_type, {}, NULL, NULL, NULL, strdup(name), line, position_in_line); \
         }\
         return NULL;\
     }
@@ -250,39 +252,46 @@ static TreeNode_t* ReadHeader(size_t* pos, char* buffer, TreeErr_t* err){
 
 static TreeNode_t* parse_digit(const char* buffer){ 
     if(isdigit(buffer[0]) || (buffer[0] == '-' && isdigit(buffer[1]))){
-        double val = strtod(buffer, NULL);
-        return NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL);
+        size_t line = 0;
+        ssize_t position_in_line = 0;
+        double val =  0;
+        sscanf(buffer, "%lg line %zu pos %zd", &val, &line, &position_in_line); 
+        return NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL, NULL, line, position_in_line);
     }
     return NULL;
 }
 
 static TreeNode_t* parse_op(const char* buffer, TreeErr_t* err){ 
     if(!strncmp("OP", buffer, 2)){
+        size_t line = 0;
+        ssize_t position_in_line = 0;
         size_t idx = 0;
         static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
-        sscanf(buffer, "OP %zu", &idx); 
+        sscanf(buffer, "OP %zu line %zu pos %zd", &idx, &line, &position_in_line); 
         if(idx >= num_of_op){
             *err = OP_OUT_OF_RANGE;
             return NULL;
         }
-        return NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL);
+        return NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL, NULL, line, position_in_line);
     }
     return NULL;
 }
 
 static TreeNode_t* parse_std_func(const char* buffer, TreeErr_t* err){ 
     if(!strncmp("STD", buffer, 3)){
+        size_t line = 0;
+        ssize_t position_in_line = 0;
         size_t idx = 0;
         static size_t num_of_std_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
-        sscanf(buffer, "STD %zu", &idx);
+        sscanf(buffer, "STD %zu line %zu pos %zd", &idx, &line, &position_in_line);
         if(idx >= num_of_std_func){
             *err = FUNC_OUT_OF_RANGE;
             return NULL;
         }
         else if(FUNC_INFO[idx].is_void){
-            return NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+            return NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, line, position_in_line);
         }
-        return NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL);
+        return NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, line, position_in_line);
     }
     return NULL;
 }

@@ -8,30 +8,31 @@
 #include <math.h> 
 
 const size_t MAX_SIZE_BUFFER = 256;
+uint8_t DIGIT_FOR_SKIP_SLASH_N = 2;
 
-static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size_t* num_of_symb_above);
+static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, ssize_t* num_of_symb_above);
 
-static bool FindOperators(Tokens_t* tokens,  const char* buffer, size_t* pos);
+static bool FindOperators(Tokens_t* tokens,  const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos);
+static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
-static bool Find_And_Skip_Comments(const char* buffer, size_t* pos);
+static bool Find_And_Skip_Comments(const char* buffer, size_t* pos, size_t* slash_n_count, ssize_t* num_of_symb_above);
 
-static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, size_t num_of_symb_above);
+static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above);
 
 Tokens_t* TokenizeInput(char* buffer){
     Tokens_t* tokens = TokensCtor(10);
     size_t pos = 0;
     size_t slash_n_count = 0;
-    size_t num_of_symb_above = 0;
+    ssize_t num_of_symb_above = 0;
     bool is_token_found = false;
 
     while(true){
@@ -41,19 +42,19 @@ Tokens_t* TokenizeInput(char* buffer){
             break;
         }
 
-        if(Find_And_Skip_Comments(buffer, &pos))              continue;
+        if(Find_And_Skip_Comments(buffer, &pos, &slash_n_count, &num_of_symb_above))            continue;
 
-        else if(FindOperators(tokens, buffer, &pos))          continue; 
+        else if(FindOperators(tokens, buffer, &pos, slash_n_count, num_of_symb_above))          continue; 
 
-        else if(FindStandartFunc(tokens, buffer, &pos))       continue;
+        else if(FindStandartFunc(tokens, buffer, &pos, slash_n_count, num_of_symb_above))       continue;
 
-        else if(Tokenize_FUNC(tokens, buffer, &pos))          continue; 
+        else if(Tokenize_FUNC(tokens, buffer, &pos, slash_n_count, num_of_symb_above))          continue; 
 
-        else if(Tokenize_FUNC_MAIN(tokens, buffer, &pos))     continue; 
+        else if(Tokenize_FUNC_MAIN(tokens, buffer, &pos, slash_n_count, num_of_symb_above))     continue; 
 
-        else if(Tokenize_Decimal(tokens, buffer, &pos))       continue; 
+        else if(Tokenize_Decimal(tokens, buffer, &pos, slash_n_count, num_of_symb_above))       continue; 
 
-        else if(Tokenize_Variable(tokens, buffer, &pos))      continue;
+        else if(Tokenize_Variable(tokens, buffer, &pos, slash_n_count, num_of_symb_above))      continue;
 
         else{
             TokensDtor(tokens);
@@ -65,7 +66,7 @@ Tokens_t* TokenizeInput(char* buffer){
     return tokens;
 }
 
-static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size_t* num_of_symb_above){
+static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, ssize_t* num_of_symb_above){
     char ch = str[(*pos)];
     while(isspace(ch) && ch != '\0'){
         if(str[(*pos)] == '\n'){
@@ -77,40 +78,40 @@ static void skip_space(const char* str, size_t* pos, size_t* slash_n_count, size
     }
 }
 
-static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool Tokenize_FUNC(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_cazzo", sizeof("Che_cazzo") - 1)){
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         if(num_of_symb < 0) return false;
+        TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
         *pos += num_of_symb;
-        TokensAddElem(NodeCtor(FUNCTION, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
     }
     return false;
 }
 
-static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(!strncmp(buffer + *pos, "Che_grande_cazzo", sizeof("Che_grande_cazzo") - 1)){
         sscanf(buffer + *pos, " %[^ {]%n", buffer_var, &num_of_symb);
         if(num_of_symb < 0) return false;
+        TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
         *pos += num_of_symb;
-        TokensAddElem(NodeCtor(FUNCTION_MAIN, {} , NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
     }
     return false;
 }
 
-static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
     for(size_t idx = 1; idx < num_of_operators; idx++){
         if(!OPERATORS_INFO[idx].op_name_in_code){
             continue;
         }
         if(!strncmp(buffer + *pos, OPERATORS_INFO[idx].op_name_in_code, OPERATORS_INFO[idx].num_of_symb_code)){
-            TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL), tokens);
+            TokensAddElem(NodeCtor(OPERATOR, (TreeElem_t){.op = OPERATORS_INFO[idx].op}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
             *pos += OPERATORS_INFO[idx].num_of_symb_code;
             return true;
         }
@@ -118,7 +119,7 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos){
     return false;
 }
 
-static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     size_t num_of_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
     for(size_t idx = 0; idx < num_of_func; idx++){
         if(!FUNC_INFO[idx].func_name_in_code){
@@ -126,10 +127,10 @@ static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos){
         }
         if(!strncmp(buffer + *pos, FUNC_INFO[idx].func_name_in_code, FUNC_INFO[idx].num_of_symb_code)){
             if(FUNC_INFO[idx].is_void){
-                TokensAddElem(NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL), tokens);
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
             }
             else{
-                TokensAddElem(NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL), tokens);
+                TokensAddElem(NodeCtor(FUNCTION_STANDART_NON_VOID, (TreeElem_t){.stdlib_func = FUNC_INFO[idx].function}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
             }
             *pos += FUNC_INFO[idx].num_of_symb_code;
             return true;
@@ -138,31 +139,31 @@ static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos){
     return false;
 }
 
-static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool Tokenize_Decimal(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     double val = 0;
     if(isdigit(buffer[*pos]) || (buffer[*pos] == '-' && isdigit(buffer[*pos + 1]))){
         char* endptr = NULL;
         val = strtod(buffer + *pos, &endptr);
+        TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL, NULL, slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N, endptr - (buffer + *pos)), tokens);
         *pos +=  endptr - (buffer + *pos);
-        TokensAddElem(NodeCtor(CONST, (TreeElem_t){.const_value = val}, NULL, NULL, NULL), tokens);
         return true;
     }
     return false;
 }
 
-static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos){
+static bool Tokenize_Variable(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     char buffer_var[MAX_SIZE_BUFFER] = {};
     int num_of_symb = 0;
     if(isalpha(buffer[*pos])){
         sscanf(buffer + *pos, " %s%n", buffer_var, &num_of_symb);
+        TokensAddElem(NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(buffer_var), slash_n_count + 1, *pos - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N), tokens);
         *pos += num_of_symb;
-        TokensAddElem(NodeCtor(VARIABLE, {}, NULL, NULL, NULL, strdup(buffer_var)), tokens);
         return true;
     }
     return false;
 }
 
-static bool Find_And_Skip_Comments(const char* buffer, size_t* pos){
+static bool Find_And_Skip_Comments(const char* buffer, size_t* pos, size_t* slash_n_count, ssize_t* num_of_symb_above){
     if(!strncmp(buffer + *pos, "STA_CAGATA", sizeof("STA_CAGATA") - 1)){
         *pos += sizeof("STA_CAGATA") - 1;
         while(true){
@@ -170,6 +171,7 @@ static bool Find_And_Skip_Comments(const char* buffer, size_t* pos){
                 break;
             }
             (*pos)++;
+            skip_space(buffer, pos, slash_n_count, num_of_symb_above);
         }
         *pos += sizeof("NON_PUBBLICARLA") - 1;
         return true;
@@ -184,11 +186,9 @@ static bool Find_And_Skip_Comments(const char* buffer, size_t* pos){
 #define GREEN                      "\033[0;32m"
 #define RESET                      "\033[0m"
 
-uint8_t DIGIT_FOR_SKIP_SLASH_N = 2;
+static size_t count_digits_log(size_t num);
 
-size_t count_digits_log(size_t num);
-
-static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, size_t num_of_symb_above){
+static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     for(size_t current_pos = *pos ; buffer[current_pos] != '\0'; current_pos++){
         if(buffer[current_pos] == '\n'){
             buffer[current_pos] = '\0';
@@ -196,18 +196,18 @@ static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, size
         }
     }
 
-    size_t width = count_digits_log(slash_n_count);
+    size_t width = count_digits_log(slash_n_count + 1);
     fprintf(stderr, RED "error: " RESET "Incorrect symbol %c\n", buffer[*pos]);
     if((*pos) < num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N){
         fprintf(stderr, "%*zu | %s\n", width, slash_n_count, buffer + (*pos));
         return;
     }
-    fprintf(stderr, "%*zu |%s\n", width, slash_n_count, buffer + num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N);
+    fprintf(stderr, "%*zu |%s\n", width, slash_n_count + 1, buffer + num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N);
     fprintf(stderr, "%*s |", width, ""); 
     fprintf(stderr, "%*s" GREEN "^" RESET"\n", (*pos) - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N, "");
 }
 
-size_t count_digits_log(size_t num){
+static size_t count_digits_log(size_t num){
     if (num == 0) return 1;
     return (size_t)log10(num) + 1;
 }

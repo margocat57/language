@@ -42,10 +42,10 @@
         } \
     }while(0) \
 
-#define FAIL_IF(bad_condition, err_code, msg)\
+#define FAIL_IF(bad_condition, err_code, msg, line, pos_in_line)\
     if(bad_condition){ \
         *err = err_code; \
-        fprintf(stderr, msg); \
+        fprintf(stderr, "%s line %zu position %zd", msg, line, pos_in_line); \
         fprintf(stderr, "\n%s %s %d\n", __FILE__, __func__, __LINE__); \
         return; \
     } \
@@ -161,12 +161,12 @@ void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nameta
         node->data.var_code = idx;
     }
     else{
-        // fprintf(stderr, "%s %d %d\n", node->var_func_name, node->parent->data.op, node==node->parent->left);
         bool is_found = FindVarAtStack(node, stack, nametable);
 
         FAIL_IF(!is_found,
             USE_VAR_BEFORE_INIT,
-            "Using variable before init\n");
+            "Using variable before init\n", 
+            node->num_of_str, node->pos_in_str);
     }
     free(node->var_func_name);
     node->var_func_name = NULL;

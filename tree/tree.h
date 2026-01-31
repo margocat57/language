@@ -86,6 +86,9 @@ struct TreeNode_t
     TreeNode_t *parent;
     const char *signature;
     bool need_to_delete;
+    size_t num_of_str;
+    ssize_t pos_in_str;
+    ssize_t num_of_symb_double;
 };
 
 struct TreeHead_t

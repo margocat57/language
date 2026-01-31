@@ -18,6 +18,13 @@ const double EPS = 1e-15;
         } \
     }while(0)
 
+
+#define PURPLE_WARNING             "\033[1;35m"
+#define GREEN                      "\033[0;32m"
+#define RESET                      "\033[0m"
+
+static size_t count_digits_log(size_t num);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // DSL for calculating funt
@@ -118,6 +125,8 @@ static void CalcExpWithConst(TreeNode_t* node, double* result){
 
 static void TreeReadExpr(TreeNode_t *node);
 
+static void TreeReadIfRecursive(TreeNode_t *node);
+
 //---------------------------------------------------------------------------
 
 static void TreeOptimizeConst(TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
@@ -127,6 +136,8 @@ static void TreeOptimizeNeutral(TreeNode_t **result, TreeNode_t *node, bool *is_
 static void TreeOptimizeIf0Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
 
 static void TreeOptimizeIf1Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
+static void TreeOptimizeWhile0Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
 
 void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
     assert(node);
@@ -141,6 +152,7 @@ void TreeOptimize(TreeNode_t **node, TreeErr_t* err){
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeNeutral(node, *node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf0Recursive(node, *node, &is_optimized, err));
         CALL_FUNC_AND_CHECK_ERR(TreeOptimizeIf1Recursive(node, *node, &is_optimized, err));
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeWhile0Recursive(node, *node, &is_optimized, err));
     }while(is_optimized);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeNodeVerify(node));)
@@ -205,9 +217,7 @@ static void TreeOptimizeNeutral(TreeNode_t **result, TreeNode_t *node, bool *is_
 }
 
 static void ChangeKidParrentConn(TreeNode_t** result, TreeNode_t* node_for_change, TreeNode_t* new_node, bool* is_optimized){
-    assert(new_node);
-
-    new_node->parent = (node_for_change)->parent;
+    if(new_node) new_node->parent = (node_for_change)->parent;
     if((node_for_change)->parent){
         if((node_for_change) == (node_for_change)->parent->left){
             (node_for_change)->parent->left = new_node;
@@ -304,6 +314,68 @@ static void TreeOptimizeNeutralDeg(TreeNode_t** result, TreeNode_t* node, bool* 
         TreeDelNodeRecur(node->right);
         ChangeKidParrentConn(result, node, node->left, is_optimized);
     }
+}
+
+//-----------------------------------------------------------------------------
+// Dump warnings for while optimization
+
+static void TreeReadWhile(TreeNode_t *node);
+
+// ---------------------------------------------------------------------------
+// Optimizing while(0)
+
+static void TreeOptimizeWhile0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err);
+
+static void TreeOptimizeWhile0Recursive(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+    if(!node) return;
+
+    if(node && node->left){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeWhile0Recursive(result, node->left, is_optimized, err));
+    }
+    if(node && node->right){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeWhile0Recursive(result, node->right, is_optimized, err));
+    }
+
+    if(node && node->type == OPERATOR && node->data.op == OP_WHILE && IS_EQUAL(node->left, 0)){
+        CALL_FUNC_AND_CHECK_ERR(TreeOptimizeWhile0(result, node, is_optimized, err));
+        return;
+    }
+
+    if(node && node->need_to_delete){
+        ChangeKidParrentConn(result, node, node->right, is_optimized);
+    }
+
+}
+
+static void TreeOptimizeWhile0(TreeNode_t** result, TreeNode_t *node, bool *is_optimized, TreeErr_t* err){
+    if(*err) return;
+
+    TreeReadWhile(node);
+
+    node = node->parent;
+
+    TreeDelNodeRecur(node->left);
+    node->left = NULL;
+
+    node->need_to_delete = true;
+}
+
+// ----------------------------------------------------------------------------
+
+static void TreeReadWhile(TreeNode_t *node){
+    fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will never be executed:\n");
+
+    size_t width = count_digits_log(node->num_of_str);
+
+    fprintf(stderr, "%*zu | %s %s", width, node->num_of_str, OPERATORS_INFO[OP_WHILE].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+
+    TreeReadIfRecursive(node->left);
+
+    fprintf(stderr, "%s\n",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+
+    fprintf(stderr, "%*s |", width, "");
+    fprintf(stderr, " %*s" GREEN "^" RESET "\n", OPERATORS_INFO[OP_WHILE].num_of_symb_code + OPERATORS_INFO[OP_OPEN_BR].num_of_symb_code + 2, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -405,20 +477,20 @@ static void TreeOptimizeIf1(TreeNode_t** result, TreeNode_t *node, bool *is_opti
 //-----------------------------------------------------------------------------
 // Making warning for if(0) and if(1)
 
-#define PURPLE_WARNING             "\033[1;35m"
-#define RESET                      "\033[0m"
-
-static void TreeReadIfRecursive(TreeNode_t *node);
-
 static void TreeReadIf(TreeNode_t *node, bool is_if0){
     if(is_if0) fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will never be executed:\n");
     else       fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will always be executed:\n");
 
-    fprintf(stderr, "\t %s %s",  OPERATORS_INFO[OP_IF].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+    size_t width = count_digits_log(node->num_of_str);
+
+    fprintf(stderr, "%*zu | %s %s", width, node->num_of_str, OPERATORS_INFO[OP_IF].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
 
     TreeReadIfRecursive(node->left);
 
     fprintf(stderr, "%s\n",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+
+    fprintf(stderr, "%*s |", width, "");
+    fprintf(stderr, " %*s" GREEN "^" RESET "\n", OPERATORS_INFO[OP_IF].num_of_symb_code + OPERATORS_INFO[OP_OPEN_BR].num_of_symb_code + 2, "");
 }
 
 static void TreeReadIfRecursive(TreeNode_t *node){
@@ -445,12 +517,17 @@ static void TreeReadIfRecursive(TreeNode_t *node){
     TreeReadIfRecursive(node->right);
 }
 
+static size_t count_digits_log(size_t num){
+    if (num == 0) return 1;
+    return (size_t)log10(num) + 1;
+}
+
 //-----------------------------------------------------------------------------
 
 static void TreeReadExpr(TreeNode_t *node){
     fprintf(stderr, PURPLE_WARNING "warning: " RESET "Expression can be simplified:\n");
 
-    fprintf(stderr, "\t"); 
+    fprintf(stderr, "%zu |", node->num_of_str); 
 
     TreeReadIfRecursive(node);
 
@@ -466,5 +543,6 @@ static void TreeReadExpr(TreeNode_t *node){
 #undef RES_R
 #undef DEF_OP
 #undef CALL_FUNC_AND_CHECK_ERR
-#undef PURPLE_WARNING             
+#undef PURPLE_WARNING
+#undef GREEN             
 #undef RESET 
