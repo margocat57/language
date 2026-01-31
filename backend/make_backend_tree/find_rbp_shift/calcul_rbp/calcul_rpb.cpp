@@ -4,6 +4,9 @@
 #include "../../../../include/standart_func.h"
 #include "../../../../debug_output/graphviz_dump.h"
 
+#define RED                        "\033[1;31m"
+#define RESET                      "\033[0m"
+
 #define CALL_FUNC_AND_CHECK_ERR(function)\
     do{\
         function;\
@@ -42,13 +45,6 @@
         } \
     }while(0) \
 
-#define FAIL_IF(bad_condition, err_code, msg, line, pos_in_line)\
-    if(bad_condition){ \
-        *err = err_code; \
-        fprintf(stderr, "%s line %zu position %zd", msg, line, pos_in_line); \
-        fprintf(stderr, "\n%s %s %d\n", __FILE__, __func__, __LINE__); \
-        return; \
-    } \
 
 static void CalculRpbShiftRecursive(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init,  TreeErr_t* err, bool is_init);
 
@@ -151,6 +147,8 @@ void CalculRpbShiftInit(TreeNode_t* node, Stack_t* stack, name_table* nametable,
 
 static bool FindVarAtStack(TreeNode_t* node, Stack_t* stack, name_table* nametable);
 
+static void TreeOutputUnusedVar(TreeNode_t *node, name_table* nametable);
+
 void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nametable, size_t *num_of_variables_init, TreeErr_t* err, bool is_init){
     if(*err) return;
 
@@ -162,11 +160,10 @@ void CalculRpbShiftVariable(TreeNode_t* node, Stack_t* stack, name_table* nameta
     }
     else{
         bool is_found = FindVarAtStack(node, stack, nametable);
-
-        FAIL_IF(!is_found,
-            USE_VAR_BEFORE_INIT,
-            "Using variable before init\n", 
-            node->num_of_str, node->pos_in_str);
+        if(!is_found){
+            *err = USE_VAR_BEFORE_INIT;
+            TreeOutputUnusedVar(node, nametable);
+        }
     }
     free(node->var_func_name);
     node->var_func_name = NULL;
@@ -184,4 +181,90 @@ static bool FindVarAtStack(TreeNode_t* node, Stack_t* stack, name_table* nametab
         idx2--;
     }
     return false;
+}
+
+// ------------------------------------------------------------------------
+// Output message with unused var
+
+static TreeNode_t* FindHeadNode(TreeNode_t *node);
+
+static void TreeOutputUnusedVarRecursive(TreeNode_t *head_node, TreeNode_t *node, name_table* nametable, bool* is_exit, size_t num_of_str, bool* is_func_param);
+
+static void TreeOutputUnusedVar(TreeNode_t *node, name_table* nametable){
+    fprintf(stderr, RED "error: " RESET "Using undeclared variable %s\n", node->var_func_name);
+    fprintf(stderr, "%zu | ",  node->num_of_str);
+
+    TreeNode_t* head_of_func = FindHeadNode(node);
+    bool is_exit = false;
+    bool is_param = false;
+
+    TreeOutputUnusedVarRecursive(head_of_func, head_of_func, nametable, &is_exit, node->num_of_str, &is_param);
+
+    fprintf(stderr, "\n\n",  node->num_of_str);
+}
+
+static TreeNode_t* FindHeadNode(TreeNode_t *node){
+    while(node -> parent && (node->type != FUNCTION || node->type != FUNCTION_MAIN)){
+        node = node -> parent;
+    }
+    return node;
+}
+
+static void TreeOutputUnusedVarRecursive(TreeNode_t *head_node, TreeNode_t *node, name_table* nametable, bool* is_exit, size_t num_of_str, bool* is_func_param){
+    if(*is_exit) return;
+    if(!node) return;
+
+    static size_t amount_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
+    static size_t amount_std_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
+
+    if(node->num_of_str != num_of_str){
+        TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
+
+        if(*is_func_param && node->right) fprintf(stderr, "%s",  OPERATORS_INFO[OP_COMMA].op_name_in_code);
+
+        TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
+    }
+    else if((node->type == FUNCTION || node->type == FUNCTION_MAIN) && node->var_func_name != head_node -> var_func_name){
+        *is_exit = true;
+        return;
+    }
+    else if(node->type == OPERATOR && (node->data.op == OP_WHILE || node->data.op == OP_IF)){
+        fprintf(stderr, "%s %s ",  OPERATORS_INFO[node->data.op].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
+        fprintf(stderr, " %s",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
+    }
+    else if(node->type == OPERATOR && node->data.op < amount_op){
+        TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
+        fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
+    }
+    else if((node->type == FUNCTION_STANDART_NON_VOID || node->type == FUNCTION_STANDART_VOID) && node->data.stdlib_func < amount_std_func){
+        *is_func_param = true;
+        fprintf(stderr, "%s %s ",  FUNC_INFO[node->data.stdlib_func].func_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
+        fprintf(stderr, " %s",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+        *is_func_param = false;
+    }
+    else if(node->type == FUNC_CALL){
+        *is_func_param = true;
+        fprintf(stderr, "%s %s ", node->var_func_name, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
+        *is_func_param = false;
+
+        fprintf(stderr, " %s",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
+        TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
+    }
+    else if(node->type == CONST){
+        fprintf(stderr, "%lg", node->data.const_value); 
+    }
+    else if(node->type == VARIABLE){
+        if(node->var_func_name){
+            fprintf(stderr, "%s", node->var_func_name); 
+        }
+        else{
+            fprintf(stderr, "%s", nametable->var_info[node->data.var_code]); 
+        }
+    }
+
 }

@@ -4,11 +4,20 @@ Che_grande_cazzo_main (Ciucciami il_cazzo!) {Voi-Figlio
     param_c fare_pompino 6 porco_dio!
     Fottere (Ciucciami 10 il_cazzo!) {Voi-Figlio
         param_a a_fanculo 1 porco_dio!
-        Fottere (Ciucciami 10 il_cazzo!) {Voi-Figlio
-            param_b a_fanculo 1 porco_dio!
+        Fottere (Ciucciami 10 il_cazzo!) {Voi-Figlio param_b a_fanculo 1 porco_dio!
+            param_a a_fanculo 1 porco_dio!
+            param_a a_fanculo Che_cazzo_fact (Ciucciami x сhe_culo y il_cazzo!) porco_dio!
             Vattone! porco_dio!
         di_putana}
         Vattone! porco_dio!
     di_putana}
+di_putana}
+
+Che_cazzo_fact (Ciucciami n сhe_culo y il_cazzo!) {Voi-Figlio 
+    Culo (Ciucciami n сazzo,fa 1 il_cazzo!) {Voi-Figlio
+        succhia 1 porco_dio!
+    di_putana}
+    k fare_pompino n merda Che_cazzo_fact (Ciucciami n pazzi 1 il_cazzo!) porco_dio!
+    succhia k porco_dio!
 di_putana}
 Fottiti!
