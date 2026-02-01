@@ -266,9 +266,8 @@ static TreeNode_t* parse_op(const char* buffer, TreeErr_t* err){
         size_t line = 0;
         ssize_t position_in_line = 0;
         size_t idx = 0;
-        static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
         sscanf(buffer, "OP %zu line %zu pos %zd", &idx, &line, &position_in_line); 
-        if(idx >= num_of_op){
+        if(idx >= NUM_OF_OP){
             *err = OP_OUT_OF_RANGE;
             return NULL;
         }
@@ -282,9 +281,8 @@ static TreeNode_t* parse_std_func(const char* buffer, TreeErr_t* err){
         size_t line = 0;
         ssize_t position_in_line = 0;
         size_t idx = 0;
-        static size_t num_of_std_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
         sscanf(buffer, "STD %zu line %zu pos %zd", &idx, &line, &position_in_line);
-        if(idx >= num_of_std_func){
+        if(idx >= NUM_OF_STD_FUNC){
             *err = FUNC_OUT_OF_RANGE;
             return NULL;
         }

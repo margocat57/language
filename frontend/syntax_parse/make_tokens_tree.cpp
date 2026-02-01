@@ -37,9 +37,8 @@
 
 #define FAIL_IF(bad_condition, err_code, is_in_end_of_str)\
     if(bad_condition){ \
-        const size_t max_err_num = sizeof(ErrorsAndInfo) / sizeof(ErrAndMsg); \
         *err = err_code; \
-        if(err_code < max_err_num){\
+        if(err_code < MAX_ERR_NUM){\
             fprintf(stderr, RED "error: " RESET "%s\n", ErrorsAndInfo[err_code].msg);\
         }\
         OutputErr(pos, tokens, is_in_end_of_str); \
@@ -102,9 +101,6 @@ static size_t count_digits_log(size_t num){
 static void OutputIncorrStr(size_t* pos, Tokens_t* tokens, size_t curr_num_of_str, ssize_t* end_of_syntax_constr){
     assert(end_of_syntax_constr);
 
-    static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
-    static size_t std_func  = sizeof(FUNC_INFO) / sizeof(std_func_info);
-
     for(size_t idx = 0; tokens->node_arr[idx]->num_of_str <= curr_num_of_str; idx++){
         if(!(tokens->node_arr[idx]) || tokens->node_arr[idx]->num_of_str < curr_num_of_str){
             continue;
@@ -114,7 +110,7 @@ static void OutputIncorrStr(size_t* pos, Tokens_t* tokens, size_t curr_num_of_st
             fprintf(stderr, "%*s", tokens->node_arr[idx]->pos_in_str - (*end_of_syntax_constr), ""); // вывод пробелов
         } 
 
-        if(tokens->node_arr[idx]->type == OPERATOR && tokens->node_arr[idx]->data.op < num_of_op){
+        if(tokens->node_arr[idx]->type == OPERATOR && tokens->node_arr[idx]->data.op < NUM_OF_OP){
             fprintf(stderr, "%s", OPERATORS_INFO[tokens->node_arr[idx]->data.op].op_name_in_code);
             (*end_of_syntax_constr) = OPERATORS_INFO[tokens->node_arr[idx]->data.op].num_of_symb_code + tokens->node_arr[idx]->pos_in_str;
         }
@@ -126,7 +122,7 @@ static void OutputIncorrStr(size_t* pos, Tokens_t* tokens, size_t curr_num_of_st
             fprintf(stderr, "%s", tokens->node_arr[idx]->var_func_name);
             (*end_of_syntax_constr) = tokens->node_arr[idx]->pos_in_str + strlen(tokens->node_arr[idx]->var_func_name);
         }
-        else if((tokens->node_arr[idx]->type == FUNCTION_STANDART_VOID || tokens->node_arr[idx]->type == FUNCTION_STANDART_NON_VOID ) && tokens->node_arr[idx]->data.stdlib_func < std_func){
+        else if((tokens->node_arr[idx]->type == FUNCTION_STANDART_VOID || tokens->node_arr[idx]->type == FUNCTION_STANDART_NON_VOID ) && tokens->node_arr[idx]->data.stdlib_func < NUM_OF_STD_FUNC){
             fprintf(stderr, "%s", FUNC_INFO[tokens->node_arr[idx]->data.op].func_name_in_code);
             (*end_of_syntax_constr) = FUNC_INFO[tokens->node_arr[idx]->data.op].num_of_symb_code + tokens->node_arr[idx]->pos_in_str;
         }
@@ -323,7 +319,7 @@ static TreeNode_t* GetFUNC_STD_VOID_CALL(size_t* pos, Tokens_t* tokens, Tokens_t
         false)
 
     size_t number_of_standart_func = tokens->node_arr[*pos]->data.stdlib_func;
-    FAIL_IF(number_of_standart_func >= sizeof(FUNC_INFO) / sizeof(std_func_info), 
+    FAIL_IF(number_of_standart_func >= NUM_OF_STD_FUNC, 
         NUMBER_OF_STD_FUNC_OUT_OF_ARR, 
         false)
 

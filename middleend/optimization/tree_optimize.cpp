@@ -496,12 +496,9 @@ static void TreeReadIf(TreeNode_t *node, bool is_if0){
 static void TreeReadIfRecursive(TreeNode_t *node){
     if(!node) return;
 
-    static size_t num_of_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
-    static size_t std_func  = sizeof(FUNC_INFO) / sizeof(std_func_info);
-
     TreeReadIfRecursive(node->left);
 
-    if(node->type == OPERATOR && node->data.op < num_of_op){
+    if(node->type == OPERATOR && node->data.op < NUM_OF_OP){
         fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op].op_name_in_code);
     }
     else if(node->type == CONST){
@@ -510,7 +507,7 @@ static void TreeReadIfRecursive(TreeNode_t *node){
     else if((node->type == VARIABLE || node->type == FUNCTION || node->type == FUNCTION_MAIN || node->type == FUNC_CALL) && node->var_func_name){
         fprintf(stderr, " %s ", node->var_func_name);
     }
-    else if((node->type == FUNCTION_STANDART_VOID || node->type == FUNCTION_STANDART_NON_VOID ) && node->data.stdlib_func < std_func){
+    else if((node->type == FUNCTION_STANDART_VOID || node->type == FUNCTION_STANDART_NON_VOID ) && node->data.stdlib_func < NUM_OF_STD_FUNC){
         fprintf(stderr, " %s ", FUNC_INFO[node->data.op].func_name_in_code);
     }
 

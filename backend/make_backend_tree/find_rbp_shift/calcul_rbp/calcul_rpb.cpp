@@ -72,8 +72,6 @@ void CalculRpbShift(const TreeHead_t* head, TreeErr_t* err){
 static void CalculRpbShiftRecursive(TreeNode_t* node, Stack_t* stack, name_table* nametable,  size_t *num_of_variables_init, TreeErr_t* err, bool is_init){
     if(!node) return;
 
-    static size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
-    static size_t num_of_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
     switch(node->type){
         case INCORR_VAL:                      *err = INCORR_TYPE;                                                                                                                  break;                                                                     
         case FUNCTION: case FUNCTION_MAIN:    CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftFuncDecl(node, stack, nametable, num_of_variables_init, err, is_init));                        break; 
@@ -81,9 +79,9 @@ static void CalculRpbShiftRecursive(TreeNode_t* node, Stack_t* stack, name_table
         case CONST:                           CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftOther(node, stack, nametable,  num_of_variables_init, err, is_init));                          break;          
         case VARIABLE:                        CALL_FUNC_AND_CHECK_ERR(CalculRpbShiftVariable(node, stack, nametable, num_of_variables_init, err, is_init));                        break; 
         case FUNCTION_STANDART_VOID:          
-        case FUNCTION_STANDART_NON_VOID:      if(node->data.stdlib_func >= num_of_func) *err = INCORR_OPERATOR;
+        case FUNCTION_STANDART_NON_VOID:      if(node->data.stdlib_func >= NUM_OF_STD_FUNC) *err = INCORR_OPERATOR;
                                               CALL_FUNC_AND_CHECK_ERR(FUNC_INFO[node->data.stdlib_func].shift_func(node, stack, nametable, num_of_variables_init, err, is_init));  break;
-        case OPERATOR:                        if(node->data.op >= num_of_operators) *err = INCORR_OPERATOR;
+        case OPERATOR:                        if(node->data.op >= NUM_OF_OP) *err = INCORR_OPERATOR;
                                               CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].shift_func(node, stack, nametable, num_of_variables_init, err, is_init));      break;
         default:                              *err = INCORR_TYPE;                                                                                                                  break; 
         }
@@ -214,9 +212,6 @@ static void TreeOutputUnusedVarRecursive(TreeNode_t *head_node, TreeNode_t *node
     if(*is_exit) return;
     if(!node) return;
 
-    static size_t amount_op = sizeof(OPERATORS_INFO) / sizeof(op_info);
-    static size_t amount_std_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
-
     if(node->num_of_str != num_of_str){
         TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
 
@@ -234,12 +229,12 @@ static void TreeOutputUnusedVarRecursive(TreeNode_t *head_node, TreeNode_t *node
         fprintf(stderr, " %s",  OPERATORS_INFO[OP_CLOSE_BR].op_name_in_code); 
         TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
     }
-    else if(node->type == OPERATOR && node->data.op < amount_op){
+    else if(node->type == OPERATOR && node->data.op < NUM_OF_OP){
         TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);
         fprintf(stderr, " %s ", OPERATORS_INFO[node->data.op].op_name_in_code); 
         TreeOutputUnusedVarRecursive(head_node, node->right, nametable, is_exit, num_of_str, is_func_param);
     }
-    else if((node->type == FUNCTION_STANDART_NON_VOID || node->type == FUNCTION_STANDART_VOID) && node->data.stdlib_func < amount_std_func){
+    else if((node->type == FUNCTION_STANDART_NON_VOID || node->type == FUNCTION_STANDART_VOID) && node->data.stdlib_func < NUM_OF_STD_FUNC){
         *is_func_param = true;
         fprintf(stderr, "%s %s ",  FUNC_INFO[node->data.stdlib_func].func_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
         TreeOutputUnusedVarRecursive(head_node, node->left, nametable, is_exit, num_of_str, is_func_param);

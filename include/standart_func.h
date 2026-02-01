@@ -39,6 +39,8 @@ const std_func_info FUNC_INFO[] = {
     {DRAW_RAM_ELEM,  "Disegnare_un_cazzo", sizeof("Disegnare_un_cazzo") - 1, true, 2, "FUNC_DRAW_PIXEL",  SHIFT_RBP(CalculRpbShiftOther,)  TRASLATE(CreateDrawStdFuncAsm)}
 };
 
+const size_t NUM_OF_STD_FUNC = sizeof(FUNC_INFO) / sizeof(std_func_info); 
+
 typedef uint64_t func_info_mistake_t;
 
 enum FUNC_INFO_MISTAKES{

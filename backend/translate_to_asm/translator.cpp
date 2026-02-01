@@ -105,8 +105,6 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
 
     if(!node) return;
 
-    size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info); 
-
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeNodeVerify(node));)
 
     switch(node->type){
@@ -116,7 +114,7 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
         case FUNCTION_MAIN: CALL_FUNC_AND_CHECK_ERR(CreateFunctionMainAsm(file, node, counters, err)); break;
         case CONST:                                 CreateConstAsm(file, node, counters); break;
         case VARIABLE:                              CreateVariableAsm(file, node, counters); break;
-        case OPERATOR:                              if(node->data.op >= num_of_operators){*err = INCORR_OPERATOR;  break;}
+        case OPERATOR:                              if(node->data.op >= NUM_OF_OP){*err = INCORR_OPERATOR;  break;}
             if(node->data.op == OP_COMMA)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;} 
             if(node->data.op == OP_IF)              {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}     
             if(node->data.op == OP_ELSE)            {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}  
@@ -124,7 +122,7 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
             if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR;  break;}
             CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;    
         case FUNCTION_STANDART_VOID:  case FUNCTION_STANDART_NON_VOID:    
-            if(!(FUNC_INFO[node->data.stdlib_func].translate_func)){ *err = INCORR_OPERATOR;  break;}
+            if(node->data.stdlib_func >= NUM_OF_STD_FUNC || !(FUNC_INFO[node->data.stdlib_func].translate_func)){ *err = INCORR_OPERATOR;  break;}
             CALL_FUNC_AND_CHECK_ERR(FUNC_INFO[node->data.stdlib_func].translate_func(file, node, counters, err)); break;                                                                                                                    break;
         default:                                    *err = INCORR_TYPE; break;
     }

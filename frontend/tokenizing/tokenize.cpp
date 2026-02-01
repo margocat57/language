@@ -113,8 +113,7 @@ static bool Tokenize_FUNC_MAIN(Tokens_t* tokens, const char* buffer, size_t* pos
 }
 
 static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
-    size_t num_of_operators = sizeof(OPERATORS_INFO) / sizeof(op_info);
-    for(size_t idx = 1; idx < num_of_operators; idx++){
+    for(size_t idx = 1; idx < NUM_OF_OP; idx++){
         if(!OPERATORS_INFO[idx].op_name_in_code){
             continue;
         }
@@ -131,8 +130,7 @@ static bool FindOperators(Tokens_t* tokens, const char* buffer, size_t* pos, siz
 }
 
 static bool FindStandartFunc(Tokens_t* tokens, const char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
-    size_t num_of_func = sizeof(FUNC_INFO) / sizeof(std_func_info);
-    for(size_t idx = 0; idx < num_of_func; idx++){
+    for(size_t idx = 0; idx < NUM_OF_STD_FUNC; idx++){
         if(!FUNC_INFO[idx].func_name_in_code){
             continue;
         }
