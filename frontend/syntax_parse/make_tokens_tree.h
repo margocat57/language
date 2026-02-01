@@ -101,6 +101,19 @@ const ErrAndMsg ErrorsAndInfo[] = {
     {USING_BREAK_WITHOUT_WHILE, "Vattone! statement not in loop"}
 };
 
+const size_t NUM_OF_SYNTAX_ERR = sizeof(ErrorsAndInfo) / sizeof(ErrAndMsg);
+
+typedef uint64_t ErrAndMsg_mistake_t;
+
+enum MESSAGES_AND_ERR_MISTAKES{
+    NO_MISTAKE_MSG_ERR,
+    INDEX_AND_ERROR_NOT_SIMMILAR,
+    NO_MSG_FOR_ERROR
+};
+
+
+const size_t MAX_ERR_NUM = sizeof(ErrorsAndInfo) / sizeof(ErrAndMsg);
+
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy);
 
 #endif //MAKE_TOKENS_TREE_H

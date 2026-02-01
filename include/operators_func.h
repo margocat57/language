@@ -64,6 +64,8 @@ const op_info OPERATORS_INFO[] = {
     {OP_BREAK,        "Vattone!",               sizeof("Vattone!")                - 1,  "break",  "OP_BREAK", SHIFT_RBP(CalculRpbShiftOther,)      TRASLATE(CreateBreakAsm)},
 };
 
+const size_t NUM_OF_OP = sizeof(OPERATORS_INFO) / sizeof(op_info); 
+
 typedef uint64_t Op_info_mistake_t;
 
 Op_info_mistake_t find_operators_info_mistake();

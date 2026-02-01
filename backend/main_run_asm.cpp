@@ -6,8 +6,18 @@
 #include "Processor-and-assembler/processor_task/parse_asm_from_file.h"
 #include "Processor-and-assembler/processor_task/do_instructions.h"
 #include "Processor-and-assembler/processor_task/processor.h"
+#include "Processor-and-assembler/cmd_info/cmd_info.h"
 
 int main(){
+    // verifying table with commands ----------------------------------
+    DEBUG_ASM_PROC(
+    comands_info_mistake_t error = find_functions_info_mistake();
+    if(error){
+        fprintf(stderr, "error %zu in table with all processor and assembler info - can't work", error);
+        return 0;
+    }
+    )
+
     // making bytecode ------------------------------------
     assembler assembl = asm_init("backend/Processor-and-assembler/assembler_task/expr.txt");
     if(parser(&assembl)){

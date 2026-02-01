@@ -68,6 +68,23 @@ static TreeNode_t* GetSepNode(Tokens_t* tokens_copy, TreeNode_t* node_left_child
 }
 
 // -------------------------------------------------------------------------------------
+// Error messages verifyier
+
+ErrAndMsg_mistake_t find_err_and_msg_mistakes(){
+    for(size_t error = 0; error < NUM_OF_SYNTAX_ERR; error++){
+        if(error != ErrorsAndInfo[error].err){
+            fprintf(stderr, "Err %zu and err is %d - not simillar\n", error, ErrorsAndInfo[error].err);
+            return INDEX_AND_ERROR_NOT_SIMMILAR;
+        }
+        if(error != 0 && !ErrorsAndInfo[error].msg){
+            fprintf(stderr, "No message for error %zu\n", error);
+            return NO_MSG_FOR_ERROR;
+        }
+    }
+    return NO_MISTAKE_MSG_ERR;
+};
+
+// -------------------------------------------------------------------------------------
 // For output errors
 
 static size_t count_digits_log(size_t num);
@@ -200,6 +217,14 @@ static TreeNode_t* GetV         (size_t* pos, Tokens_t* tokens,                 
 // -------------------------------------------------------------------------------------
 
 TreeHead_t* MakeLangExprTokens(Tokens_t* tokens, Tokens_t* tokens_copy){
+    DEBUG_TREE(
+    ErrAndMsg_mistake_t error = find_err_and_msg_mistakes();
+    if(error){
+        fprintf(stderr, "error %zu in synatx err table", error);
+        return NULL;
+    }
+    )
+
     TreeHead_t* head = TreeCtor();
     size_t pos = 0;
     head->root = GetG(&pos, tokens, tokens_copy);

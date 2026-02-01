@@ -4,7 +4,6 @@
 #include "translate_to_asm/translator.h"
 
 int main(){
-
     // making asm code -----------------------------------
     TreeHead_t* head = MakeBackendTree("backend/make_backend_tree/tree_file/tree.txt");
     TreeErr_t err = NO_MISTAKE;

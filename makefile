@@ -82,11 +82,15 @@ MAIN_RUN_ASM_OBJS= $(MAIN_RUN_ASM_CPP:%.cpp=%.o)
 BCKND_NOT_PROC_ASM = $(shell find backend -type f -name "*.cpp" -not -path "*/Processor-and-assembler/*" | grep -v "main_run_asm.cpp")
 BCKND_NOT_PROC_OBJS = $(BCKND_NOT_PROC_ASM:%.cpp=%.o)
 
+
 BCKND_ASM = $(shell find backend/Processor-and-assembler/assembler_task -type f -name "*.cpp")
 BCKND_ASM_OBJS = $(BCKND_ASM:%.cpp=%.o)
 
 BCKND_PROC = $(shell find backend/Processor-and-assembler/processor_task -type f -name "*.cpp")
 BCKND_PROC_OBJS = $(BCKND_PROC:%.cpp=%.o)
+
+BCKND_CMD_INFO = $(shell find backend/Processor-and-assembler/cmd_info -type f -name "*.cpp")
+BCKND_CMD_OBJS = $(BCKND_CMD_INFO:%.cpp=%.o)
 
 $(BCKND_NOT_PROC_OBJS): %.o: %.cpp                            
 	$(COMP) -c $< -o $@ $(CFLAGS) 
@@ -100,10 +104,13 @@ $(BCKND_ASM_OBJS): %.o: %.cpp
 $(BCKND_PROC_OBJS): %.o: %.cpp    
 	$(COMP) -c $< -o $@ $(CFLAGS_PROC)
 
+$(BCKND_CMD_OBJS): %.o: %.cpp    
+	$(COMP) -c $< -o $@ $(CFLAGS)
+
 generate_asm: $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS)  $(DEBUG_OUTPUT_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
-backend_lang: $(TREE_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(DEBUG_OUTPUT_OBJS) $(MAIN_RUN_ASM_OBJS)
+backend_lang: $(TREE_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(DEBUG_OUTPUT_OBJS) $(MAIN_RUN_ASM_OBJS) $(BCKND_CMD_OBJS)
 	$(COMP) -o $@ $^ $(LDFLAGS)
 
 run_leak_check_gen_asm: generate_asm
@@ -119,7 +126,7 @@ lang:
 	rm -f $(FRNTD_OBJS)	frontend_lang  && make middleend_lang && ./middleend_lang && \
 	rm -f $(MDLND_OBJS)	middleend_lang && make generate_asm && ./generate_asm && \
 	rm -f $(BCKND_NOT_PROC_OBJS) generate_asm && make backend_lang && ./backend_lang && \
-	rm -f $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(TREE_OBJS)
+	rm -f $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(TREE_OBJS) $(BCKND_CMD_OBJS)
 
 run_leak_check_lang:
 	export ASAN_OPTIONS="detect_leaks=1:verbosity=1:print_stacktrace=1" && \
@@ -127,10 +134,10 @@ run_leak_check_lang:
 	rm -f $(FRNTD_OBJS)	frontend_lang  && make middleend_lang && ./middleend_lang && \
 	rm -f $(MDLND_OBJS)	middleend_lang && make generate_asm && ./generate_asm && \
 	rm -f $(BCKND_NOT_PROC_OBJS) generate_asm && make backend_lang && ./backend_lang && \
-	rm -f $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(TREE_OBJS)
+	rm -f $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(TREE_OBJS) $(BCKND_CMD_OBJS)
 
 clean:
 	rm -f frontend_lang backend_lang middleend_lang lang generate_asm
-	rm -f $(FRNTD_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS) $(MAIN_RUN_ASM_OBJS) $(DEBUG_OUTPUT_OBJS)
+	rm -f $(FRNTD_OBJS) $(TREE_OBJS) $(BCKND_NOT_PROC_OBJS) $(BCKND_ASM_OBJS) $(BCKND_PROC_OBJS) $(MDLND_OBJS) $(MAIN_RUN_ASM_OBJS) $(DEBUG_OUTPUT_OBJS) $(BCKND_CMD_OBJS)
 	rm -f debug_output/images/*.dot
 	rm -f debug_output/images/*.svg
