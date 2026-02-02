@@ -7,14 +7,6 @@
 #include "../../include/standart_func.h"
 #include "../Processor-and-assembler/processor_task/processor.h"
 
-/*
-Короче здесь может быть стоит
-сделать структуру с счетчиками
-и добавлять и убирать конкретный счетчик
-ну типо когда +1 иф то увеличиваем иф каунт и тд
-но изза наличия вложенных ифов и циклов стоит копировать
-*/
-
 const size_t MAX_SIZE_BUFFER = 300;
 
 static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err);
@@ -114,11 +106,7 @@ static void CreateAsmCodeRecursive(FILE *file, TreeNode_t *node, op_counters* co
         case FUNCTION_MAIN: CALL_FUNC_AND_CHECK_ERR(CreateFunctionMainAsm(file, node, counters, err)); break;
         case CONST:                                 CreateConstAsm(file, node, counters); break;
         case VARIABLE:                              CreateVariableAsm(file, node, counters); break;
-        case OPERATOR:                              if(node->data.op >= NUM_OF_OP){*err = INCORR_OPERATOR;  break;}
-            if(node->data.op == OP_COMMA)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;} 
-            if(node->data.op == OP_IF)              {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}     
-            if(node->data.op == OP_ELSE)            {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}  
-            if(node->data.op == OP_WHILE)           {CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;}              
+        case OPERATOR:                              if(node->data.op >= NUM_OF_OP){*err = INCORR_OPERATOR;  break;}          
             if(!(OPERATORS_INFO[node->data.op].translate_func)){ *err = INCORR_OPERATOR;  break;}
             CALL_FUNC_AND_CHECK_ERR(OPERATORS_INFO[node->data.op].translate_func(file, node, counters, err)); break;    
         case FUNCTION_STANDART_VOID:  case FUNCTION_STANDART_NON_VOID:    
@@ -202,7 +190,7 @@ void CreateCommaAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
                     "ADD\n"
                     "POPR RCX\n"
                     "POPM [CX] ;copying variable end\n", counters->first_free, counters->param_count); 
-    
+
     (counters->param_count)++;
 
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
@@ -281,7 +269,7 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     fprintf(file, "PUSH 0\n");
     fprintf(file, "JE :%s\n", while_buffer1);
 
-    node->var_func_name = strdup(while_buffer1); // для break
+    node->var_func_name = strdup(while_buffer1); // для break возможно как буду добавлять continue то поменяю логику
     CALL_FUNC_AND_CHECK_ERR(CreateAsmCodeRecursive(file, node->right, counters, err));
 
     fprintf(file, "JMP :%s \n", while_buffer0);
@@ -290,8 +278,6 @@ void CreateWhileAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr
     free(node->var_func_name);
     node->var_func_name = NULL;
 }
-
-// , while_buffer1
 
 void CreateSpCloseFigBrAsm(FILE *file, TreeNode_t *node, op_counters* counters, TreeErr_t* err){
     if(*err) return;                                                                    
