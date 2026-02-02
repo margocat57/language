@@ -44,12 +44,10 @@ static void PutTreeToFileRecursive(FILE *file, TreeNode_t *node, const TreeHead_
     assert(file); assert(head);
 
     DEBUG_TREE(CALL_FUNC_AND_CHECK_ERR(*err = TreeVerify(head));)
-    static size_t count = 0;
 
     switch(node->type){
         case INCORR_VAL: *err = INCORR_OPERATOR; break;
         case FUNCTION: case FUNCTION_MAIN:
-            count++;
             if(node->type == FUNCTION) fprintf(file, "( \"FUNC %s ", node->var_func_name);
             if(node->type == FUNCTION_MAIN) fprintf(file, "( \"MAIN %s ", node->var_func_name);
             break;

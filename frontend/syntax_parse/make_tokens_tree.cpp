@@ -87,9 +87,9 @@ ErrAndMsg_mistake_t find_err_and_msg_mistakes(){
 // -------------------------------------------------------------------------------------
 // For output errors
 
-static size_t count_digits_log(size_t num);
+static int count_digits_log(size_t num);
 
-static void OutputIncorrStr(size_t* pos, Tokens_t* tokens, size_t curr_num_of_str, ssize_t* end_of_syntax_constr);
+static void OutputIncorrStr(Tokens_t* tokens, size_t curr_num_of_str, ssize_t* end_of_syntax_constr);
 
 static void OutputUnderline(size_t* pos, Tokens_t* tokens, size_t width, size_t curr_num_of_str, ssize_t end_of_syntax_constr);
 
@@ -101,21 +101,21 @@ static void OutputErr(size_t* pos, Tokens_t* tokens, bool is_in_end_of_str){
     if(is_in_end_of_str && *pos != 0) curr_num_of_str = tokens->node_arr[*pos - 1]->num_of_str;
     else                              curr_num_of_str = tokens->node_arr[*pos]->num_of_str;
 
-    size_t width = count_digits_log(curr_num_of_str);
+    int width = count_digits_log(curr_num_of_str);
     fprintf(stderr, "%*zu |", width, curr_num_of_str);
 
     ssize_t end_of_syntax_constr = 0;
-    OutputIncorrStr(pos, tokens, curr_num_of_str,  &end_of_syntax_constr);
+    OutputIncorrStr(tokens, curr_num_of_str,  &end_of_syntax_constr);
 
     OutputUnderline(pos, tokens, width, curr_num_of_str, end_of_syntax_constr);
 }
 
-static size_t count_digits_log(size_t num){
+static int count_digits_log(size_t num){
     if (num == 0) return 1;
-    return (size_t)log10(num) + 1;
+    return (int)log10(num) + 1;
 }
 
-static void OutputIncorrStr(size_t* pos, Tokens_t* tokens, size_t curr_num_of_str, ssize_t* end_of_syntax_constr){
+static void OutputIncorrStr(Tokens_t* tokens, size_t curr_num_of_str, ssize_t* end_of_syntax_constr){
     assert(end_of_syntax_constr);
 
     for(size_t idx = 0; tokens->node_arr[idx]->num_of_str <= curr_num_of_str; idx++){
@@ -749,7 +749,7 @@ static TreeNode_t* GetWHILE(size_t* pos, Tokens_t* tokens, Tokens_t* tokens_copy
     (*pos)++; // skip )
 
     TreeNode_t* statnode = NULL;
-    size_t num_while_vars = 0;
+
     if(IS_OPERATOR_IN_POS(OP_OPEN_FIG_BR)){
         CALL_AND_CHECK_ERR(statnode = GetBODY(pos, tokens, tokens_copy, err, true));
     }
@@ -1076,8 +1076,8 @@ static TreeNode_t* GetV(size_t* pos, Tokens_t* tokens, SyntaxErr_t* err){
 //----------------------------------------------------------------------
 // UNDEF DSL
 
-#undef IS_TYPE_IN_POS(type_)  
-#undef IS_OPERATOR_IN_POS(op_)     
+#undef IS_TYPE_IN_POS 
+#undef IS_OPERATOR_IN_POS  
 #undef IS_INICIALIZE_IN_POS   
 #undef IS_ASSIGN_IN_POS   
 #undef RED

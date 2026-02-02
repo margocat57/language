@@ -23,7 +23,7 @@ const double EPS = 1e-15;
 #define GREEN                      "\033[0;32m"
 #define RESET                      "\033[0m"
 
-static size_t count_digits_log(size_t num);
+static int count_digits_log(size_t num);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ static void TreeReadIf(TreeNode_t *node, bool is_if0){
     if(is_if0) fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will never be executed:\n");
     else       fprintf(stderr, PURPLE_WARNING "warning: " RESET "This code will always be executed:\n");
 
-    size_t width = count_digits_log(node->num_of_str);
+    int width = count_digits_log(node->num_of_str);
 
     fprintf(stderr, "%*zu | %s %s", width, node->num_of_str, OPERATORS_INFO[OP_IF].op_name_in_code, OPERATORS_INFO[OP_OPEN_BR].op_name_in_code); 
 
@@ -514,9 +514,9 @@ static void TreeReadIfRecursive(TreeNode_t *node){
     TreeReadIfRecursive(node->right);
 }
 
-static size_t count_digits_log(size_t num){
+static int count_digits_log(size_t num){
     if (num == 0) return 1;
-    return (size_t)log10(num) + 1;
+    return (int)log10(num) + 1;
 }
 
 //-----------------------------------------------------------------------------

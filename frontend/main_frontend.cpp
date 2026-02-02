@@ -18,7 +18,7 @@ int main(){
     }
     */
 
-    char* buffer = read_file_to_string_array("tests/break.uccello");
+    char* buffer = read_file_to_string_array("tests/test_recursive_fact.uccello");
     if(!buffer) return 0;
 
 

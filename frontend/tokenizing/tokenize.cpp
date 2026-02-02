@@ -33,7 +33,6 @@ Tokens_t* TokenizeInput(char* buffer){
     size_t pos = 0;
     size_t slash_n_count = 0;
     ssize_t num_of_symb_above = 0;
-    bool is_token_found = false;
 
     while(true){
         skip_space(buffer, &pos, &slash_n_count, &num_of_symb_above);
@@ -206,7 +205,7 @@ static bool Find_And_Skip_Comments(const char* buffer, size_t* pos, size_t* slas
 #define GREEN                      "\033[0;32m"
 #define RESET                      "\033[0m"
 
-static size_t count_digits_log(size_t num);
+static int count_digits_log(size_t num);
 
 static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, ssize_t num_of_symb_above){
     for(size_t current_pos = *pos ; buffer[current_pos] != '\0'; current_pos++){
@@ -216,7 +215,7 @@ static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, ssiz
         }
     }
 
-    size_t width = count_digits_log(slash_n_count + 1);
+    int width = count_digits_log(slash_n_count + 1);
     fprintf(stderr, RED "error: " RESET "Incorrect symbol %c\n", buffer[*pos]);
     if((*pos) < num_of_symb_above + DIGIT_FOR_SKIP_SLASH_N){
         fprintf(stderr, "%*zu | %s\n", width, slash_n_count, buffer + (*pos));
@@ -227,9 +226,9 @@ static void OutputErrorMsg(char* buffer, size_t* pos, size_t slash_n_count, ssiz
     fprintf(stderr, "%*s" GREEN "^" RESET"\n", (*pos) - num_of_symb_above - DIGIT_FOR_SKIP_SLASH_N, "");
 }
 
-static size_t count_digits_log(size_t num){
+static int count_digits_log(size_t num){
     if (num == 0) return 1;
-    return (size_t)log10(num) + 1;
+    return (int)log10(num) + 1;
 }
 
 #undef RED   

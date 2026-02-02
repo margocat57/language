@@ -57,11 +57,11 @@ union TreeElem_t{
 
 #define CHECK_AND_RET_TREEERR(bad_condition)\
     {\
-    TreeErr_t err = (bad_condition);\
-    if (err)                                                                          \
+    TreeErr_t err_ = (bad_condition);\
+    if (err_)                                                                          \
     {                                                                                           \
-        fprintf(stderr, "err = %llu, %s, %s, %d\n", err, __FILE__, __func__, __LINE__); \
-        return err;                                                                   \
+        fprintf(stderr, "err = %llu, %s, %s, %d\n", err_, __FILE__, __func__, __LINE__); \
+        return err_;                                                                   \
     }}
 
 enum VALUE_TYPE
